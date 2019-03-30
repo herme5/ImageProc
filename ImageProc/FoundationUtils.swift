@@ -8,24 +8,6 @@
 
 import Foundation
 
-class WeakRef<T> where T: AnyObject {
-    
-    private(set) weak var value: T?
-    
-    init(value: T?) {
-        self.value = value
-    }
-}
-
-// MARK: - Collection extension
-
-extension Collection {
-    
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}
-
 // MARK: - String extension
 
 extension String {
