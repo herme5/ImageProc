@@ -7,26 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6252C4322228583A00B7877A /* ImageProc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; };
-		6252C4372228583A00B7877A /* ImageProcTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4362228583A00B7877A /* ImageProcTests.swift */; };
 		6252C4392228583A00B7877A /* ImageProc.h in Headers */ = {isa = PBXBuildFile; fileRef = 6252C42B2228583A00B7877A /* ImageProc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6252C4432228588000B7877A /* FoundationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4422228588000B7877A /* FoundationUtils.swift */; };
 		6252C445222858B900B7877A /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C444222858B900B7877A /* GeometryUtils.swift */; };
 		6252C447222858DF00B7877A /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C446222858DF00B7877A /* ColorUtils.swift */; };
 		6252C4492228590A00B7877A /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4482228590A00B7877A /* ImageUtils.swift */; };
+		62934693225FEA3A00EFCD91 /* ColorFilter.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 62934692225FEA3900EFCD91 /* ColorFilter.metallib */; };
 		62B7DE6822292F5D003449C4 /* ImageProc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		62C551BC224D2B0D004BB2B3 /* ColorFilter.metal in CopyFiles */ = {isa = PBXBuildFile; fileRef = 62C551B5224D2510004BB2B3 /* ColorFilter.metal */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		6252C4332228583A00B7877A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 6252C41F2228583A00B7877A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 6252C4272228583A00B7877A;
-			remoteInfo = ImageProc;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		62B7DE6722292F01003449C4 /* CopyFiles */ = {
@@ -35,7 +23,6 @@
 			dstPath = "$(PROJECT_DIR)/Products";
 			dstSubfolderSpec = 0;
 			files = (
-				62C551BC224D2B0D004BB2B3 /* ColorFilter.metal in CopyFiles */,
 				62B7DE6822292F5D003449C4 /* ImageProc.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -46,14 +33,13 @@
 		6252C4282228583A00B7877A /* ImageProc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageProc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6252C42B2228583A00B7877A /* ImageProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageProc.h; sourceTree = "<group>"; };
 		6252C42C2228583A00B7877A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6252C4312228583A00B7877A /* ImageProcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageProcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		6252C4362228583A00B7877A /* ImageProcTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcTests.swift; sourceTree = "<group>"; };
-		6252C4382228583A00B7877A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6252C4422228588000B7877A /* FoundationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationUtils.swift; sourceTree = "<group>"; };
 		6252C444222858B900B7877A /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		6252C446222858DF00B7877A /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
 		6252C4482228590A00B7877A /* ImageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
-		62C551B5224D2510004BB2B3 /* ColorFilter.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = ColorFilter.metal; sourceTree = "<group>"; };
+		62752ADC2250D6C900E3BAB6 /* ImageProc.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ImageProc.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		6293468D225FE50E00EFCD91 /* ColorFilter.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ColorFilter.metal; sourceTree = "<group>"; };
+		62934692225FEA3900EFCD91 /* ColorFilter.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = ColorFilter.metallib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,14 +50,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6252C42E2228583A00B7877A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				6252C4322228583A00B7877A /* ImageProc.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -79,7 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				6252C42A2228583A00B7877A /* ImageProc */,
-				6252C4352228583A00B7877A /* ImageProcTests */,
+				6293468C225FE50E00EFCD91 /* ColorFilter */,
 				6252C4292228583A00B7877A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,7 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				6252C4282228583A00B7877A /* ImageProc.framework */,
-				6252C4312228583A00B7877A /* ImageProcTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,8 +73,8 @@
 		6252C42A2228583A00B7877A /* ImageProc */ = {
 			isa = PBXGroup;
 			children = (
+				62752ADC2250D6C900E3BAB6 /* ImageProc.playground */,
 				6252C42B2228583A00B7877A /* ImageProc.h */,
-				62C551B5224D2510004BB2B3 /* ColorFilter.metal */,
 				6252C4422228588000B7877A /* FoundationUtils.swift */,
 				6252C444222858B900B7877A /* GeometryUtils.swift */,
 				6252C446222858DF00B7877A /* ColorUtils.swift */,
@@ -107,13 +84,13 @@
 			path = ImageProc;
 			sourceTree = "<group>";
 		};
-		6252C4352228583A00B7877A /* ImageProcTests */ = {
+		6293468C225FE50E00EFCD91 /* ColorFilter */ = {
 			isa = PBXGroup;
 			children = (
-				6252C4362228583A00B7877A /* ImageProcTests.swift */,
-				6252C4382228583A00B7877A /* Info.plist */,
+				6293468D225FE50E00EFCD91 /* ColorFilter.metal */,
+				62934692225FEA3900EFCD91 /* ColorFilter.metallib */,
 			);
-			path = ImageProcTests;
+			path = ColorFilter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,24 +126,6 @@
 			productReference = 6252C4282228583A00B7877A /* ImageProc.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		6252C4302228583A00B7877A /* ImageProcTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6252C43F2228583A00B7877A /* Build configuration list for PBXNativeTarget "ImageProcTests" */;
-			buildPhases = (
-				6252C42D2228583A00B7877A /* Sources */,
-				6252C42E2228583A00B7877A /* Frameworks */,
-				6252C42F2228583A00B7877A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				6252C4342228583A00B7877A /* PBXTargetDependency */,
-			);
-			name = ImageProcTests;
-			productName = ImageProcTests;
-			productReference = 6252C4312228583A00B7877A /* ImageProcTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -181,9 +140,6 @@
 						CreatedOnToolsVersion = 10.1;
 						LastSwiftMigration = 1010;
 					};
-					6252C4302228583A00B7877A = {
-						CreatedOnToolsVersion = 10.1;
-					};
 				};
 			};
 			buildConfigurationList = 6252C4222228583A00B7877A /* Build configuration list for PBXProject "ImageProc" */;
@@ -192,6 +148,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 6252C41E2228583A00B7877A;
 			productRefGroup = 6252C4292228583A00B7877A /* Products */;
@@ -199,7 +156,6 @@
 			projectRoot = "";
 			targets = (
 				6252C4272228583A00B7877A /* ImageProc */,
-				6252C4302228583A00B7877A /* ImageProcTests */,
 			);
 		};
 /* End PBXProject section */
@@ -209,13 +165,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6252C42F2228583A00B7877A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				62934693225FEA3A00EFCD91 /* ColorFilter.metallib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,23 +183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6252C42D2228583A00B7877A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				6252C4372228583A00B7877A /* ImageProcTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		6252C4342228583A00B7877A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 6252C4272228583A00B7877A /* ImageProc */;
-			targetProxy = 6252C4332228583A00B7877A /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		6252C43A2228583A00B7877A /* Debug */ = {
@@ -427,44 +361,6 @@
 			};
 			name = Release;
 		};
-		6252C4402228583A00B7877A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = P2U56PQ98R;
-				INFOPLIST_FILE = ImageProcTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		6252C4412228583A00B7877A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = P2U56PQ98R;
-				INFOPLIST_FILE = ImageProcTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -482,15 +378,6 @@
 			buildConfigurations = (
 				6252C43D2228583A00B7877A /* Debug */,
 				6252C43E2228583A00B7877A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		6252C43F2228583A00B7877A /* Build configuration list for PBXNativeTarget "ImageProcTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6252C4402228583A00B7877A /* Debug */,
-				6252C4412228583A00B7877A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

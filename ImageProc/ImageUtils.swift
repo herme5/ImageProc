@@ -9,6 +9,10 @@
 import UIKit
 import CoreGraphics
 
+#if arch(i386) || arch(x86_64)
+// No ColorFilter for ios simulator
+
+#else
 /// An image processor that produces an monochromatic image.
 ///
 /// The ColorFilter class produces a CIImage object as output. The filter takes an image and a color as input.
@@ -34,10 +38,14 @@ fileprivate class ColorFilter: CIFilter {
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
     override init() {
-        guard let url = Bundle.main.url(forResource: "default", withExtension: "metallib"), let data = try? Data(contentsOf: url) else {
-            fatalError("Please link \"ColorFilter.metal\" to your target and add a user-defined 'MTLLINKER_FLAGS = -cikernel' variable and '-fcikernel' to Metal compiler flags")
+        let url = Bundle(for: ColorFilter.self).url(forResource: "ColorFilter", withExtension: "metallib")!
+        let data = try! Data(contentsOf: url)
+
+        do {
+            kernel = try CIColorKernel(functionName: "colorize", fromMetalLibraryData: data)
+        } catch {
+            fatalError(error.localizedDescription)
         }
-        kernel = try! CIColorKernel(functionName: "colorize", fromMetalLibraryData: data)
         
         super.init()
     }
@@ -54,11 +62,17 @@ fileprivate class ColorFilter: CIFilter {
         return kernel.apply(extent: inputImage.extent, arguments: inputs)
     }
 }
+#endif
 
 public extension UIImage {
     
     var sizeInPixel: CGSize { return size * scale }
     
+#if arch(i386) || arch(x86_64)
+    func colorized(with color: UIColor) -> UIImage {
+        return self
+    }
+#else
     /// Renders a copy of this image where all opaque pixel have their color replaced by the given one.
     /// - parameters:
     ///   - color: The color to apply as a mask.
@@ -77,6 +91,7 @@ public extension UIImage {
         }
         return self
     }
+#endif
     
     /// Renders copy of this image where all opaque boundaries pixels are replicated all around the origin.
     /// - parameters:
@@ -178,7 +193,7 @@ public extension UIImage {
             return self
         }
         UIGraphicsEndImageContext()
-        return newImage.withRenderingMode(self.renderingMode).resizableImage(withCapInsets: self.capInsets, resizingMode: self.resizingMode)
+        return newImage.withRenderingMode(self.renderingMode)
     }
     
     /// Renders a scaled copy of this image given a new size in points.
