@@ -26,3 +26,5 @@ Pods
 # ==============================================================================
 resources/appicon/appicon-*.png
 Products
+*.xctimeline
+ImageProc.xcodeproj/xcshareddata
