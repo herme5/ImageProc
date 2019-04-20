@@ -34,11 +34,14 @@ fileprivate class ColorFilter: CIFilter {
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
     override init() {
-        guard let url = Bundle.main.url(forResource: "default", withExtension: "metallib"), let data = try? Data(contentsOf: url) else {
-            fatalError("Please link \"ColorFilter.metal\" to your target and add a user-defined 'MTLLINKER_FLAGS = -cikernel' variable and '-fcikernel' to Metal compiler flags")
-        }
-        kernel = try! CIColorKernel(functionName: "colorize", fromMetalLibraryData: data)
+        let metalLibUrl = Bundle(for: ColorFilter.self).url(forResource: "ColorFilter", withExtension: "metallib")!
+        let metalLibData = try! Data(contentsOf: metalLibUrl)
         
+        do {
+            kernel = try CIColorKernel(functionName: "colorize", fromMetalLibraryData: metalLibData)
+        } catch {
+            fatalError(error.localizedDescription)
+        }
         super.init()
     }
     
@@ -64,18 +67,45 @@ public extension UIImage {
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func colorized(with color: UIColor) -> UIImage {
-        guard let cgInput = self.cgImage else { return self }
+        guard let cgImageInput = self.cgImage else {
+            print("[ImageProc] UIImage.colorized(with:): \(self) has no cgImage attribute.")
+            return self
+        }
+        
+        #if arch(i386) || arch(x86_64)
+        
+        // Throw away existing colors, and fill the non transparent pixels with the input color
+        // s.r = dot(s, redVector), s.g = dot(s, greenVector), s.b = dot(s, blueVector), s.a = dot(s, alphaVector)
+        // s = s + bias
+        let ciColorMatrixFilter = CIFilter(name: "CIColorMatrix")!
+        let ciColorInput = CIColor(cgColor: color.cgColor)
+        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
+        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
+        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
+        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
+        ciColorMatrixFilter.setValue(CIVector(x: ciColorInput.red, y: ciColorInput.green, z: ciColorInput.blue, w: 0), forKey: "inputBiasVector")
+        ciColorMatrixFilter.setValue(CIImage(cgImage: cgImageInput), forKey: kCIInputImageKey)
+        
+        let context = CIContext(options: [CIContextOption.workingColorSpace: ciColorInput.colorSpace])
+        if let cgImageOutput = context.createCGImage(ciColorMatrixFilter.outputImage!, from: ciColorMatrixFilter.outputImage!.extent) {
+            return UIImage(cgImage: cgImageOutput, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
+        } else {
+            print("applyColorMask: failed to apply filter to \(self)")
+            return self
+        }
+        #else
         
         let colorFilter = ColorFilter()
-        colorFilter.inputImage = CIImage(cgImage: cgInput)
+        colorFilter.inputImage = CIImage(cgImage: cgImageInput)
         colorFilter.inputColor = CIColor(color: color)
         
-        if let ciOutput = colorFilter.outputImage {
+        if let ciImageOutput = colorFilter.outputImage {
             let context = CIContext(options: nil)
-            let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)
-            return UIImage(cgImage: cgOutput!, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
+            let cgImageOutput = context.createCGImage(ciImageOutput, from: ciImageOutput.extent)
+            return UIImage(cgImage: cgImageOutput!, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
         }
         return self
+        #endif
     }
     
     /// Renders copy of this image where all opaque boundaries pixels are replicated all around the origin.
@@ -178,7 +208,7 @@ public extension UIImage {
             return self
         }
         UIGraphicsEndImageContext()
-        return newImage.withRenderingMode(self.renderingMode).resizableImage(withCapInsets: self.capInsets, resizingMode: self.resizingMode)
+        return newImage.withRenderingMode(self.renderingMode)
     }
     
     /// Renders a scaled copy of this image given a new size in points.

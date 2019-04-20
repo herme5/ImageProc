@@ -40,16 +40,4 @@ extension String {
         for r in ranges { output += self[r] }
         return output
     }
-    
-    func padLeftWith(character c: Character, finalLength: Int) -> String {
-        var output = self
-        while output.count < finalLength { output = "\(c)\(output)" }
-        return output
-    }
-    
-    func padRightWith(character c: Character, finalLength: Int) -> String {
-        var output = self
-        while output.count < finalLength { output = "\(output)\(c)" }
-        return output
-    }
 }
