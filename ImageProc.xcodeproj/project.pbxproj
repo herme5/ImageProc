@@ -12,22 +12,8 @@
 		6252C445222858B900B7877A /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C444222858B900B7877A /* GeometryUtils.swift */; };
 		6252C447222858DF00B7877A /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C446222858DF00B7877A /* ColorUtils.swift */; };
 		6252C4492228590A00B7877A /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4482228590A00B7877A /* ImageUtils.swift */; };
-		62934693225FEA3A00EFCD91 /* ColorFilter.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 62934692225FEA3900EFCD91 /* ColorFilter.metallib */; };
-		62B7DE6822292F5D003449C4 /* ImageProc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		627DC34E226BC9A500FF7A45 /* ColorFilter.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 62934692225FEA3900EFCD91 /* ColorFilter.metallib */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		62B7DE6722292F01003449C4 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(PROJECT_DIR)/Products";
-			dstSubfolderSpec = 0;
-			files = (
-				62B7DE6822292F5D003449C4 /* ImageProc.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6252C4282228583A00B7877A /* ImageProc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageProc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -37,7 +23,7 @@
 		6252C444222858B900B7877A /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		6252C446222858DF00B7877A /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
 		6252C4482228590A00B7877A /* ImageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
-		62752ADC2250D6C900E3BAB6 /* ImageProc.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ImageProc.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		627DC34F226BC9BD00FF7A45 /* ImageProc.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ImageProc.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		6293468D225FE50E00EFCD91 /* ColorFilter.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ColorFilter.metal; sourceTree = "<group>"; };
 		62934692225FEA3900EFCD91 /* ColorFilter.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = ColorFilter.metallib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -73,7 +59,7 @@
 		6252C42A2228583A00B7877A /* ImageProc */ = {
 			isa = PBXGroup;
 			children = (
-				62752ADC2250D6C900E3BAB6 /* ImageProc.playground */,
+				627DC34F226BC9BD00FF7A45 /* ImageProc.playground */,
 				6252C42B2228583A00B7877A /* ImageProc.h */,
 				6252C4422228588000B7877A /* FoundationUtils.swift */,
 				6252C444222858B900B7877A /* GeometryUtils.swift */,
@@ -114,8 +100,7 @@
 				6252C4232228583A00B7877A /* Headers */,
 				6252C4242228583A00B7877A /* Sources */,
 				6252C4252228583A00B7877A /* Frameworks */,
-				6252C4262228583A00B7877A /* Resources */,
-				62B7DE6722292F01003449C4 /* CopyFiles */,
+				627DC34D226BC99E00FF7A45 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -161,11 +146,11 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		6252C4262228583A00B7877A /* Resources */ = {
+		627DC34D226BC99E00FF7A45 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				62934693225FEA3A00EFCD91 /* ColorFilter.metallib in Resources */,
+				627DC34E226BC9A500FF7A45 /* ColorFilter.metallib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
