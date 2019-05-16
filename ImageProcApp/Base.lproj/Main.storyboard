@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ImageProcApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" opaque="NO" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HfH-Nd-Td3" customClass="BackgroundView" customModule="ImageProcApp" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="5" width="414" height="896"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
+                            <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="160" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tx7-Kl-KXx">
+                                <rect key="frame" x="10" y="30" width="394" height="846"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageProcessedCell" rowHeight="160" id="btc-Vn-mHM" customClass="ProcessedImageCell" customModule="ImageProcApp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="394" height="160"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="btc-Vn-mHM" id="SMP-tT-5B9">
+                                            <rect key="frame" x="0.0" y="0.0" width="394" height="160"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Function" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rgv-9O-qgn">
+                                                    <rect key="frame" x="20" y="12" width="59" height="17"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Parameters" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ck9-MX-oh7" userLabel="Parameters">
+                                                    <rect key="frame" x="87" y="12" width="74" height="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="s3g-sr-G67">
+                                                    <rect key="frame" x="20" y="41" width="100" height="100"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="100" id="Gy9-5W-7bJ"/>
+                                                        <constraint firstAttribute="height" constant="100" id="M8V-J2-phS"/>
+                                                    </constraints>
+                                                </imageView>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="Rgv-9O-qgn" firstAttribute="top" secondItem="SMP-tT-5B9" secondAttribute="top" constant="12" id="4zM-hP-XYs"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Ck9-MX-oh7" secondAttribute="trailing" constant="20" symbolic="YES" id="AI1-eC-lhk"/>
+                                                <constraint firstItem="s3g-sr-G67" firstAttribute="top" secondItem="Rgv-9O-qgn" secondAttribute="bottom" constant="12" id="FSj-P0-EpA"/>
+                                                <constraint firstItem="Ck9-MX-oh7" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="trailing" constant="8" id="Peh-Vc-RrX"/>
+                                                <constraint firstItem="Ck9-MX-oh7" firstAttribute="centerY" secondItem="Rgv-9O-qgn" secondAttribute="centerY" id="f7b-oq-HfD"/>
+                                                <constraint firstItem="Rgv-9O-qgn" firstAttribute="leading" secondItem="SMP-tT-5B9" secondAttribute="leading" constant="20" id="hCQ-1n-qbo"/>
+                                                <constraint firstItem="s3g-sr-G67" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="leading" id="ykm-DH-Ihy"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="functionLabel" destination="Rgv-9O-qgn" id="EEv-6C-jyy"/>
+                                            <outlet property="parametersLabel" destination="Ck9-MX-oh7" id="7Xm-9f-bJS"/>
+                                            <outlet property="sourceImageView" destination="s3g-sr-G67" id="gIN-N5-R1m"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <sections/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.15686274509803921" green="0.15686274509803921" blue="0.15686274509803921" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="tx7-Kl-KXx" firstAttribute="height" secondItem="HfH-Nd-Td3" secondAttribute="height" constant="-50" id="9my-C1-Hkj"/>
+                            <constraint firstItem="HfH-Nd-Td3" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="MOY-Pj-o3f"/>
+                            <constraint firstItem="tx7-Kl-KXx" firstAttribute="centerY" secondItem="HfH-Nd-Td3" secondAttribute="centerY" id="Xrb-CN-qyp"/>
+                            <constraint firstItem="tx7-Kl-KXx" firstAttribute="width" secondItem="HfH-Nd-Td3" secondAttribute="width" constant="-20" id="b0f-gY-URS"/>
+                            <constraint firstItem="tx7-Kl-KXx" firstAttribute="centerX" secondItem="HfH-Nd-Td3" secondAttribute="centerX" id="dsL-Hm-d2d"/>
+                            <constraint firstItem="HfH-Nd-Td3" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="gPO-Ma-9Cy"/>
+                            <constraint firstItem="HfH-Nd-Td3" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="lf1-Jt-Bb5"/>
+                            <constraint firstItem="HfH-Nd-Td3" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" id="mxJ-3q-Tbb"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                    <connections>
+                        <outlet property="tableView" destination="tx7-Kl-KXx" id="DuE-AP-zGq"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="140.57971014492756" y="138.61607142857142"/>
+        </scene>
+    </scenes>
+</document>
