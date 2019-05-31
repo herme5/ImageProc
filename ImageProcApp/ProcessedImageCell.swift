@@ -16,6 +16,10 @@ class ProcessedImageCell: UITableViewCell {
     
     @IBOutlet weak var sourceImageView: UIImageView!
     
+    @IBOutlet weak var functionLabelWidthConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var parametersLabelWidthConstraint: NSLayoutConstraint!
+    
     let imageViewSpacing: CGFloat = 56
     
     var resultImageViews = [UIImageView]()
@@ -45,7 +49,10 @@ class ProcessedImageCell: UITableViewCell {
             sourceImageView.image = data.sourceImage
             parametersLabel.text = data.processedImage.map({ (parameters, _) -> String in
                 return "(\(parameters.joined(separator: ", ")))"
-            }).joined(separator: " ")
+            }).joined(separator: "  ")
+            
+            functionLabelWidthConstraint.constant = functionLabel.attributedText!.size().width + 20
+            parametersLabelWidthConstraint.constant = parametersLabel.attributedText!.size().width + 40
             
             for index in 0 ..< data.processedImage.count {
                 let offset = CGFloat(index) * (imageViewSpacing + sourceImageView.frame.width)
@@ -54,15 +61,10 @@ class ProcessedImageCell: UITableViewCell {
                 let imageView = UIImageView(frame: CGRect(origin: CGPoint(x: x, y: y), size: sourceImageView.frame.size))
                 
                 imageView.contentMode = .center
+                imageView.layer.zPosition = -2
                 imageView.layer.borderWidth = 1
                 imageView.layer.borderColor = UIColor.orange.cgColor
                 
-                // var refImageView = sourceImageView
-                // if index != 0 { refImageView = self.resultImageViews[index - 1] }
-                // imageView.widthAnchor.constraint(equalToConstant: refImageView!.frame.width)
-                // imageView.centerYAnchor.constraint(equalTo: refImageView!.centerYAnchor, constant: 0)
-                // imageView.heightAnchor.constraint(equalToConstant: refImageView!.frame.height)
-                // imageView.leftAnchor.constraint(equalTo: refImageView!.rightAnchor, constant: imageViewSpacing)
                 imageView.image = data.processedImage[index].image
                 
                 let bbw = data.processedImage[index].image.size.width
@@ -72,6 +74,7 @@ class ProcessedImageCell: UITableViewCell {
                 let boundingBoxView = UIView(frame: CGRect(x: bbx, y: bby, width: bbw, height: bbh))
                 
                 boundingBoxView.backgroundColor = .clear
+                boundingBoxView.layer.zPosition = -1
                 boundingBoxView.layer.borderWidth = 1
                 boundingBoxView.layer.borderColor = UIColor.magenta.cgColor
                 
@@ -86,11 +89,15 @@ class ProcessedImageCell: UITableViewCell {
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.layer.masksToBounds = false
+        self.commonInit()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        self.commonInit()
+    }
+    
+    func commonInit() {
         self.layer.masksToBounds = false
     }
 }

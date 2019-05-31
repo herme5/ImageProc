@@ -8,6 +8,24 @@
 
 import UIKit
 
+extension CGRect {
+    
+    var center: CGPoint {
+        get {
+            return CGPoint(x: self.midX, y: self.midY)
+        }
+        set {
+            self.origin.x = newValue.x - (width / 2)
+            self.origin.y = newValue.y - (height / 2)
+        }
+    }
+    
+    init(center: CGPoint, size: CGSize) {
+        self.init(origin: .zero, size: size)
+        self.center = center
+    }
+}
+
 internal extension CGVector {
     
     func rotated(around origin: CGPoint, byDegrees: CGFloat) -> CGVector {
