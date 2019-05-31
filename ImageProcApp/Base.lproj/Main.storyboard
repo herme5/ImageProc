@@ -26,46 +26,58 @@
                                 <rect key="frame" x="10" y="30" width="394" height="846"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageProcessedCell" rowHeight="160" id="btc-Vn-mHM" customClass="ProcessedImageCell" customModule="ImageProcApp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="394" height="160"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageProcessedCell" rowHeight="166" id="btc-Vn-mHM" customClass="ProcessedImageCell" customModule="ImageProcApp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="394" height="166"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="btc-Vn-mHM" id="SMP-tT-5B9">
-                                            <rect key="frame" x="0.0" y="0.0" width="394" height="160"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="394" height="166"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Function" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rgv-9O-qgn">
-                                                    <rect key="frame" x="20" y="12" width="59" height="17"/>
-                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="14"/>
-                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Parameters" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ck9-MX-oh7" userLabel="Parameters">
-                                                    <rect key="frame" x="87" y="12" width="74" height="17"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="s3g-sr-G67">
-                                                    <rect key="frame" x="20" y="41" width="100" height="100"/>
+                                                    <rect key="frame" x="20" y="48" width="100" height="100"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="100" id="Gy9-5W-7bJ"/>
                                                         <constraint firstAttribute="height" constant="100" id="M8V-J2-phS"/>
                                                     </constraints>
                                                 </imageView>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Parameters" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ck9-MX-oh7" userLabel="Parameters">
+                                                    <rect key="frame" x="58" y="12" width="60.5" height="24"/>
+                                                    <color key="backgroundColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="g1k-LQ-tuw"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" name="Menlo-Regular" family="Menlo" pointSize="10"/>
+                                                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Function" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rgv-9O-qgn">
+                                                    <rect key="frame" x="20" y="12" width="48" height="24"/>
+                                                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="24" id="ElI-TI-V5X"/>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="O0w-OL-i1Q"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="11"/>
+                                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="Rgv-9O-qgn" firstAttribute="top" secondItem="SMP-tT-5B9" secondAttribute="top" constant="12" id="4zM-hP-XYs"/>
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Ck9-MX-oh7" secondAttribute="trailing" constant="20" symbolic="YES" id="AI1-eC-lhk"/>
                                                 <constraint firstItem="s3g-sr-G67" firstAttribute="top" secondItem="Rgv-9O-qgn" secondAttribute="bottom" constant="12" id="FSj-P0-EpA"/>
-                                                <constraint firstItem="Ck9-MX-oh7" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="trailing" constant="8" id="Peh-Vc-RrX"/>
+                                                <constraint firstItem="Ck9-MX-oh7" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="trailing" constant="-10" id="Peh-Vc-RrX"/>
                                                 <constraint firstItem="Ck9-MX-oh7" firstAttribute="centerY" secondItem="Rgv-9O-qgn" secondAttribute="centerY" id="f7b-oq-HfD"/>
                                                 <constraint firstItem="Rgv-9O-qgn" firstAttribute="leading" secondItem="SMP-tT-5B9" secondAttribute="leading" constant="20" id="hCQ-1n-qbo"/>
+                                                <constraint firstItem="Ck9-MX-oh7" firstAttribute="height" secondItem="Rgv-9O-qgn" secondAttribute="height" id="qSF-Fi-nIy"/>
                                                 <constraint firstItem="s3g-sr-G67" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="leading" id="ykm-DH-Ihy"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="functionLabel" destination="Rgv-9O-qgn" id="EEv-6C-jyy"/>
+                                            <outlet property="functionLabelWidthConstraint" destination="O0w-OL-i1Q" id="Jbh-9q-vFx"/>
                                             <outlet property="parametersLabel" destination="Ck9-MX-oh7" id="7Xm-9f-bJS"/>
+                                            <outlet property="parametersLabelWidthConstraint" destination="g1k-LQ-tuw" id="5hx-CZ-Gvk"/>
                                             <outlet property="sourceImageView" destination="s3g-sr-G67" id="gIN-N5-R1m"/>
                                         </connections>
                                     </tableViewCell>

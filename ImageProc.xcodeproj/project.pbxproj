@@ -57,7 +57,6 @@
 		6252C444222858B900B7877A /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
 		6252C446222858DF00B7877A /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
 		6252C4482228590A00B7877A /* ImageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
-		627DC34F226BC9BD00FF7A45 /* ImageProc.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = ImageProc.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		627DC354226BCB6A00FF7A45 /* ImageProcApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageProcApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		627DC356226BCB6A00FF7A45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		627DC358226BCB6A00FF7A45 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -114,7 +113,6 @@
 		6252C42A2228583A00B7877A /* ImageProc */ = {
 			isa = PBXGroup;
 			children = (
-				627DC34F226BC9BD00FF7A45 /* ImageProc.playground */,
 				6252C42B2228583A00B7877A /* ImageProc.h */,
 				6252C4422228588000B7877A /* FoundationUtils.swift */,
 				6252C444222858B900B7877A /* GeometryUtils.swift */,
