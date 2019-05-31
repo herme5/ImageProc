@@ -32,7 +32,7 @@ public extension UIImage {
         ciColorMatrixFilter.setValue(CIVector(x: ciColorInput.red, y: ciColorInput.green, z: ciColorInput.blue, w: 0), forKey: "inputBiasVector")
         ciColorMatrixFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
         
-        let context = CIContext(options: [.workingColorSpace: ciColorInput.colorSpace])
+        let context = CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
         let cgImageOutput = context.createCGImage(ciColorMatrixFilter.outputImage!, from: ciColorMatrixFilter.outputImage!.extent)
         return UIImage(cgImage: cgImageOutput!, scale: scale, orientation: imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(renderingMode)
     }
