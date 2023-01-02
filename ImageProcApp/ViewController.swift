@@ -66,7 +66,7 @@ class ViewController: UIViewController {
         
         var res_0 = ProcessedImage()
         measureTime(output: &res_0) { (output) in
-            output.function = "im0.colorized(with: UIColor)"
+            output.function = "im0.colorized(with: UIColor, method: .basic)"
             output.sourceImage = img_0
             output.processedImage = [
                 ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .basic)),
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
         }
         var res_1 = ProcessedImage()
         measureTime(output: &res_1) { (output) in
-            output.function = "im0.colorized_concurrent(with: UIColor)"
+            output.function = "im0.colorized(with: UIColor, method: .concurrent)"
             output.sourceImage = img_0
             output.processedImage = [
                 ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .concurrent)),
@@ -84,7 +84,7 @@ class ViewController: UIViewController {
         }
         var res_2 = ProcessedImage()
         measureTime(output: &res_2) { (output) in
-            output.function = "im1.expand(bySize: CGFloat, each: CGFloat)"
+            output.function = "im1.expand(bySize: CGFloat, each: CGFloat, method: .basic)"
             output.sourceImage = img_1
             output.processedImage = [
                 ProcessResults(["20","60"], img_1.expand(bySize: 20, each: 60, method: .basic)),
@@ -95,7 +95,7 @@ class ViewController: UIViewController {
         }
         var res_3 = ProcessedImage()
         measureTime(output: &res_3) { (output) in
-            output.function = "im1.expand_concurrent(bySize: CGFloat, each: CGFloat)"
+            output.function = "im1.expand(bySize: CGFloat, each: CGFloat, method: .concurrent)"
             output.sourceImage = img_1
             output.processedImage = [
                 ProcessResults(["20","60"], img_1.expand(bySize: 20, each: 60, method: .concurrent)),
@@ -106,22 +106,22 @@ class ViewController: UIViewController {
         }
         var res_22 = ProcessedImage()
         measureTime(output: &res_22) { (output) in
-            output.function = "im3.expand(bySize: CGFloat, each: CGFloat)"
+            output.function = "im3.expand(bySize: CGFloat, each: CGFloat, method: .basic)"
             output.sourceImage = img_3
             output.processedImage = [
-                ProcessResults(["20","60"], img_3.expand(bySize: 20, each: 60)),
-                ProcessResults(["20","45"], img_3.expand(bySize: 20, each: 45)),
-                ProcessResults(["20","10"], img_3.expand(bySize: 20, each: 10)),
-                ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2)),
-                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1))]
+                ProcessResults(["20","60"], img_3.expand(bySize: 20, each: 60, method: .basic)),
+                ProcessResults(["20","20"], img_3.expand(bySize: 20, each: 20, method: .basic)),
+                ProcessResults(["20","10"], img_3.expand(bySize: 20, each: 10, method: .basic)),
+                ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .basic)),
+                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .basic))]
         }
         var res_32 = ProcessedImage()
         measureTime(output: &res_32) { (output) in
-            output.function = "im3.expand_concurrent(bySize: CGFloat, each: CGFloat)"
+            output.function = "im3.expand(bySize: CGFloat, each: CGFloat, method: .concurrent)"
             output.sourceImage = img_3
             output.processedImage = [
                 ProcessResults(["20","60"], img_3.expand(bySize: 20, each: 60, method: .concurrent)),
-                ProcessResults(["20","45"], img_3.expand(bySize: 20, each: 45, method: .concurrent)),
+                ProcessResults(["20","20"], img_3.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20","10"], img_3.expand(bySize: 20, each: 10, method: .concurrent)),
                 ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .concurrent)),
                 ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .concurrent))]

@@ -18,6 +18,10 @@ class BackgroundView: UIView {
         return BackgroundLayer.self
     }
     
+    override var bounds: CGRect {
+        didSet { layer.setNeedsDisplay() }
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         commonInit()
@@ -29,12 +33,7 @@ class BackgroundView: UIView {
     }
     
     private func commonInit() {
-        self.layer.contentsScale = UIScreen.main.scale
-    }
-    
-    override public func setNeedsDisplay() {
-        backgroundLayer.setNeedsDisplay()
-        super.setNeedsDisplay()
+        layer.contentsScale = UIScreen.main.scale
     }
 }
 

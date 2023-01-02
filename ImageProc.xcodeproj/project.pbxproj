@@ -12,7 +12,6 @@
 		6252C445222858B900B7877A /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C444222858B900B7877A /* GeometryUtils.swift */; };
 		6252C447222858DF00B7877A /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C446222858DF00B7877A /* ColorUtils.swift */; };
 		6252C4492228590A00B7877A /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4482228590A00B7877A /* ImageUtils.swift */; };
-		627DC34E226BC9A500FF7A45 /* ColorFilter.metallib in Resources */ = {isa = PBXBuildFile; fileRef = 62934692225FEA3900EFCD91 /* ColorFilter.metallib */; };
 		627DC357226BCB6A00FF7A45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627DC356226BCB6A00FF7A45 /* AppDelegate.swift */; };
 		627DC359226BCB6A00FF7A45 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627DC358226BCB6A00FF7A45 /* ViewController.swift */; };
 		627DC35C226BCB6A00FF7A45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 627DC35A226BCB6A00FF7A45 /* Main.storyboard */; };
@@ -66,8 +65,6 @@
 		627DC363226BCB6C00FF7A45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		627DC365226BCB6C00FF7A45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		627DC36F226BF97D00FF7A45 /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
-		6293468D225FE50E00EFCD91 /* ColorFilter.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ColorFilter.metal; sourceTree = "<group>"; };
-		62934692225FEA3900EFCD91 /* ColorFilter.metallib */ = {isa = PBXFileReference; lastKnownFileType = "archive.metal-library"; path = ColorFilter.metallib; sourceTree = "<group>"; };
 		62C16E8A2276047500A20413 /* ProcessedImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedImageCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -95,7 +92,6 @@
 			children = (
 				6252C42A2228583A00B7877A /* ImageProc */,
 				627DC355226BCB6A00FF7A45 /* ImageProcApp */,
-				6293468C225FE50E00EFCD91 /* ColorFilter */,
 				6252C4292228583A00B7877A /* Products */,
 				62DA4C0E2289C6F100D08D4F /* Frameworks */,
 			);
@@ -137,15 +133,6 @@
 				627DC35D226BCB6A00FF7A45 /* ImageProcApp.xcdatamodeld */,
 			);
 			path = ImageProcApp;
-			sourceTree = "<group>";
-		};
-		6293468C225FE50E00EFCD91 /* ColorFilter */ = {
-			isa = PBXGroup;
-			children = (
-				6293468D225FE50E00EFCD91 /* ColorFilter.metal */,
-				62934692225FEA3900EFCD91 /* ColorFilter.metallib */,
-			);
-			path = ColorFilter;
 			sourceTree = "<group>";
 		};
 		62DA4C0E2289C6F100D08D4F /* Frameworks */ = {
@@ -249,7 +236,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				627DC34E226BC9A500FF7A45 /* ColorFilter.metallib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
