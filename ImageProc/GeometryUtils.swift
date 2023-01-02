@@ -1,6 +1,6 @@
 //
 //  GeometryUtils.swift
-//  Anagram
+//  ImageProc
 //
 //  Created by Andrea Ruffino on 11/01/2019.
 //  Copyright © 2019 Andrea Ruffino. All rights reserved.
@@ -8,7 +8,9 @@
 
 import UIKit
 
-extension CGRect {
+// MARK: - CGRect extension
+
+internal extension CGRect {
     
     var center: CGPoint {
         get {
@@ -25,6 +27,8 @@ extension CGRect {
         self.center = center
     }
 }
+
+// MARK: - CGVector extension
 
 internal extension CGVector {
     
