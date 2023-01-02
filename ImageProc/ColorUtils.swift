@@ -1,6 +1,6 @@
 //
 //  ImageUtils.swift
-//  Anagram
+//  ImageProc
 //
 //  Created by Andrea Ruffino on 10/01/2019.
 //  Copyright © 2019 Andrea Ruffino. All rights reserved.
@@ -65,9 +65,9 @@ public extension UIColor {
         var blue:  CGFloat = 0
         var alpha: CGFloat = 0
         getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        let hexRed   = Hexadecimal.stringFrom(value: UInt(red   * 255), digitCount: 2) //String(format: "%02X", Int(red   * 255))
-        let hexGreen = Hexadecimal.stringFrom(value: UInt(green * 255), digitCount: 2) //String(format: "%02X", Int(green * 255))
-        let hexBlue  = Hexadecimal.stringFrom(value: UInt(blue  * 255), digitCount: 2) //String(format: "%02X", Int(blue  * 255))
+        let hexRed   = Hexadecimal.stringFrom(value: UInt(red   * 255), digitCount: 2)
+        let hexGreen = Hexadecimal.stringFrom(value: UInt(green * 255), digitCount: 2)
+        let hexBlue  = Hexadecimal.stringFrom(value: UInt(blue  * 255), digitCount: 2)
         return "#\(hexRed)\(hexGreen)\(hexBlue)"
     }
     
