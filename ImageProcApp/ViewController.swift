@@ -71,7 +71,8 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .basic)),
                 ProcessResults([col_2.hexCode], img_0.colorized(with: col_2, method: .basic)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .basic))]
+                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .basic)),
+            ]
         }
         var res_1 = ProcessedImage()
         measureTime(output: &res_1) { (output) in
@@ -80,7 +81,8 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .concurrent)),
                 ProcessResults([col_2.hexCode], img_0.colorized(with: col_2, method: .concurrent)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .concurrent))]
+                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .concurrent)),
+            ]
         }
         var res_2 = ProcessedImage()
         measureTime(output: &res_2) { (output) in
@@ -91,7 +93,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20","20"], img_1.expand(bySize: 20, each: 20, method: .basic)),
                 ProcessResults(["20","10"], img_1.expand(bySize: 20, each: 10, method: .basic)),
                 ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .basic)),
-                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .basic))]
+                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .basic)),
+            ]
         }
         var res_3 = ProcessedImage()
         measureTime(output: &res_3) { (output) in
@@ -102,7 +105,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20","20"], img_1.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20","10"], img_1.expand(bySize: 20, each: 10, method: .concurrent)),
                 ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .concurrent)),
-                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .concurrent))]
+                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .concurrent)),
+            ]
         }
         var res_22 = ProcessedImage()
         measureTime(output: &res_22) { (output) in
@@ -113,7 +117,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20","20"], img_3.expand(bySize: 20, each: 20, method: .basic)),
                 ProcessResults(["20","10"], img_3.expand(bySize: 20, each: 10, method: .basic)),
                 ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .basic)),
-                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .basic))]
+                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .basic)),
+            ]
         }
         var res_32 = ProcessedImage()
         measureTime(output: &res_32) { (output) in
@@ -124,7 +129,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20","20"], img_3.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20","10"], img_3.expand(bySize: 20, each: 10, method: .concurrent)),
                 ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .concurrent)),
-                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .concurrent))]
+                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .concurrent)),
+            ]
         }
         var res_4 = ProcessedImage()
         measureTime(output: &res_4) { (output) in
@@ -133,7 +139,8 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults([col_1.hexCode,"10","0.5"], img_1.stroked(with: col_1, size: 10, alpha: 0.5)),
                 ProcessResults([col_2.hexCode,"10","0.7"], img_1.stroked(with: col_2, size: 10, alpha: 0.7)),
-                ProcessResults([col_3.hexCode,"10","1.0"], img_1.stroked(with: col_3, size: 10, alpha: 1.0))]
+                ProcessResults([col_3.hexCode,"10","1.0"], img_1.stroked(with: col_3, size: 10, alpha: 1.0)),
+            ]
         }
         var res_5 = ProcessedImage()
         measureTime(output: &res_5) { (output) in
@@ -142,7 +149,8 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults([ "1", "false"], img_0.smoothened(by:  1)),
                 ProcessResults([ "5", "false"], img_0.smoothened(by:  5)),
-                ProcessResults(["10", "false"], img_0.smoothened(by: 10))]
+                ProcessResults(["10", "false"], img_0.smoothened(by: 10)),
+            ]
         }
         var res_6 = ProcessedImage()
         measureTime(output: &res_6) { (output) in
@@ -152,7 +160,8 @@ class ViewController: UIViewController {
                 ProcessResults([ "60","false"], img_0.scaledWidth(to:  60, keepAspectRatio: false)),
                 ProcessResults([ "60","true" ], img_0.scaledWidth(to:  60, keepAspectRatio: true)),
                 ProcessResults(["140","false"], img_0.scaledWidth(to: 140, keepAspectRatio: false)),
-                ProcessResults(["140","true" ], img_0.scaledWidth(to: 140, keepAspectRatio: true))]
+                ProcessResults(["140","true" ], img_0.scaledWidth(to: 140, keepAspectRatio: true)),
+            ]
         }
         var res_7 = ProcessedImage()
         measureTime(output: &res_7) { (output) in
@@ -162,7 +171,8 @@ class ViewController: UIViewController {
                 ProcessResults([ "60","false"], img_0.scaledHeight(to:  60, keepAspectRatio: false)),
                 ProcessResults([ "60","true" ], img_0.scaledHeight(to:  60, keepAspectRatio: true)),
                 ProcessResults(["140","false"], img_0.scaledHeight(to: 140, keepAspectRatio: false)),
-                ProcessResults(["140","true" ], img_0.scaledHeight(to: 140, keepAspectRatio: true))]
+                ProcessResults(["140","true" ], img_0.scaledHeight(to: 140, keepAspectRatio: true)),
+            ]
         }
         var res_8 = ProcessedImage()
         measureTime(output: &res_8) { (output) in
@@ -172,7 +182,8 @@ class ViewController: UIViewController {
                 ProcessResults([ "0", "0","50","50"], img_0.cropped(to: CGRect(x:  0, y:  0, width: 50, height: 50))),
                 ProcessResults(["50", "0","50","50"], img_0.cropped(to: CGRect(x: 50, y:  0, width: 50, height: 50))),
                 ProcessResults([ "0","50","50","50"], img_0.cropped(to: CGRect(x:  0, y: 50, width: 50, height: 50))),
-                ProcessResults(["50","50","50","50"], img_0.cropped(to: CGRect(x: 50, y: 50, width: 50, height: 50)))]
+                ProcessResults(["50","50","50","50"], img_0.cropped(to: CGRect(x: 50, y: 50, width: 50, height: 50))),
+            ]
         }
         var res_9 = ProcessedImage()
         measureTime(output: &res_9) { (output) in
@@ -183,21 +194,24 @@ class ViewController: UIViewController {
                 ProcessResults(["45"], img_0.rotated(by: 45)),
                 ProcessResults(["90"], img_0.rotated(by: 90)),
                 ProcessResults(["135"], img_0.rotated(by: 135)),
-                ProcessResults(["180"], img_0.rotated(by: 180))]
+                ProcessResults(["180"], img_0.rotated(by: 180)),
+            ]
         }
         var res_10 = ProcessedImage()
         measureTime(output: &res_10) { (output) in
             output.function = "im0.flippedHorizontally()"
             output.sourceImage = img_0
             output.processedImage = [
-                ProcessResults([], img_0.flippedHorizontally())]
+                ProcessResults([], img_0.flippedHorizontally()),
+            ]
         }
         var res_11 = ProcessedImage()
         measureTime(output: &res_11) { (output) in
             output.function = "im0.flippedVertically()"
             output.sourceImage = img_0
             output.processedImage = [
-                ProcessResults([], img_0.flippedVertically())]
+                ProcessResults([], img_0.flippedVertically()),
+            ]
         }
         var res_12 = ProcessedImage()
         measureTime(output: &res_12) { (output) in
@@ -209,7 +223,8 @@ class ViewController: UIViewController {
                     img_0.drawnUnder(image: img_0.rotated(by: 45).colorized(with: col_1))),
                 ProcessResults(
                     ["im2"],
-                    img_0.drawnUnder(image: img_2))]
+                    img_0.drawnUnder(image: img_2)),
+            ]
         }
         var res_13 = ProcessedImage()
         measureTime(output: &res_13) { (output) in
@@ -221,7 +236,8 @@ class ViewController: UIViewController {
                     img_0.drawnAbove(image: img_0.rotated(by: 45).colorized(with: col_1))),
                 ProcessResults(
                     ["im2"],
-                    img_0.drawnAbove(image: img_2))]
+                    img_0.drawnAbove(image: img_2)),
+            ]
         }
         
         items.append(contentsOf: [
