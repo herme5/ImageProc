@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,22 +17,22 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HfH-Nd-Td3" customClass="BackgroundView" customModule="ImageProcApp" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="5" width="414" height="896"/>
+                                <rect key="frame" x="0.0" y="7" width="414" height="896"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="160" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tx7-Kl-KXx">
-                                <rect key="frame" x="10" y="30" width="394" height="846"/>
+                            <tableView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="186" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="tx7-Kl-KXx">
+                                <rect key="frame" x="10" y="32" width="394" height="846"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageProcessedCell" rowHeight="166" id="btc-Vn-mHM" customClass="ProcessedImageCell" customModule="ImageProcApp" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="394" height="166"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="default" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImageProcessedCell" rowHeight="186" id="btc-Vn-mHM" customClass="ProcessedImageCell" customModule="ImageProcApp" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="394" height="186"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="btc-Vn-mHM" id="SMP-tT-5B9">
-                                            <rect key="frame" x="0.0" y="0.0" width="394" height="166"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="394" height="186"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="s3g-sr-G67">
-                                                    <rect key="frame" x="20" y="48" width="100" height="100"/>
+                                                    <rect key="frame" x="20" y="68" width="100" height="100"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="100" id="Gy9-5W-7bJ"/>
                                                         <constraint firstAttribute="height" constant="100" id="M8V-J2-phS"/>
@@ -42,7 +40,7 @@
                                                 </imageView>
                                                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Parameters" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ck9-MX-oh7" userLabel="Parameters">
                                                     <rect key="frame" x="58" y="12" width="60.5" height="24"/>
-                                                    <color key="backgroundColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
+                                                    <color key="backgroundColor" systemColor="viewFlipsideBackgroundColor"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="g1k-LQ-tuw"/>
                                                     </constraints>
@@ -65,7 +63,7 @@
                                             <constraints>
                                                 <constraint firstItem="Rgv-9O-qgn" firstAttribute="top" secondItem="SMP-tT-5B9" secondAttribute="top" constant="12" id="4zM-hP-XYs"/>
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Ck9-MX-oh7" secondAttribute="trailing" constant="20" symbolic="YES" id="AI1-eC-lhk"/>
-                                                <constraint firstItem="s3g-sr-G67" firstAttribute="top" secondItem="Rgv-9O-qgn" secondAttribute="bottom" constant="12" id="FSj-P0-EpA"/>
+                                                <constraint firstItem="s3g-sr-G67" firstAttribute="top" secondItem="Rgv-9O-qgn" secondAttribute="bottom" constant="32" id="FSj-P0-EpA"/>
                                                 <constraint firstItem="Ck9-MX-oh7" firstAttribute="leading" secondItem="Rgv-9O-qgn" secondAttribute="trailing" constant="-10" id="Peh-Vc-RrX"/>
                                                 <constraint firstItem="Ck9-MX-oh7" firstAttribute="centerY" secondItem="Rgv-9O-qgn" secondAttribute="centerY" id="f7b-oq-HfD"/>
                                                 <constraint firstItem="Rgv-9O-qgn" firstAttribute="leading" secondItem="SMP-tT-5B9" secondAttribute="leading" constant="20" id="hCQ-1n-qbo"/>
@@ -85,6 +83,7 @@
                                 <sections/>
                             </tableView>
                         </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" red="0.15686274509803921" green="0.15686274509803921" blue="0.15686274509803921" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="tx7-Kl-KXx" firstAttribute="height" secondItem="HfH-Nd-Td3" secondAttribute="height" constant="-50" id="9my-C1-Hkj"/>
@@ -96,7 +95,6 @@
                             <constraint firstItem="HfH-Nd-Td3" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="lf1-Jt-Bb5"/>
                             <constraint firstItem="HfH-Nd-Td3" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" id="mxJ-3q-Tbb"/>
                         </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <connections>
                         <outlet property="tableView" destination="tx7-Kl-KXx" id="DuE-AP-zGq"/>
@@ -107,4 +105,9 @@
             <point key="canvasLocation" x="140.57971014492756" y="138.61607142857142"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="viewFlipsideBackgroundColor">
+            <color red="0.1215686274509804" green="0.12941176470588239" blue="0.14117647058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
 </document>

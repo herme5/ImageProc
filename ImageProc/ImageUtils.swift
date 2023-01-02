@@ -9,8 +9,50 @@
 import UIKit
 import CoreGraphics
 
+/// An image processor that produces an monochromatic image.
+///
+/// The ColorFilter class produces a CIImage object as output. The filter takes an image and a color as input.
+///
+/// Unless you are sure to reject all the original colors, it is recommended to use a monochromatic shape image as input to modify that one color footprint, (for example, giving a full opaque image will just result in a square colorized with the color input).
+///
+/// Note that the input color alpha component is taken into account to produce a more transparent (and always more transparent) image.
+fileprivate class ColorFilter: CIFilter {
+    
+    /// The original input image as a `CIImage`.
+    var inputImage: CIImage?
+    
+    /// The input color as a `CIColor`.
+    var inputColor: CIColor?
+    
+    /// The GPU-based routine that performs the colorizing algorithm.
+    private let kernel: CIColorKernel = {
+        let kernelString =
+        """
+        kernel vec4 colorize(__sample pixel, vec4 color) {
+            pixel.rgb = pixel.a * color.rgb;
+            pixel.a *= color.a;
+            return pixel;
+        }
+        """
+        return CIColorKernel(source: kernelString)!
+    }()
+    
+    /// The output image produced by the original image colorized with the input color.
+    override var outputImage: CIImage? {
+        
+        guard let inputImage = inputImage, let inputColor = inputColor else {
+            print("[IOS] \(self) cannot produce output because inputs are incomplete.")
+            return nil
+        }
+        
+        let inputs = [inputImage, inputColor] as [Any]
+        return kernel.apply(extent: inputImage.extent, arguments: inputs)
+    }
+}
 
 public extension UIImage {
+    
+    enum Method { case basic, concurrent }
     
     var sizeInPixel: CGSize { return size * scale }
     
@@ -18,23 +60,42 @@ public extension UIImage {
     /// - parameters:
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func colorized(with color: UIColor) -> UIImage {
-        let ciColorMatrixFilter = CIFilter(name: "CIColorMatrix")!
-        let ciColorInput = CIColor(cgColor: color.cgColor)
+    func colorized(with color: UIColor, method: Method = .basic) -> UIImage {
+        var filter: CIFilter!
         
-        // Throw away existing colors, and fill the non transparent pixels with the input color
-        // s.r = dot(s, redVector), s.g = dot(s, greenVector), s.b = dot(s, blueVector), s.a = dot(s, alphaVector)
-        // s = s + bias
-        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
-        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
-        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
-        ciColorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
-        ciColorMatrixFilter.setValue(CIVector(x: ciColorInput.red, y: ciColorInput.green, z: ciColorInput.blue, w: 0), forKey: "inputBiasVector")
-        ciColorMatrixFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
+        switch method {
+        case .basic:
+            let colorMatrixFilter = CIFilter(name: "CIColorMatrix")!
+            let inputColor = CIColor(cgColor: color.cgColor)
+            
+            // Throw away existing colors, and fill the non transparent pixels with the input color
+            // s.r = dot(s, redVector), s.g = dot(s, greenVector), s.b = dot(s, blueVector), s.a = dot(s, alphaVector)
+            // s = s + bias
+            colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
+            colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
+            colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
+            colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
+            colorMatrixFilter.setValue(CIVector(x: inputColor.red, y: inputColor.green, z: inputColor.blue, w: 0), forKey: "inputBiasVector")
+            colorMatrixFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
+            
+            // Down casting ColorFilter to CIFilter to finalize drawing
+            filter = colorMatrixFilter
+            
+        case .concurrent:
+            // Throw away existing color, and fill the non transparent pixels with the input color
+            let colorFilter = ColorFilter()
+            colorFilter.inputImage = CIImage(cgImage: self.cgImage!)
+            colorFilter.inputColor = CIColor(color: color)
+            
+            // Down casting ColorFilter to CIFilter to finalize drawing
+            filter = colorFilter
+        }
         
         let context = CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
-        let cgImageOutput = context.createCGImage(ciColorMatrixFilter.outputImage!, from: ciColorMatrixFilter.outputImage!.extent)
-        return UIImage(cgImage: cgImageOutput!, scale: scale, orientation: imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(renderingMode)
+        guard let ciOutput = filter.outputImage, let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
+            return self
+        }
+        return UIImage(cgImage: cgOutput, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
     }
     
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
@@ -43,22 +104,60 @@ public extension UIImage {
     ///   - size: The distance in pixel.
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func expand(bySize s: CGFloat, each degree: CGFloat = 2) -> UIImage {
+    func expand(bySize s: CGFloat, each degree: CGFloat = 2, method: Method = .basic) -> UIImage {
         let oldRect = CGRect(x: s, y: s, width: size.width, height: size.height).integral
         let newSize = CGSize(width: size.width + (2 * s), height: size.height + (2 * s))
         let translationVector = CGVector(dx: s, dy: 0)
+        guard let original = cgImage else {
+            return self
+        }
         
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
-            let t = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-            context.concatenate(t)
             context.interpolationQuality = .high
+            context.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height))
+            let range = stride(from: CGFloat(0.0), to: CGFloat(360), by: degree)
             
-            for angle in stride(from: CGFloat(0), to: CGFloat(360), by: degree) {
-                let vector = translationVector.rotated(around: .zero, byDegrees: angle)
-                context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
-                context.draw(self.cgImage!, in: oldRect)
-                context.concatenate(CGAffineTransform(translationX: -vector.dx, y: -vector.dy))
+            switch method {
+            case .basic:
+                for angle in range {
+                    let vector = translationVector.rotated(around: .zero, byDegrees: angle)
+                    context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
+                    context.draw(original, in: oldRect)
+                    context.concatenate(CGAffineTransform(translationX: -vector.dx, y: -vector.dy))
+                }
+                
+            case .concurrent:
+                let concurrentExpandMethodQueue = DispatchQueue(
+                    label: "fr.andrearuffino.ImageProc.expandMethodQueue",
+                    attributes: .concurrent)
+                let iterations = range.map { $0 }
+                var unsafeLayers = [CGLayer]()
+                unsafeLayers.reserveCapacity(iterations.count)
+                
+                func safeLayers() -> [CGLayer] {
+                    var copy = [CGLayer]()
+                    concurrentExpandMethodQueue.sync { copy = unsafeLayers }
+                    return copy
+                }
+                
+                DispatchQueue.concurrentPerform(iterations: iterations.count) { i in
+                    let angle = iterations[i]
+                    let vector = translationVector.rotated(around: .zero, byDegrees: angle)
+                
+                    if let iterationlayer = CGLayer(context, size: newSize, auxiliaryInfo: nil), let layerContext = iterationlayer.context {
+                        layerContext.interpolationQuality = .high
+                        layerContext.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
+                        layerContext.draw(self.cgImage!, in: oldRect)
+                        concurrentExpandMethodQueue.sync(flags: .barrier) {
+                            unsafeLayers.append(iterationlayer)
+                        }
+                    }
+                }
+                
+                for layer in unsafeLayers {
+                    context.draw(layer, at: .zero)
+                }
             }
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
@@ -77,7 +176,7 @@ public extension UIImage {
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
     func stroked(with color: UIColor, size s: CGFloat, each degree: CGFloat = 2, alpha: CGFloat = 1) -> UIImage {
         let strokeImage = self.colorized(with: color).expand(bySize: s, each: degree).withAlphaComponent(alpha)
-        return self.drawAbove(image: strokeImage)
+        return self.drawnAbove(image: strokeImage)
     }
     
     /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the time the output image will be larger than the source image.
@@ -249,7 +348,7 @@ public extension UIImage {
     
     /// Overlays this image under another image and returns a copy of the two images combined.
     /// - returns: A `UIImage` where this image is under the other.
-    func drawUnder(image: UIImage) -> UIImage {
+    func drawnUnder(image: UIImage) -> UIImage {
         let maxWidth = max(self.size.width, image.size.width)
         let maxHeight = max(self.size.height, image.size.height)
         let maxSize = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: maxHeight))
@@ -277,7 +376,7 @@ public extension UIImage {
     
     /// Overlays this image above another image and returns a copy of the two images combined.
     /// - returns: A `UIImage` where this image is above the other.
-    func drawAbove(image: UIImage) -> UIImage {
-        return image.drawUnder(image: self)
+    func drawnAbove(image: UIImage) -> UIImage {
+        return image.drawnUnder(image: self)
     }
 }

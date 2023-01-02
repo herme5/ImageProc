@@ -47,9 +47,9 @@ class ProcessedImageCell: UITableViewCell {
             
             functionLabel.text = data.function
             sourceImageView.image = data.sourceImage
-            parametersLabel.text = data.processedImage.map({ (parameters, _) -> String in
-                return "(\(parameters.joined(separator: ", ")))"
-            }).joined(separator: "  ")
+            parametersLabel.text = data.processedImage.map({ result -> String in
+                return "(\(result.parameters.joined(separator: ", ")))"
+            }).joined(separator: "  ") + " in \(data.time) seconds"
             
             functionLabelWidthConstraint.constant = functionLabel.attributedText!.size().width + 20
             parametersLabelWidthConstraint.constant = parametersLabel.attributedText!.size().width + 40
