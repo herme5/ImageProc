@@ -6,6 +6,7 @@
 //  Copyright © 2019 Andrea Ruffino. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 class ProcessedImageCell: UITableViewCell {
@@ -49,7 +50,7 @@ class ProcessedImageCell: UITableViewCell {
             sourceImageView.image = data.sourceImage
             parametersLabel.text = data.processedImage.map({ result -> String in
                 return "(\(result.parameters.joined(separator: ", ")))"
-            }).joined(separator: "  ") + " in \(data.time) seconds"
+            }).joined(separator: "  ") + " in \(String(format: "%.4f", data.time * 1_000)) msecs"
             
             functionLabelWidthConstraint.constant = functionLabel.attributedText!.size().width + 20
             parametersLabelWidthConstraint.constant = parametersLabel.attributedText!.size().width + 40

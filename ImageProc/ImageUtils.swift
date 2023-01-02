@@ -26,7 +26,7 @@ fileprivate class ColorFilter: CIFilter {
     
     /// The GPU-based routine that performs the colorizing algorithm.
     private let kernel: CIColorKernel = {
-        let kernelString =
+        let kernelCode =
         """
         kernel vec4 colorize(__sample pixel, vec4 color) {
             pixel.rgb = pixel.a * color.rgb;
@@ -34,14 +34,12 @@ fileprivate class ColorFilter: CIFilter {
             return pixel;
         }
         """
-        return CIColorKernel(source: kernelString)!
+        return CIColorKernel(source: kernelCode)!
     }()
     
     /// The output image produced by the original image colorized with the input color.
     override var outputImage: CIImage? {
-        
         guard let inputImage = inputImage, let inputColor = inputColor else {
-            print("[IOS] \(self) cannot produce output because inputs are incomplete.")
             return nil
         }
         
@@ -52,15 +50,22 @@ fileprivate class ColorFilter: CIFilter {
 
 public extension UIImage {
     
-    enum Method { case basic, concurrent }
+    /// Optimization methods used in the extension util functions when available.
+    enum OptimizationMethod {
+        /// `basic` optimization usually stands for sequential algorithms or native API based.
+        case basic
+        /// `concurrent` optimization usually stands for GPU parallel algorithms or concurrent dispatch queues.
+        case concurrent
+    }
     
     var sizeInPixel: CGSize { return size * scale }
     
     /// Renders a copy of this image where all opaque pixels have their color replaced by pixels of the given color.
+    ///
     /// - parameters:
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func colorized(with color: UIColor, method: Method = .basic) -> UIImage {
+    func colorized(with color: UIColor, method: OptimizationMethod = .concurrent) -> UIImage {
         var filter: CIFilter!
         
         switch method {
@@ -99,27 +104,36 @@ public extension UIImage {
     }
     
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
-    /// E.g.: Given a degree equals to 90, the method will iterate each 90 degree from 0 to 360 (exluding 360), resulting in 4 iterations: 0, 90, 180 and 270, resulting in an image where replications is drawn at the top, bottom, left and right directions. Otherwise given a degree parameter equels to 1, the method will iterate each 1 degree from 0 to 360, resulting in 360 iterations and making the interpolation much better.
+    ///
+    /// E.g.: Given a degree equals to 90, the method will iterate each 90 degree from 0 to 360 (exluding 360), resulting in 4 iterations: 0, 90, 180 and 270, resulting in an image where replications is drawn at the top, bottom, left and right directions.
+    ///
+    /// Otherwise given a degree parameter equels to 1, the method will iterate each 1 degree from 0 to 360, resulting in 360 iterations and making the interpolation much better.
+    ///
     /// - parameters:
     ///   - size: The distance in pixel.
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func expand(bySize s: CGFloat, each degree: CGFloat = 2, method: Method = .basic) -> UIImage {
+    func expand(bySize s: CGFloat, each degree: CGFloat = 2, method: OptimizationMethod = .concurrent) -> UIImage {
         let oldRect = CGRect(x: s, y: s, width: size.width, height: size.height).integral
         let newSize = CGSize(width: size.width + (2 * s), height: size.height + (2 * s))
         let translationVector = CGVector(dx: s, dy: 0)
+        let verticalFlipTransform = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+        let interpQuality = CGInterpolationQuality.default
+        
         guard let original = cgImage else {
             return self
         }
         
+        // Create the final output context (only one will be used if basic optimisation)
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
-            context.interpolationQuality = .high
-            context.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height))
+            context.interpolationQuality = interpQuality
+            context.concatenate(verticalFlipTransform)
             let range = stride(from: CGFloat(0.0), to: CGFloat(360), by: degree)
             
             switch method {
             case .basic:
+                // Perform a translatation transform in each direction so that the context draw the shape shifted all around the original position. Remember to perform the inverse translation for next iteration.
                 for angle in range {
                     let vector = translationVector.rotated(around: .zero, byDegrees: angle)
                     context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
@@ -128,35 +142,40 @@ public extension UIImage {
                 }
                 
             case .concurrent:
+                // Prepare a barrier queue to fetch back thread unsafe properties.
                 let concurrentExpandMethodQueue = DispatchQueue(
                     label: "fr.andrearuffino.ImageProc.expandMethodQueue",
                     attributes: .concurrent)
-                let iterations = range.map { $0 }
-                var unsafeLayers = [CGLayer]()
-                unsafeLayers.reserveCapacity(iterations.count)
+                let angles = range.map { $0 }
                 
-                func safeLayers() -> [CGLayer] {
-                    var copy = [CGLayer]()
-                    concurrentExpandMethodQueue.sync { copy = unsafeLayers }
-                    return copy
-                }
+                // Think about the iterations as layers (or images) that will be drawn at the end.
+                var unsafeLayers = [CGImage]()
+                unsafeLayers.reserveCapacity(angles.count)
                 
-                DispatchQueue.concurrentPerform(iterations: iterations.count) { i in
-                    let angle = iterations[i]
-                    let vector = translationVector.rotated(around: .zero, byDegrees: angle)
-                
-                    if let iterationlayer = CGLayer(context, size: newSize, auxiliaryInfo: nil), let layerContext = iterationlayer.context {
-                        layerContext.interpolationQuality = .high
+                // Use concurrentPerform method to let the native API manage the parallelism.
+                DispatchQueue.concurrentPerform(iterations: angles.count) { i in
+                    let vector = translationVector.rotated(around: .zero, byDegrees: angles[i])
+                    
+                    // Create new context just for the layer.
+                    UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
+                    if let layerContext = UIGraphicsGetCurrentContext() {
+                        
+                        // Apply the same property as output context
+                        layerContext.interpolationQuality = interpQuality
+                        layerContext.concatenate(verticalFlipTransform)
+                        
+                        // Perform a translatation transform in the right direction and save it for drawing later. Here we don't need to perform inverse translation as we are not working on the final output context.
                         layerContext.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
-                        layerContext.draw(self.cgImage!, in: oldRect)
+                        layerContext.draw(original, in: oldRect)
                         concurrentExpandMethodQueue.sync(flags: .barrier) {
-                            unsafeLayers.append(iterationlayer)
+                            unsafeLayers.append(layerContext.makeImage()!)
                         }
                     }
+                    UIGraphicsEndImageContext()
                 }
-                
+                // Perform the drawing of all the layer we have concurently processed
                 for layer in unsafeLayers {
-                    context.draw(layer, at: .zero)
+                    context.draw(layer, in: CGRect(origin: .zero, size: newSize))
                 }
             }
             
@@ -169,6 +188,7 @@ public extension UIImage {
     }
     
     /// Renders a copy of this image with a border along the opaque region of this image.
+    ///
     /// - parameters:
     ///   - color: The border color.
     ///   - size: The border size.
@@ -180,6 +200,7 @@ public extension UIImage {
     }
     
     /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the time the output image will be larger than the source image.
+    ///
     /// - parameters:
     ///   - radius: The blur radius in point.
     ///   - sizeKept: Whether the output image should keep the same size as before, or its size is increased by radius so that we are sure the blur effect can exceed the initial size.
@@ -198,15 +219,20 @@ public extension UIImage {
             // gaussian filter can increase the image, thus we resize it to initial
             let rect = sizeKept ? CGRect(origin: .zero, size: sizeInPixel) : ciOutputImage.extent
             let context = CIContext(options: nil)
-            let cgImg = context.createCGImage(ciOutputImage, from: rect)
             
-            return UIImage(cgImage: cgImg!, scale: scale, orientation: imageOrientation).withRenderingMode(renderingMode)
-        } else {
-            return self
+            if let cgImg = context.createCGImage(ciOutputImage, from: rect) {
+                let newImage = UIImage(cgImage: cgImg, scale: scale, orientation: imageOrientation)
+                return newImage.withRenderingMode(renderingMode)
+            }
+            else {
+                return self
+            }
         }
+        return self
     }
     
     /// Renders a more transparent copy of this image.
+    ///
     /// - parameters:
     ///   - value: The maximum alpha component value of the rendered image.
     /// - returns: A more transparent `UIImage`.
@@ -223,6 +249,7 @@ public extension UIImage {
     }
     
     /// Renders a scaled copy of this image given a new size in points.
+    ///
     /// - parameters:
     ///   - newSize: The new size of the output image.
     /// - returns: A sclaed `UIImage`.
@@ -245,7 +272,9 @@ public extension UIImage {
         return self
     }
     
-    /// Renders a scaled copy of this image given a new width in points, the height is computed so that aspect ratio is kept to 1:1.
+    /// Renders a scaled copy of this image given a new width in points, the height is computed so that aspect ratio is
+    /// kept to 1:1.
+    ///
     /// - parameters:
     ///   - newWidth: The new width of the output image.
     /// - returns: A sclaed `UIImage`.
@@ -254,7 +283,9 @@ public extension UIImage {
         return scaled(to: CGSize(width: newWidth, height: newHeight))
     }
     
-    /// Renders a scaled copy of this image given a new height in points, the width is computed so that aspect ratio is kept to 1:1.
+    /// Renders a scaled copy of this image given a new height in points, the width is computed so that aspect ratio is
+    /// kept to 1:1.
+    ///
     /// - parameters:
     ///   - newHeight: The new height of the output image.
     /// - returns: A sclaed `UIImage`.
@@ -264,6 +295,7 @@ public extension UIImage {
     }
     
     /// Crops and returns a copy of this image given a new rect.
+    ///
     /// - parameters:
     ///   - rect: The new rect to which the image will be cropped.
     /// - returns: A cropped `UIImage`.
@@ -276,6 +308,7 @@ public extension UIImage {
     }
     
     /// Rotates and returns a copy of this image given an angle in degrees.
+    ///
     /// - parameters:
     ///   - degrees: the clockwise angle to which the image has to be rotated.
     ///   - flip: boolean that indicate if the image should be flipped in the zero degree direction axis after the rotation.
@@ -311,6 +344,7 @@ public extension UIImage {
     }
     
     /// Flips along X and returns a copy of this image.
+    ///
     /// - returns: A horizontally flipped `UIImage`.
     func flippedHorizontally() -> UIImage {
         UIGraphicsBeginImageContext(sizeInPixel)
@@ -330,6 +364,7 @@ public extension UIImage {
     }
     
     /// Flips along Y and returns a copy of this image.
+    ///
     /// - returns: A vertically flipped `UIImage`.
     func flippedVertically() -> UIImage {
         UIGraphicsBeginImageContext(sizeInPixel)
@@ -347,6 +382,7 @@ public extension UIImage {
     }
     
     /// Overlays this image under another image and returns a copy of the two images combined.
+    ///
     /// - returns: A `UIImage` where this image is under the other.
     func drawnUnder(image: UIImage) -> UIImage {
         let maxWidth = max(self.size.width, image.size.width)
@@ -375,8 +411,28 @@ public extension UIImage {
     }
     
     /// Overlays this image above another image and returns a copy of the two images combined.
+    ///
     /// - returns: A `UIImage` where this image is above the other.
     func drawnAbove(image: UIImage) -> UIImage {
         return image.drawnUnder(image: self)
     }
+    
+    // func pixelData() -> [UInt8]? {
+    //     let size = self.size
+    //     let dataSize = size.width * size.height * 4
+    //     var pixelData = [UInt8](repeating: 0, count: Int(dataSize))
+    //     let colorSpace = CGColorSpaceCreateDeviceRGB()
+    //     let context = CGContext(data: &pixelData,
+    //                             width: Int(size.width),
+    //                             height: Int(size.height),
+    //                             bitsPerComponent: 8,
+    //                             bytesPerRow: 4 * Int(size.width),
+    //                             space: colorSpace,
+    //                             bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)
+    //     guard let cgImage = self.cgImage else { return nil }
+    //     context?.draw(cgImage, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+    //
+    //     print("size", size)
+    //     return pixelData
+    // }
 }

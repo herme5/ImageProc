@@ -69,9 +69,9 @@ class ViewController: UIViewController {
             output.function = "im0.colorized(with: UIColor)"
             output.sourceImage = img_0
             output.processedImage = [
-                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1)),
-                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3))]
+                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .basic)),
+                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2, method: .basic)),
+                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .basic))]
         }
         var res_1 = ProcessedImage()
         measureTime(output: &res_1) { (output) in
@@ -87,11 +87,11 @@ class ViewController: UIViewController {
             output.function = "im1.expand(bySize: CGFloat, each: CGFloat)"
             output.sourceImage = img_1
             output.processedImage = [
-                ProcessResults(["20","60"], img_1.expand(bySize: 20, each: 60)),
-                ProcessResults(["20","45"], img_1.expand(bySize: 20, each: 45)),
-                ProcessResults(["20","10"], img_1.expand(bySize: 20, each: 10)),
-                ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2)),
-                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1))]
+                ProcessResults(["20","60"], img_1.expand(bySize: 20, each: 60, method: .basic)),
+                ProcessResults(["20","20"], img_1.expand(bySize: 20, each: 20, method: .basic)),
+                ProcessResults(["20","10"], img_1.expand(bySize: 20, each: 10, method: .basic)),
+                ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .basic)),
+                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .basic))]
         }
         var res_3 = ProcessedImage()
         measureTime(output: &res_3) { (output) in
@@ -99,7 +99,7 @@ class ViewController: UIViewController {
             output.sourceImage = img_1
             output.processedImage = [
                 ProcessResults(["20","60"], img_1.expand(bySize: 20, each: 60, method: .concurrent)),
-                ProcessResults(["20","45"], img_1.expand(bySize: 20, each: 45, method: .concurrent)),
+                ProcessResults(["20","20"], img_1.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20","10"], img_1.expand(bySize: 20, each: 10, method: .concurrent)),
                 ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .concurrent)),
                 ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .concurrent))]
