@@ -103,6 +103,17 @@ public extension UIImage {
         return UIImage(cgImage: cgOutput, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
     }
     
+    private static var _cachedRangeDegree = CGFloat(2)
+    private static var _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
+    private static var _cachedRange = _cachedRangeStride.map { $0 }
+    private static func _setupCachedRange(_ degree : CGFloat) {
+        if degree != _cachedRangeDegree {
+            _cachedRangeDegree = degree
+            _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
+            _cachedRange = _cachedRangeStride.map { $0 }
+        }
+    }
+    
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
     ///
     /// E.g.: Given a degree equals to 90, the method will iterate each 90 degree from 0 to 360 (exluding 360), resulting in 4 iterations: 0, 90, 180 and 270, resulting in an image where replications is drawn at the top, bottom, left and right directions.
@@ -119,6 +130,7 @@ public extension UIImage {
         let translationVector = CGVector(dx: s, dy: 0)
         let verticalFlipTransform = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
         let interpQuality = CGInterpolationQuality.default
+        UIImage._setupCachedRange(degree)
         
         guard let original = cgImage else {
             return self
@@ -129,7 +141,7 @@ public extension UIImage {
         if let context = UIGraphicsGetCurrentContext() {
             context.interpolationQuality = interpQuality
             context.concatenate(verticalFlipTransform)
-            let range = stride(from: CGFloat(0.0), to: CGFloat(360), by: degree)
+            let range = UIImage._cachedRangeStride
             
             switch method {
             case .basic:
@@ -142,11 +154,11 @@ public extension UIImage {
                 }
                 
             case .concurrent:
-                // Prepare a barrier queue to fetch back thread unsafe properties.
+                // Prepare a barrier queue to fetch back thread-unsafe properties.
                 let concurrentExpandMethodQueue = DispatchQueue(
                     label: "fr.andrearuffino.ImageProc.expandMethodQueue",
                     attributes: .concurrent)
-                let angles = range.map { $0 }
+                let angles = UIImage._cachedRange
                 
                 // Think about the iterations as layers (or images) that will be drawn at the end.
                 var unsafeLayers = [CGImage]()

@@ -21,14 +21,18 @@ fileprivate class Hexadecimal {
     static func valueFrom(string: String) -> UInt {
         var value: UInt = 0
         for (index,char) in string.uppercased().reversed().enumerated() {
-            guard let mantissa = digits[char] else { return 0 }
-            let weight = UInt(pow(16, Double(index)))
-            value += mantissa * weight
+            guard let digit = digits[char] else {
+                return 0
+            }
+            // pow(16, index)
+            let weight = UInt(1) << (4 * index)
+            value += digit * weight
         }
         return value
     }
     
     /// Converts an hexadecimal value to a string. The leading zeros and the case can be specified.
+    ///
     /// - parameters:
     ///   - value: the integer value,
     static func stringFrom(value: UInt, digitCount: UInt? = nil, uppercased: Bool = true) -> String {
@@ -72,6 +76,7 @@ public extension UIColor {
     }
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
+    ///
     /// - parameters:
     ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
@@ -83,6 +88,7 @@ public extension UIColor {
     }
     
     /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not well formatted a full opaque black color is returned.
+    ///
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
@@ -97,6 +103,7 @@ public extension UIColor {
     }
     
     /// Returns a color object that has an alpha value added to the specified value.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be more opaque, otherwise it will be more transparent.
     func moreOpaque(by value: CGFloat = 0.25) -> UIColor {
@@ -106,6 +113,7 @@ public extension UIColor {
     }
     
     /// Returns a color object that has an alpha value subtracted by the specified value.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be more transparent, otherwise it will be more opaque.
     func lessOpaque(by value: CGFloat = 0.25) -> UIColor {
@@ -113,6 +121,7 @@ public extension UIColor {
     }
     
     /// Returns a lighter or darker color by adding `value` to the three RGB components. In the HSL color space the hue is kept.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be lighter, otherwise it will be darker.
     func lighter(by value: CGFloat = 0.15) -> UIColor {
@@ -128,6 +137,7 @@ public extension UIColor {
     }
     
     /// Returns a darker or lighter color by substracting `value` to the three RGB components. In the HSL color space the hue is kept.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be darker, otherwise it will be lighter.
     func darker(by value: CGFloat = 0.15) -> UIColor {
@@ -135,6 +145,7 @@ public extension UIColor {
     }
     
     /// Returns a color object by adding `value` to the saturation component in the HSL color space.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be more saturated, otherwise it will be closer to a grey level color.
     func saturated(by value: CGFloat = 0.15) -> UIColor {
@@ -149,6 +160,7 @@ public extension UIColor {
     }
     
     /// Returns a color object by adding `value` to the brightness component in the HSL color space.
+    ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be brighter, otherwise it will be darker.
     func brightened(by value: CGFloat = 0.15) -> UIColor {
@@ -163,6 +175,7 @@ public extension UIColor {
     }
     
     /// Returns a color object by offsetting the hue component in the HSL color space. The brightness and saturation stay the same.
+    ///
     /// - parameters:
     ///   - value: The hue is offset by the value, and the modulo to 1.0 is considered.
     func hueOffset(by value: CGFloat = 0.15) -> UIColor {
@@ -180,6 +193,7 @@ public extension UIColor {
 extension CGColor {
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
+    ///
     /// - parameters:
     ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
@@ -192,6 +206,7 @@ extension CGColor {
     }
     
     /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not well formatted a full opaque black color is returned.
+    ///
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
@@ -208,9 +223,9 @@ extension CGColor {
     var hexCode: String {
         get {
             let rgbaColor = self.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil)!
-            let hexRed   = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![0] * 255), digitCount: 2) //String(format: "%02X", Int(rgbaColor.components![0] * 255))
-            let hexGreen = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![1] * 255), digitCount: 2) //String(format: "%02X", Int(rgbaColor.components![1] * 255))
-            let hexBlue  = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![2] * 255), digitCount: 2) //String(format: "%02X", Int(rgbaColor.components![2] * 255))
+            let hexRed   = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![0] * 255), digitCount: 2)
+            let hexGreen = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![1] * 255), digitCount: 2)
+            let hexBlue  = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![2] * 255), digitCount: 2)
             return "#\(hexRed)\(hexGreen)\(hexBlue)"
         }
     }

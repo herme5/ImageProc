@@ -46,47 +46,49 @@ internal extension CGVector {
 
 // MARK: - CGPoint operator overloading
 
+// internal func + (left: CGPoint, right: CGPoint) -> CGPoint {
+//     return CGPoint(x: left.x + right.x, y: left.y + right.y)
+// }
+
+// internal func - (left: CGPoint, right: CGPoint) -> CGPoint {
+//     return CGPoint(x: left.x - right.x, y: left.y - right.y)
+// }
+
 internal func * (left: CGPoint, right: CGFloat) -> CGPoint {
     return CGPoint(x: left.x * right, y: left.y * right)
 }
 
-internal func * (left: CGFloat, right: CGPoint) -> CGPoint {
-    return right * left
-}
+// internal func * (left: CGFloat, right: CGPoint) -> CGPoint {
+//     return right * left
+// }
 
-internal func / (left: CGPoint, right: CGFloat) -> CGPoint {
-    return CGPoint(x: left.x / right, y: left.y / right)
-}
+// internal func / (left: CGPoint, right: CGFloat) -> CGPoint {
+//     return CGPoint(x: left.x / right, y: left.y / right)
+// }
 
-internal func + (left: CGPoint, right: CGPoint) -> CGPoint {
-    return CGPoint(x: left.x + right.x, y: left.y + right.y)
-}
+// internal func += (left: inout CGPoint, right: CGPoint) {
+//     left.x += right.x
+//     left.y += right.y
+// }
 
-internal func - (left: CGPoint, right: CGPoint) -> CGPoint {
-    return CGPoint(x: left.x - right.x, y: left.y - right.y)
-}
+// internal func -= (left: inout CGPoint, right: CGPoint) {
+//     left.x -= right.x
+//     left.y -= right.y
+// }
 
-internal func += (left: inout CGPoint, right: CGPoint) {
-    left.x = left.x + right.x
-    left.y = left.y + right.y
-}
+// internal func *= (left: inout CGPoint, right: CGFloat) {
+//     left.x *= right
+//     left.y *= right
+// }
 
-internal func -= (left: inout CGPoint, right: CGPoint) {
-    left.x = left.x - right.x
-    left.y = left.y - right.y
-}
+// internal func /= (left: inout CGPoint, right: CGFloat) {
+//     left.x /= right
+//     left.y /= right
+// }
 
-internal func *= (left: inout CGPoint, right: CGFloat) {
-    left = left * right
-}
-
-internal func /= (left: inout CGPoint, right: CGFloat) {
-    left = left / right
-}
-
-internal prefix func - (point: CGPoint) -> CGPoint {
-    return CGPoint(x: -point.x, y: -point.y)
-}
+// internal prefix func - (point: CGPoint) -> CGPoint {
+//     return CGPoint(x: -point.x, y: -point.y)
+// }
 
 // MARK: - CGSize operator overloading
 
@@ -94,18 +96,20 @@ internal func * (left: CGSize, right: CGFloat) -> CGSize {
     return CGSize(width: left.width * right, height: left.height * right)
 }
 
-internal func * (left: CGFloat, right: CGSize) -> CGSize {
-    return right * left
-}
+// internal func * (left: CGFloat, right: CGSize) -> CGSize {
+//     return right * left
+// }
 
 internal func / (left: CGSize, right: CGFloat) -> CGSize {
     return CGSize(width: left.width / right, height: left.height / right)
 }
 
-internal func *= (left: inout CGSize, right: CGFloat) {
-    left = left * right
-}
+// internal func *= (left: inout CGSize, right: CGFloat) {
+//     left.width *= right
+//     left.height *= right
+// }
 
-internal func /= (left: inout CGSize, right: CGFloat) {
-    left = left / right
-}
+// internal func /= (left: inout CGSize, right: CGFloat) {
+//     left.width /= right
+//     left.height /= right
+// }
