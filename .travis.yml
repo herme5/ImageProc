@@ -3,8 +3,8 @@ osx_image: xcode14.1
 
 env:
   matrix:
-    - TEST_SDK=iphonesimulator16.0 OS=16.0 NAME='iPhone 14'
-    - TEST_SDK=iphonesimulator16.0 OS=16.0 NAME='iPad (10th generation)'
+    - TEST_SDK=iphonesimulator OS=16.1 NAME='iPhone 14'
+    - TEST_SDK=iphonesimulator OS=16.1 NAME='iPad (10th generation)'
 
 script:
   - set -o pipefail && xcodebuild test -enableCodeCoverage YES -project ImageProc.xcodeproj -scheme ImageProcTests -sdk $TEST_SDK -destination "platform=iOS Simulator,OS=$OS,name=$NAME" ONLY_ACTIVE_ARCH=YES
