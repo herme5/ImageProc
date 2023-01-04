@@ -1,3 +1,5 @@
+[![Build Status](https://app.travis-ci.com/herme5/ImageProc.svg?branch=master)](https://app.travis-ci.com/herme5/ImageProc)
+
 ## Introduction
 
 ImageProc is a collection of Swift utility methods for PNG image processing through the `UIImage` native API.
