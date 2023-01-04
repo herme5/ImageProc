@@ -59,6 +59,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		623C428D2965DAE000B07D2E /* ImageProc.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageProc.podspec; sourceTree = "<group>"; };
 		6252C4282228583A00B7877A /* ImageProc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageProc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6252C42B2228583A00B7877A /* ImageProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageProc.h; sourceTree = "<group>"; };
 		6252C42C2228583A00B7877A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -110,6 +111,7 @@
 		6252C41E2228583A00B7877A = {
 			isa = PBXGroup;
 			children = (
+				623C428D2965DAE000B07D2E /* ImageProc.podspec */,
 				6252C42A2228583A00B7877A /* ImageProc */,
 				627DC355226BCB6A00FF7A45 /* ImageProcApp */,
 				62A1C85F2955100A0069D590 /* ImageProcTests */,
