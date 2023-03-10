@@ -1,5 +1,5 @@
 //
-//  FoundationUtils.swift
+//  StringExtension.swift
 //  ImageProc
 //
 //  Created by Andrea Ruffino on 10/01/2019.

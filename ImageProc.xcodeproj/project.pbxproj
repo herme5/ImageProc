@@ -7,11 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		624C6C9F29BB401F0068FFA3 /* CGVectorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6C9E29BB401F0068FFA3 /* CGVectorExtension.swift */; };
+		624C6CA129BB41060068FFA3 /* CGPointExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6CA029BB41060068FFA3 /* CGPointExtension.swift */; };
+		624C6CA329BB41110068FFA3 /* CGSizeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6CA229BB41110068FFA3 /* CGSizeExtension.swift */; };
+		624C6CA529BB42210068FFA3 /* CGColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6CA429BB42210068FFA3 /* CGColorExtension.swift */; };
+		624C6CA729BB43430068FFA3 /* HexadecimalHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */; };
+		624C6CA929BB483F0068FFA3 /* ColorFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624C6CA829BB483F0068FFA3 /* ColorFilter.swift */; };
 		6252C4392228583A00B7877A /* ImageProc.h in Headers */ = {isa = PBXBuildFile; fileRef = 6252C42B2228583A00B7877A /* ImageProc.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6252C4432228588000B7877A /* FoundationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4422228588000B7877A /* FoundationUtils.swift */; };
-		6252C445222858B900B7877A /* GeometryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C444222858B900B7877A /* GeometryUtils.swift */; };
-		6252C447222858DF00B7877A /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C446222858DF00B7877A /* ColorUtils.swift */; };
-		6252C4492228590A00B7877A /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4482228590A00B7877A /* ImageUtils.swift */; };
+		6252C4432228588000B7877A /* StringExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4422228588000B7877A /* StringExtension.swift */; };
+		6252C445222858B900B7877A /* CGRectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C444222858B900B7877A /* CGRectExtension.swift */; };
+		6252C447222858DF00B7877A /* UIColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C446222858DF00B7877A /* UIColorExtension.swift */; };
+		6252C4492228590A00B7877A /* UIImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6252C4482228590A00B7877A /* UIImageExtension.swift */; };
 		627DC357226BCB6A00FF7A45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627DC356226BCB6A00FF7A45 /* AppDelegate.swift */; };
 		627DC359226BCB6A00FF7A45 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627DC358226BCB6A00FF7A45 /* ViewController.swift */; };
 		627DC35C226BCB6A00FF7A45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 627DC35A226BCB6A00FF7A45 /* Main.storyboard */; };
@@ -60,13 +66,19 @@
 
 /* Begin PBXFileReference section */
 		623C428D2965DAE000B07D2E /* ImageProc.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = ImageProc.podspec; sourceTree = "<group>"; };
+		624C6C9E29BB401F0068FFA3 /* CGVectorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGVectorExtension.swift; sourceTree = "<group>"; };
+		624C6CA029BB41060068FFA3 /* CGPointExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGPointExtension.swift; sourceTree = "<group>"; };
+		624C6CA229BB41110068FFA3 /* CGSizeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGSizeExtension.swift; sourceTree = "<group>"; };
+		624C6CA429BB42210068FFA3 /* CGColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGColorExtension.swift; sourceTree = "<group>"; };
+		624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
+		624C6CA829BB483F0068FFA3 /* ColorFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorFilter.swift; sourceTree = "<group>"; };
 		6252C4282228583A00B7877A /* ImageProc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageProc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6252C42B2228583A00B7877A /* ImageProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageProc.h; sourceTree = "<group>"; };
 		6252C42C2228583A00B7877A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6252C4422228588000B7877A /* FoundationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationUtils.swift; sourceTree = "<group>"; };
-		6252C444222858B900B7877A /* GeometryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryUtils.swift; sourceTree = "<group>"; };
-		6252C446222858DF00B7877A /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
-		6252C4482228590A00B7877A /* ImageUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
+		6252C4422228588000B7877A /* StringExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtension.swift; sourceTree = "<group>"; };
+		6252C444222858B900B7877A /* CGRectExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtension.swift; sourceTree = "<group>"; };
+		6252C446222858DF00B7877A /* UIColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtension.swift; sourceTree = "<group>"; };
+		6252C4482228590A00B7877A /* UIImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtension.swift; sourceTree = "<group>"; };
 		627DC354226BCB6A00FF7A45 /* ImageProcApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageProcApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		627DC356226BCB6A00FF7A45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		627DC358226BCB6A00FF7A45 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -134,11 +146,17 @@
 			isa = PBXGroup;
 			children = (
 				6252C42B2228583A00B7877A /* ImageProc.h */,
-				6252C4422228588000B7877A /* FoundationUtils.swift */,
-				6252C444222858B900B7877A /* GeometryUtils.swift */,
-				6252C446222858DF00B7877A /* ColorUtils.swift */,
-				6252C4482228590A00B7877A /* ImageUtils.swift */,
 				6252C42C2228583A00B7877A /* Info.plist */,
+				624C6CA429BB42210068FFA3 /* CGColorExtension.swift */,
+				624C6CA029BB41060068FFA3 /* CGPointExtension.swift */,
+				6252C444222858B900B7877A /* CGRectExtension.swift */,
+				624C6CA229BB41110068FFA3 /* CGSizeExtension.swift */,
+				624C6C9E29BB401F0068FFA3 /* CGVectorExtension.swift */,
+				624C6CA829BB483F0068FFA3 /* ColorFilter.swift */,
+				624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */,
+				6252C4422228588000B7877A /* StringExtension.swift */,
+				6252C446222858DF00B7877A /* UIColorExtension.swift */,
+				6252C4482228590A00B7877A /* UIImageExtension.swift */,
 			);
 			path = ImageProc;
 			sourceTree = "<group>";
@@ -318,10 +336,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6252C447222858DF00B7877A /* ColorUtils.swift in Sources */,
-				6252C4432228588000B7877A /* FoundationUtils.swift in Sources */,
-				6252C445222858B900B7877A /* GeometryUtils.swift in Sources */,
-				6252C4492228590A00B7877A /* ImageUtils.swift in Sources */,
+				624C6CA729BB43430068FFA3 /* HexadecimalHelper.swift in Sources */,
+				624C6CA929BB483F0068FFA3 /* ColorFilter.swift in Sources */,
+				6252C447222858DF00B7877A /* UIColorExtension.swift in Sources */,
+				624C6C9F29BB401F0068FFA3 /* CGVectorExtension.swift in Sources */,
+				624C6CA329BB41110068FFA3 /* CGSizeExtension.swift in Sources */,
+				624C6CA129BB41060068FFA3 /* CGPointExtension.swift in Sources */,
+				6252C4432228588000B7877A /* StringExtension.swift in Sources */,
+				6252C445222858B900B7877A /* CGRectExtension.swift in Sources */,
+				6252C4492228590A00B7877A /* UIImageExtension.swift in Sources */,
+				624C6CA529BB42210068FFA3 /* CGColorExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,5 @@
 //
-//  ImageUtils.swift
+//  UIImageExtension.swift
 //  ImageProc
 //
 //  Created by Andrea Ruffino on 28/02/2019.

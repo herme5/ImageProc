@@ -1,5 +1,5 @@
 //
-//  GeometryUtils.swift
+//  CGRectExtension.swift
 //  ImageProc
 //
 //  Created by Andrea Ruffino on 11/01/2019.
