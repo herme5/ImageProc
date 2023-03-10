@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
 
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   spec.name         = "ImageProc"
-  spec.version      = "1.0.0"
+  spec.version      = "1.0.1"
   spec.summary      = "A collection of Image Processing Swift UIKit methods."
   spec.homepage     = "https://github.com/herme5/ImageProc"
   spec.description  = <<-DESC
