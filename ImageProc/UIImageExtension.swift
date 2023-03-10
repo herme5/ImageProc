@@ -308,26 +308,30 @@ public extension UIImage {
     /// - returns: A rotated `UIImage`.
     func rotated(by degrees: CGFloat) -> UIImage {
         let degreesToRadians: (CGFloat) -> CGFloat = { return $0 / 180.0 * CGFloat.pi }
-        
+        let radians = -degreesToRadians(degrees)
+    
         // Calculate the size of the rotated view's containing box for our drawing space
         let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: size))
-        let t = CGAffineTransform(rotationAngle: degreesToRadians(degrees));
-        rotatedViewBox.transform = t
-        let rotatedSize = rotatedViewBox.frame.size * scale
-        
+        rotatedViewBox.transform = rotatedViewBox.transform.rotated(by: radians)
+        let newSize = rotatedViewBox.frame.integral.size
+    
         // Create the bitmap context
-        UIGraphicsBeginImageContext(rotatedSize)
+        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
             
+            let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+            // context.interpolationQuality = .high
+            context.concatenate(flipVertical)
+    
             // Move the origin to the middle of the image so we will rotate and scale around the center.
-            context.translateBy(x: rotatedSize.width / 2.0, y: rotatedSize.height / 2.0)
-            context.rotate(by: degreesToRadians(degrees))
-            
+            context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
+            context.rotate(by: radians)
+    
             // Now, draw the rotated/scaled image into the context
             // Remember to replace the center
-            context.scaleBy(x: 1.0, y: -1.0)
-            context.draw(cgImage!, in: CGRect(x: -sizeInPixel.width  / 2, y: -sizeInPixel.height / 2, width: sizeInPixel.width, height: sizeInPixel.height))
-            
+            context.translateBy(x: -size.width / 2, y: -size.height / 2)
+            context.draw(cgImage!, in: CGRect(origin: .zero, size: size))
+    
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
             return newImage.withRenderingMode(renderingMode)
