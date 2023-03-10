@@ -1,5 +1,5 @@
 //
-//  FoundationUtils.swift
+//  StringExtension.swift
 //  ImageProc
 //
 //  Created by Andrea Ruffino on 10/01/2019.
@@ -18,7 +18,7 @@ internal extension String {
     
     subscript (range: Range<Int>) -> Substring {
         let start = index(startIndex, offsetBy: range.lowerBound)
-        return self[start ..< self.endIndex]
+        return self[start ..< endIndex]
     }
     
     subscript (range: Range<Int>) -> String {
