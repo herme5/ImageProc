@@ -5,40 +5,10 @@
 //  Created by Andrea Ruffino on 10/01/2019.
 //  Copyright © 2019 Andrea Ruffino. All rights reserved.
 //
+
 import UIKit
 
-// MARK: - HexadecimalConverter
-
-fileprivate class Hexadecimal {
-    
-    /// The decimal to hexadecimal digits mapping table.
-    static let digits: [Character:UInt] = ["0":0, "1":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "A":10, "B":11, "C":12, "D":13, "E":14, "F":15]
-    
-    /// Initializer is unavailable, this class contains only static members.
-    private init() { }
-    
-    /// Converts an hexadecimal string to integer value. The input string can be either uppercase or lowercase, but must not contain whitespace or any character that is not an hexadecimal digit. All unrecognized characters will result in the function returning 0.
-    static func valueFrom(string: String) -> UInt {
-        var value: UInt = 0
-        for (index,char) in string.uppercased().reversed().enumerated() {
-            guard let digit = digits[char] else {
-                return 0
-            }
-            // pow(16, index)
-            let weight = UInt(1) << (4 * index)
-            value += digit * weight
-        }
-        return value
-    }
-    
-    /// Converts an hexadecimal value to a string. The leading zeros and the case can be specified.
-    ///
-    /// - parameters:
-    ///   - value: the integer value,
-    static func stringFrom(value: UInt, digitCount: UInt? = nil, uppercased: Bool = true) -> String {
-        return String(format: "%\(digitCount == nil ? "" : "0\(digitCount!)")\(uppercased ? "X" : "x")", value)
-    }
-}
+// MARK: - UIColor extension
 
 public extension UIColor {
     
@@ -69,9 +39,9 @@ public extension UIColor {
         var blue:  CGFloat = 0
         var alpha: CGFloat = 0
         getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        let hexRed   = Hexadecimal.stringFrom(value: UInt(red   * 255), digitCount: 2)
-        let hexGreen = Hexadecimal.stringFrom(value: UInt(green * 255), digitCount: 2)
-        let hexBlue  = Hexadecimal.stringFrom(value: UInt(blue  * 255), digitCount: 2)
+        let hexRed   = HexadecimalHelper.stringFrom(value: UInt(red   * 255), digitCount: 2)
+        let hexGreen = HexadecimalHelper.stringFrom(value: UInt(green * 255), digitCount: 2)
+        let hexBlue  = HexadecimalHelper.stringFrom(value: UInt(blue  * 255), digitCount: 2)
         return "#\(hexRed)\(hexGreen)\(hexBlue)"
     }
     
@@ -98,7 +68,7 @@ public extension UIColor {
             return
         }
         
-        let value = Hexadecimal.valueFrom(string: hexCode[1..<7])
+        let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7])
         self.init(value: value, alpha: alpha)
     }
     
@@ -189,45 +159,3 @@ public extension UIColor {
         return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
     }
 }
-
-extension CGColor {
-    
-    /// Initializes a color object using the specified opacity and hexadecimal RGB value.
-    ///
-    /// - parameters:
-    ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
-    ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    private static func from(value hex: UInt, alpha: CGFloat = 1.0) -> CGColor {
-        let rgbaComponents = [CGFloat((hex >> 16) & 0xFF) / 255.0,
-                              CGFloat((hex >> 8)  & 0xFF) / 255.0,
-                              CGFloat( hex        & 0xFF) / 255.0,
-                              alpha]
-        return CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: rgbaComponents)!
-    }
-    
-    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not well formatted a full opaque black color is returned.
-    ///
-    /// - parameters:
-    ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
-    ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    static func from(hexCode: String, alpha: CGFloat = 1.0) -> CGColor {
-        guard hexCode.count == 7 && hexCode[0] == "#" else {
-            return CGColor.from(value: 0)
-        }
-        
-        let value = Hexadecimal.valueFrom(string: hexCode[1..<7])
-        return CGColor.from(value: value, alpha: alpha)
-    }
-    
-    /// The hexadecimal color code as a string prefixed with a `#` and representing the RGB components.
-    var hexCode: String {
-        get {
-            let rgbaColor = self.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil)!
-            let hexRed   = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![0] * 255), digitCount: 2)
-            let hexGreen = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![1] * 255), digitCount: 2)
-            let hexBlue  = Hexadecimal.stringFrom(value: UInt(rgbaColor.components![2] * 255), digitCount: 2)
-            return "#\(hexRed)\(hexGreen)\(hexBlue)"
-        }
-    }
-}
-
