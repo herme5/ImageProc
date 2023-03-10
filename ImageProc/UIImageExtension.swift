@@ -34,7 +34,7 @@ public extension UIImage {
         switch method {
         case .basic:
             let colorMatrixFilter = CIFilter(name: "CIColorMatrix")!
-            let inputColor = CIColor(cgColor: color.cgColor)
+            let channels = color.rgba
             
             // Throw away existing colors, and fill the non transparent pixels with the input color
             // s.r = dot(s, redVector), s.g = dot(s, greenVector), s.b = dot(s, blueVector), s.a = dot(s, alphaVector)
@@ -43,7 +43,8 @@ public extension UIImage {
             colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
             colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
             colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
-            colorMatrixFilter.setValue(CIVector(x: inputColor.red, y: inputColor.green, z: inputColor.blue, w: 0), forKey: "inputBiasVector")
+            colorMatrixFilter.setValue(CIVector(x: channels.red, y: channels.green, z: channels.blue, w: 0),
+                                       forKey: "inputBiasVector")
             colorMatrixFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
             
             // Down casting ColorFilter to CIFilter to finalize drawing
@@ -60,10 +61,13 @@ public extension UIImage {
         }
         
         let context = CIContext(options: [.workingColorSpace: CGColorSpaceCreateDeviceRGB()])
-        guard let ciOutput = filter.outputImage, let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
+        guard let ciOutput = filter.outputImage,
+              let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)
+        else {
             return self
         }
-        return UIImage(cgImage: cgOutput, scale: self.scale, orientation: self.imageOrientation).withAlphaComponent(color.rgba.alpha).withRenderingMode(self.renderingMode)
+        return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation)
+            .withRenderingMode(renderingMode)
     }
     
     private static var _cachedRangeDegree = CGFloat(2)
@@ -77,11 +81,15 @@ public extension UIImage {
         }
     }
     
-    /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
+    /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque
+    /// shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
     ///
-    /// E.g.: Given a degree equals to 90, the method will iterate each 90 degree from 0 to 360 (exluding 360), resulting in 4 iterations: 0, 90, 180 and 270, resulting in an image where replications is drawn at the top, bottom, left and right directions.
+    /// E.g.: Given a degree equals to 90, the method will iterate each 90 degree from 0 to 360 (exluding 360),
+    /// resulting in 4 iterations: 0, 90, 180 and 270, resulting in an image where replications is drawn at the top,
+    /// bottom, left and right directions.
     ///
-    /// Otherwise given a degree parameter equels to 1, the method will iterate each 1 degree from 0 to 360, resulting in 360 iterations and making the interpolation much better.
+    /// Otherwise given a degree parameter equels to 1, the method will iterate each 1 degree from 0 to 360, resulting
+    /// in 360 iterations and making the interpolation much better.
     ///
     /// - parameters:
     ///   - size: The distance in pixel.
@@ -108,7 +116,8 @@ public extension UIImage {
             
             switch method {
             case .basic:
-                // Perform a translatation transform in each direction so that the context draw the shape shifted all around the original position. Remember to perform the inverse translation for next iteration.
+                // Perform a translatation transform in each direction so that the context draw the shape shifted all
+                // around the original position. Remember to perform the inverse translation for next iteration.
                 for angle in range {
                     let vector = translationVector.rotated(around: .zero, byDegrees: angle)
                     context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
@@ -139,7 +148,9 @@ public extension UIImage {
                         layerContext.interpolationQuality = interpQuality
                         layerContext.concatenate(verticalFlipTransform)
                         
-                        // Perform a translatation transform in the right direction and save it for drawing later. Here we don't need to perform inverse translation as we are not working on the final output context.
+                        // Perform a translatation transform in the right direction and save it for drawing later.
+                        // Here we don't need to perform inverse translation as we are not working on the final output
+                        // context.
                         layerContext.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
                         layerContext.draw(original, in: oldRect)
                         concurrentExpandMethodQueue.sync(flags: .barrier) {
@@ -170,15 +181,19 @@ public extension UIImage {
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
     func stroked(with color: UIColor, size s: CGFloat, each degree: CGFloat = 2, alpha: CGFloat = 1) -> UIImage {
-        let strokeImage = self.colorized(with: color).expand(bySize: s, each: degree).withAlphaComponent(alpha)
-        return self.drawnAbove(image: strokeImage)
+        return colorized(with: color)
+            .expand(bySize: s, each: degree)
+            .withAlphaComponent(alpha)
+            .drawnUnder(image: self)
     }
     
-    /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the time the output image will be larger than the source image.
+    /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
+    /// time the output image will be larger than the source image.
     ///
     /// - parameters:
     ///   - radius: The blur radius in point.
-    ///   - sizeKept: Whether the output image should keep the same size as before, or its size is increased by radius so that we are sure the blur effect can exceed the initial size.
+    ///   - sizeKept: Whether the output image should keep the same size as before, or its size is increased by radius
+    ///               so that we are sure the blur effect can exceed the initial size.
     /// - returns: A smoothened `UIImage`.
     func smoothened(by radius: CGFloat, sizeKept: Bool = false) -> UIImage {
         guard let cgInput = self.cgImage else {
@@ -228,20 +243,20 @@ public extension UIImage {
     /// - parameters:
     ///   - newSize: The new size of the output image.
     /// - returns: A sclaed `UIImage`.
-    func scaled(to newSize: CGSize) -> UIImage {
+    func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newRect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height).integral
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
             
             let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-            context.interpolationQuality = .high
+            context.interpolationQuality = interpolationQuality
             context.concatenate(flipVertical)
             context.draw(cgImage!, in: newRect)
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
             
-            return newImage.withRenderingMode(self.renderingMode)
+            return newImage.withRenderingMode(renderingMode)
         }
         UIGraphicsEndImageContext()
         return self
@@ -253,9 +268,10 @@ public extension UIImage {
     /// - parameters:
     ///   - newWidth: The new width of the output image.
     /// - returns: A sclaed `UIImage`.
-    func scaledWidth(to newWidth: CGFloat, keepAspectRatio: Bool = true) -> UIImage {
+    func scaledWidth(to newWidth: CGFloat, keepAspectRatio: Bool = true,
+                     interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newHeight = keepAspectRatio ? size.height * (newWidth / size.width) : size.height
-        return scaled(to: CGSize(width: newWidth, height: newHeight))
+        return scaled(to: CGSize(width: newWidth, height: newHeight), interpolationQuality: interpolationQuality)
     }
     
     /// Renders a scaled copy of this image given a new height in points, the width is computed so that aspect ratio is
@@ -264,9 +280,10 @@ public extension UIImage {
     /// - parameters:
     ///   - newHeight: The new height of the output image.
     /// - returns: A sclaed `UIImage`.
-    func scaledHeight(to newHeight: CGFloat, keepAspectRatio: Bool = true) -> UIImage {
+    func scaledHeight(to newHeight: CGFloat, keepAspectRatio: Bool = true,
+                      interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newWidth = keepAspectRatio ? size.width * (newHeight / size.height) : size.width
-        return scaled(to: CGSize(width: newWidth, height: newHeight))
+        return scaled(to: CGSize(width: newWidth, height: newHeight), interpolationQuality: interpolationQuality)
     }
     
     /// Crops and returns a copy of this image given a new rect.
@@ -286,7 +303,8 @@ public extension UIImage {
     ///
     /// - parameters:
     ///   - degrees: the clockwise angle to which the image has to be rotated.
-    ///   - flip: boolean that indicate if the image should be flipped in the zero degree direction axis after the rotation.
+    ///   - flip: boolean that indicate if the image should be flipped in the zero degree direction axis after the
+    ///           rotation.
     /// - returns: A rotated `UIImage`.
     func rotated(by degrees: CGFloat) -> UIImage {
         let degreesToRadians: (CGFloat) -> CGFloat = { return $0 / 180.0 * CGFloat.pi }
@@ -346,11 +364,11 @@ public extension UIImage {
         if let context = UIGraphicsGetCurrentContext() {
             
             // No transform because CGContexts are y inverted by default
-            context.draw(self.cgImage!, in: CGRect(x: 0, y: 0, width: sizeInPixel.width, height: sizeInPixel.height))
+            context.draw(cgImage!, in: CGRect(x: 0, y: 0, width: sizeInPixel.width, height: sizeInPixel.height))
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
-            return newImage.withRenderingMode(self.renderingMode)
+            return newImage.withRenderingMode(renderingMode)
         }
         UIGraphicsEndImageContext()
         return self
@@ -360,6 +378,7 @@ public extension UIImage {
     ///
     /// - returns: A `UIImage` where this image is under the other.
     func drawnUnder(image: UIImage) -> UIImage {
+        // We explicitly use `self` to keep the comparison between the under and the above image.
         let maxWidth = max(self.size.width, image.size.width)
         let maxHeight = max(self.size.height, image.size.height)
         let maxSize = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: maxHeight))
@@ -368,7 +387,6 @@ public extension UIImage {
         if let context = UIGraphicsGetCurrentContext() {
             let t = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
             context.concatenate(t)
-            context.interpolationQuality = .high
             
             let imRect_0 = CGRect(center: maxSize.center, size: self.size)
             context.draw(self.cgImage!, in: imRect_0)
@@ -376,7 +394,9 @@ public extension UIImage {
             let imRect_1 = CGRect(center: maxSize.center, size: image.size)
             context.draw(image.cgImage!, in: imRect_1)
             
-            let newImage = UIImage(cgImage: context.makeImage()!, scale: self.scale, orientation: self.imageOrientation)
+            let newImage = UIImage(cgImage: context.makeImage()!,
+                                   scale: self.scale,
+                                   orientation: self.imageOrientation)
             UIGraphicsEndImageContext()
             
             return newImage.withRenderingMode(self.renderingMode)

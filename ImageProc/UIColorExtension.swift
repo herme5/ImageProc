@@ -57,7 +57,8 @@ public extension UIColor {
                   alpha: alpha)
     }
     
-    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not well formatted a full opaque black color is returned.
+    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
+    /// well formatted a full opaque black color is returned.
     ///
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
@@ -77,7 +78,7 @@ public extension UIColor {
     /// - parameters:
     ///   - value: If value is positive the returned color will be more opaque, otherwise it will be more transparent.
     func moreOpaque(by value: CGFloat = 0.25) -> UIColor {
-        var alpha = self.rgba.alpha + value
+        var alpha = rgba.alpha + value
         alpha = (alpha > 1.0) ? 1.0 : ((alpha < 0.0) ? 0.0 : alpha)
         return self.withAlphaComponent(alpha)
     }
@@ -90,7 +91,8 @@ public extension UIColor {
         return moreOpaque(by: -value)
     }
     
-    /// Returns a lighter or darker color by adding `value` to the three RGB components. In the HSL color space the hue is kept.
+    /// Returns a lighter or darker color by adding `value` to the three RGB components. In the HSL color space the hue
+    /// is kept.
     ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be lighter, otherwise it will be darker.
@@ -106,7 +108,8 @@ public extension UIColor {
         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
     }
     
-    /// Returns a darker or lighter color by substracting `value` to the three RGB components. In the HSL color space the hue is kept.
+    /// Returns a darker or lighter color by substracting `value` to the three RGB components. In the HSL color space
+    /// the hue is kept.
     ///
     /// - parameters:
     ///   - value: If value is positive the returned color will be darker, otherwise it will be lighter.
@@ -117,7 +120,8 @@ public extension UIColor {
     /// Returns a color object by adding `value` to the saturation component in the HSL color space.
     ///
     /// - parameters:
-    ///   - value: If value is positive the returned color will be more saturated, otherwise it will be closer to a grey level color.
+    ///   - value: If value is positive the returned color will be more saturated, otherwise it will be closer to a grey
+    ///            level color.
     func saturated(by value: CGFloat = 0.15) -> UIColor {
         var hue:        CGFloat = 0
         var saturation: CGFloat = 0
@@ -144,7 +148,8 @@ public extension UIColor {
         return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
     }
     
-    /// Returns a color object by offsetting the hue component in the HSL color space. The brightness and saturation stay the same.
+    /// Returns a color object by offsetting the hue component in the HSL color space. The brightness and saturation
+    /// stay the same.
     ///
     /// - parameters:
     ///   - value: The hue is offset by the value, and the modulo to 1.0 is considered.
