@@ -1,4 +1,5 @@
-[![Build Status](https://app.travis-ci.com/herme5/ImageProc.svg?branch=master)](https://app.travis-ci.com/herme5/ImageProc)
+![build_status](https://gitlab.com/herme5/ImageProc/badges/master/pipeline.svg)
+![coverage](https://gitlab.com/herme5/ImageProc/badges/master/coverage.svg?job=coverage)
 
 ## Introduction
 

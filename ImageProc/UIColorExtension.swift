@@ -63,14 +63,22 @@ public extension UIColor {
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    convenience init(from hexCode: String, alpha: CGFloat = 1.0) {
+    convenience init?(hexCode: String, alpha: CGFloat = 1.0) {
         guard hexCode.count == 7 && hexCode[0] == "#" else {
-            self.init(value: 0)
-            return
+            return nil
         }
-        
-        let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7])
+        guard let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7]) else {
+            return nil
+        }
         self.init(value: value, alpha: alpha)
+    }
+    
+    @available(swift, deprecated: 1.2, renamed: "init(hexCode:alpha:)")
+    convenience init(from hexCode: String, alpha: CGFloat = 1.0) {
+        if let _ = UIColor.init(hexCode: hexCode, alpha: alpha) {
+            self.init(hexCode: hexCode, alpha: alpha)!
+        }
+        self.init(value: 0)
     }
     
     /// Returns a color object that has an alpha value added to the specified value.

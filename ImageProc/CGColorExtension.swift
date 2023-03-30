@@ -31,12 +31,14 @@ extension CGColor {
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    static func from(hexCode: String, alpha: CGFloat = 1.0) -> CGColor {
+    static func from(hexCode: String, alpha: CGFloat = 1.0) -> CGColor? {
         guard hexCode.count == 7 && hexCode[0] == "#" else {
-            return CGColor.from(value: 0)
+            return nil
         }
         
-        let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7])
+        guard let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7]) else {
+            return nil
+        }
         return CGColor.from(value: value, alpha: alpha)
     }
     

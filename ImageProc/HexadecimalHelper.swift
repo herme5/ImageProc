@@ -22,11 +22,11 @@ internal class HexadecimalHelper {
     /// Converts an hexadecimal string to integer value. The input string can be either uppercase or lowercase, but must
     /// not contain whitespace or any character that is not an hexadecimal digit. All unrecognized characters will
     /// result in the function returning 0.
-    static func valueFrom(string: String) -> UInt {
+    static func valueFrom(string: String) -> UInt? {
         var value: UInt = 0
         for (index, char) in string.uppercased().reversed().enumerated() {
             guard let digit = digits[char] else {
-                return 0
+                return nil
             }
             // pow(16, index)
             let weight = UInt(1) << (4 * index)
@@ -40,6 +40,8 @@ internal class HexadecimalHelper {
     /// - parameters:
     ///   - value: the integer value,
     static func stringFrom(value: UInt, digitCount: UInt? = nil, uppercased: Bool = true) -> String {
-        return String(format: "%\(digitCount == nil ? "" : "0\(digitCount!)")\(uppercased ? "X" : "x")", value)
+        let uppercasedFormat = uppercased ? "X" : "x"
+        let digitCountFormat = (digitCount == nil) ? "" : "0\(digitCount!)"
+        return String(format: "%0\(digitCountFormat)\(uppercasedFormat)", value)
     }
 }
