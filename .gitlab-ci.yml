@@ -1,0 +1,10 @@
+stages:
+  - build
+
+variables:
+  LC_ALL: "en_US.UTF-8" # otherwise needed for xcpretty to work
+
+build_project:
+  stage: build
+  script:
+    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' | xcpretty -s

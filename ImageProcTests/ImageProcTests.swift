@@ -34,13 +34,13 @@ final class ImageProcTests: XCTestCase {
         let greenColorHexName = "#00FF00"
         let blueColorHexName =  "#0000FF"
         
-        XCTAssertEqual(UIColor(from:   redColorHexName).hexCode,   redColorHexName)
-        XCTAssertEqual(UIColor(from: greenColorHexName).hexCode, greenColorHexName)
-        XCTAssertEqual(UIColor(from:  blueColorHexName).hexCode,  blueColorHexName)
+        XCTAssertEqual(UIColor(hexCode:   redColorHexName)?.hexCode,   redColorHexName)
+        XCTAssertEqual(UIColor(hexCode: greenColorHexName)?.hexCode, greenColorHexName)
+        XCTAssertEqual(UIColor(hexCode:  blueColorHexName)?.hexCode,  blueColorHexName)
         
-        XCTAssertEqual(CGColor.from(hexCode:   redColorHexName).hexCode,   redColorHexName)
-        XCTAssertEqual(CGColor.from(hexCode: greenColorHexName).hexCode, greenColorHexName)
-        XCTAssertEqual(CGColor.from(hexCode:  blueColorHexName).hexCode,  blueColorHexName)
+        XCTAssertEqual(CGColor.from(hexCode:   redColorHexName)?.hexCode,   redColorHexName)
+        XCTAssertEqual(CGColor.from(hexCode: greenColorHexName)?.hexCode, greenColorHexName)
+        XCTAssertEqual(CGColor.from(hexCode:  blueColorHexName)?.hexCode,  blueColorHexName)
         
         // For coverage
         _ = color0.rgba.red

@@ -29,7 +29,7 @@ internal class ColorFilter: CIFilter {
     var inputColor: CIColor?
     
     /// The GPU-based routine that performs the colorizing algorithm.
-    private let kernel: CIColorKernel = {
+    private static let kernel: CIColorKernel = {
         let kernelCode =
         """
         kernel vec4 colorize(__sample pixel, vec4 color) {
@@ -48,6 +48,6 @@ internal class ColorFilter: CIFilter {
         }
         
         let inputs = [inputImage, inputColor] as [Any]
-        return kernel.apply(extent: inputImage.extent, arguments: inputs)
+        return ColorFilter.kernel.apply(extent: inputImage.extent, arguments: inputs)
     }
 }

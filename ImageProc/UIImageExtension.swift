@@ -23,6 +23,20 @@ public extension UIImage {
     
     var sizeInPixel: CGSize { return size * scale }
     
+    private static var _cachedRangeDegree = CGFloat(2)
+    
+    private static var _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
+    
+    private static var _cachedRange = _cachedRangeStride.map { $0 }
+    
+    private static func _setupCachedRange(_ degree : CGFloat) {
+        if degree != _cachedRangeDegree {
+            _cachedRangeDegree = degree
+            _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
+            _cachedRange = _cachedRangeStride.map { $0 }
+        }
+    }
+    
     /// Renders a copy of this image where all opaque pixels have their color replaced by pixels of the given color.
     ///
     /// - parameters:
@@ -67,18 +81,7 @@ public extension UIImage {
             return self
         }
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation)
-            .withRenderingMode(renderingMode)
-    }
-    
-    private static var _cachedRangeDegree = CGFloat(2)
-    private static var _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
-    private static var _cachedRange = _cachedRangeStride.map { $0 }
-    private static func _setupCachedRange(_ degree : CGFloat) {
-        if degree != _cachedRangeDegree {
-            _cachedRangeDegree = degree
-            _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
-            _cachedRange = _cachedRangeStride.map { $0 }
-        }
+            .withOptions(from: self)
     }
     
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque
@@ -99,7 +102,7 @@ public extension UIImage {
         let oldRect = CGRect(x: s, y: s, width: size.width, height: size.height).integral
         let newSize = CGSize(width: size.width + (2 * s), height: size.height + (2 * s))
         let translationVector = CGVector(dx: s, dy: 0)
-        let verticalFlipTransform = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
         let interpQuality = CGInterpolationQuality.default
         UIImage._setupCachedRange(degree)
         
@@ -111,7 +114,7 @@ public extension UIImage {
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
             context.interpolationQuality = interpQuality
-            context.concatenate(verticalFlipTransform)
+            context.concatenate(verticalFlip)
             let range = UIImage._cachedRangeStride
             
             switch method {
@@ -146,7 +149,7 @@ public extension UIImage {
                         
                         // Apply the same property as output context
                         layerContext.interpolationQuality = interpQuality
-                        layerContext.concatenate(verticalFlipTransform)
+                        layerContext.concatenate(verticalFlip)
                         
                         // Perform a translatation transform in the right direction and save it for drawing later.
                         // Here we don't need to perform inverse translation as we are not working on the final output
@@ -167,7 +170,7 @@ public extension UIImage {
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
-            return newImage.withRenderingMode(renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -212,7 +215,7 @@ public extension UIImage {
             
             if let cgImg = context.createCGImage(ciOutputImage, from: rect) {
                 let newImage = UIImage(cgImage: cgImg, scale: scale, orientation: imageOrientation)
-                return newImage.withRenderingMode(renderingMode)
+                return newImage.withOptions(from: self)
             }
             else {
                 return self
@@ -235,7 +238,7 @@ public extension UIImage {
             return self
         }
         UIGraphicsEndImageContext()
-        return newImage.withRenderingMode(renderingMode)
+        return newImage.withOptions(from: self)
     }
     
     /// Renders a scaled copy of this image given a new size in points.
@@ -248,15 +251,15 @@ public extension UIImage {
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
             
-            let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+            let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
             context.interpolationQuality = interpolationQuality
-            context.concatenate(flipVertical)
+            context.concatenate(verticalFlip)
             context.draw(cgImage!, in: newRect)
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
             
-            return newImage.withRenderingMode(renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -296,7 +299,7 @@ public extension UIImage {
         guard let cgImage = cgImage, let cropped = cgImage.cropping(to: contextRect) else {
             return self
         }
-        return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation).withRenderingMode(renderingMode)
+        return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
     
     /// Rotates and returns a copy of this image given an angle in degrees.
@@ -318,10 +321,8 @@ public extension UIImage {
         // Create the bitmap context
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         if let context = UIGraphicsGetCurrentContext() {
-            
-            let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-            // context.interpolationQuality = .high
-            context.concatenate(flipVertical)
+            let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+            context.concatenate(verticalFlip)
     
             // Move the origin to the middle of the image so we will rotate and scale around the center.
             context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
@@ -334,7 +335,7 @@ public extension UIImage {
     
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
-            return newImage.withRenderingMode(renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -354,7 +355,7 @@ public extension UIImage {
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
-            return newImage.withRenderingMode(renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -372,7 +373,7 @@ public extension UIImage {
             
             let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
             UIGraphicsEndImageContext()
-            return newImage.withRenderingMode(renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -403,7 +404,7 @@ public extension UIImage {
                                    orientation: self.imageOrientation)
             UIGraphicsEndImageContext()
             
-            return newImage.withRenderingMode(self.renderingMode)
+            return newImage.withOptions(from: self)
         }
         UIGraphicsEndImageContext()
         return self
@@ -414,6 +415,20 @@ public extension UIImage {
     /// - returns: A `UIImage` where this image is above the other.
     func drawnAbove(image: UIImage) -> UIImage {
         return image.drawnUnder(image: self)
+    }
+    
+    private func withOptions(from other: UIImage) -> UIImage {
+        var result = withRenderingMode(other.renderingMode)
+            .withAlignmentRectInsets(other.alignmentRectInsets)
+        
+        if let configuration = other.configuration {
+            result = result.withConfiguration(configuration)
+        }
+        if let baselineOffsetFromBottom = other.baselineOffsetFromBottom {
+            result = result.withBaselineOffset(fromBottom: baselineOffsetFromBottom)
+        }
+        
+        return result
     }
     
     // func pixelData() -> [UInt8]? {

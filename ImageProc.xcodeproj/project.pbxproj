@@ -72,6 +72,7 @@
 		624C6CA429BB42210068FFA3 /* CGColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGColorExtension.swift; sourceTree = "<group>"; };
 		624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
 		624C6CA829BB483F0068FFA3 /* ColorFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorFilter.swift; sourceTree = "<group>"; };
+		624C6EC929BF7BCF0068FFA3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6252C4282228583A00B7877A /* ImageProc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageProc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6252C42B2228583A00B7877A /* ImageProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageProc.h; sourceTree = "<group>"; };
 		6252C42C2228583A00B7877A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -147,16 +148,16 @@
 			children = (
 				6252C42B2228583A00B7877A /* ImageProc.h */,
 				6252C42C2228583A00B7877A /* Info.plist */,
+				624C6CA829BB483F0068FFA3 /* ColorFilter.swift */,
+				624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */,
 				624C6CA429BB42210068FFA3 /* CGColorExtension.swift */,
 				624C6CA029BB41060068FFA3 /* CGPointExtension.swift */,
 				6252C444222858B900B7877A /* CGRectExtension.swift */,
 				624C6CA229BB41110068FFA3 /* CGSizeExtension.swift */,
 				624C6C9E29BB401F0068FFA3 /* CGVectorExtension.swift */,
-				624C6CA829BB483F0068FFA3 /* ColorFilter.swift */,
-				624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */,
-				6252C4422228588000B7877A /* StringExtension.swift */,
 				6252C446222858DF00B7877A /* UIColorExtension.swift */,
 				6252C4482228590A00B7877A /* UIImageExtension.swift */,
+				6252C4422228588000B7877A /* StringExtension.swift */,
 			);
 			path = ImageProc;
 			sourceTree = "<group>";
@@ -180,6 +181,7 @@
 		62A1C85F2955100A0069D590 /* ImageProcTests */ = {
 			isa = PBXGroup;
 			children = (
+				624C6EC929BF7BCF0068FFA3 /* Info.plist */,
 				62A1C8602955100A0069D590 /* ImageProcTests.swift */,
 			);
 			path = ImageProcTests;
@@ -629,6 +631,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P2U56PQ98R;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageProcTests/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = andrearuffino.ImageProcTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -646,6 +650,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P2U56PQ98R;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ImageProcTests/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = andrearuffino.ImageProcTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
