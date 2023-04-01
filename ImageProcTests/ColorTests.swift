@@ -22,6 +22,7 @@ final class ColorTests: XCTestCase {
     func testInitializerSuccesses() throws {
         for validHexCode in validHexCodes {
             XCTAssertNotNil(UIColor(hexCode: validHexCode))
+            XCTAssertNotNil(CGColor.from(hexCode: validHexCode))
             
             // Deprecated
             let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
@@ -33,6 +34,7 @@ final class ColorTests: XCTestCase {
     func testInitializerFailures() throws {
         for invalidHexCode in invalidHexCodes {
             XCTAssertNil(UIColor(hexCode: invalidHexCode))
+            XCTAssertNil(CGColor.from(hexCode: invalidHexCode))
             
             // Deprecated
             let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
@@ -57,8 +59,13 @@ final class ColorTests: XCTestCase {
         XCTAssertEqual(blackHSLA.alpha, CGFloat(1))
         
         for validHexCode in validHexCodes {
-            let color = UIColor(hexCode: validHexCode)
-            XCTAssertEqual(color!.hexCode, validHexCode.uppercased())
+            let hexCodeToCompare = validHexCode.uppercased()
+            
+            let uiColor = UIColor(hexCode: validHexCode)!
+            XCTAssertEqual(uiColor.hexCode, hexCodeToCompare)
+            
+            let cgColor = CGColor.from(hexCode: validHexCode)!
+            XCTAssertEqual(cgColor.hexCode, hexCodeToCompare)
         }
     }
     
@@ -69,6 +76,7 @@ final class ColorTests: XCTestCase {
             _ = color.lessOpaque()
             _ = color.lighter()
             _ = color.darker()
+            _ = color.saturated()
             _ = color.brightened()
             _ = color.hueOffset()
         }

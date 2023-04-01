@@ -10,7 +10,7 @@ import CoreGraphics
 
 // MARK: - CGColor extension
 
-extension CGColor {
+public extension CGColor {
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
     ///

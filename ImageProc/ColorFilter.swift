@@ -44,7 +44,7 @@ internal class ColorFilter: CIFilter {
     /// The output image produced by the original image colorized with the input color.
     override var outputImage: CIImage? {
         guard let inputImage = inputImage, let inputColor = inputColor else {
-            return nil
+            fatalError("Please provide the inputs for the ColorFilter. (`inputImage` and `inputColor` attributes).")
         }
         
         let inputs = [inputImage, inputColor] as [Any]
