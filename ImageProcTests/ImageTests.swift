@@ -1,5 +1,5 @@
 //
-//  ImageProcTests.swift
+//  ImageTests.swift
 //  ImageProcTests
 //
 //  Created by Andrea Ruffino on 22/12/2022.
@@ -9,7 +9,7 @@
 import XCTest
 @testable import ImageProc
 
-final class ImageProcTests: XCTestCase {
+final class ImageTests: XCTestCase {
 
     var appBundle: Bundle!
     var shape0: UIImage!
@@ -20,47 +20,13 @@ final class ImageProcTests: XCTestCase {
     var color2: UIColor!
     
     override func setUpWithError() throws {
-        appBundle = Bundle(for: ImageProcTests.self)
+        appBundle = Bundle(for: ImageTests.self)
         shape0 = UIImage(named: "shape_0", in: appBundle, with: nil)
         shape1 = UIImage(named: "shape_1", in: appBundle, with: nil)
         shape2 = UIImage(named: "shape_2", in: appBundle, with: nil)
         color0 = UIColor.systemIndigo
         color1 = UIColor.systemPink
         color2 = UIColor.systemTeal
-    }
-
-    func testColors() throws {
-        let redColorHexName =   "#FF0000"
-        let greenColorHexName = "#00FF00"
-        let blueColorHexName =  "#0000FF"
-        
-        XCTAssertEqual(UIColor(hexCode:   redColorHexName)?.hexCode,   redColorHexName)
-        XCTAssertEqual(UIColor(hexCode: greenColorHexName)?.hexCode, greenColorHexName)
-        XCTAssertEqual(UIColor(hexCode:  blueColorHexName)?.hexCode,  blueColorHexName)
-        
-        XCTAssertEqual(CGColor.from(hexCode:   redColorHexName)?.hexCode,   redColorHexName)
-        XCTAssertEqual(CGColor.from(hexCode: greenColorHexName)?.hexCode, greenColorHexName)
-        XCTAssertEqual(CGColor.from(hexCode:  blueColorHexName)?.hexCode,  blueColorHexName)
-        
-        // For coverage
-        _ = color0.rgba.red
-        _ = color0.rgba.green
-        _ = color0.rgba.blue
-        _ = color0.rgba.alpha
-        
-        _ = color0.hsla.hue
-        _ = color0.hsla.saturation
-        _ = color0.hsla.brightness
-        _ = color0.hsla.alpha
-        
-        _ = color0.hexCode
-        _ = color0.moreOpaque()
-        _ = color0.lessOpaque()
-        _ = color0.lighter()
-        _ = color0.darker()
-        _ = color0.saturated()
-        _ = color0.brightened()
-        _ = color0.hueOffset()
     }
 
     func testImages() throws {
