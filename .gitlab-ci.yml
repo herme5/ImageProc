@@ -13,7 +13,6 @@ variables:
 # Lifted from: https://about.gitlab.com/2016/03/10/setting-up-gitlab-ci-for-ios-projects/
 # This file assumes an own GitLab CI runner, setup on a macOS system.
 stages:
-  - build
   - test
   - deploy
 
@@ -21,17 +20,12 @@ before_script:
   - gem install cocoapods
   - pod install
 
-build_project:
-  stage: build
+test_project:
+  stage: test
   script:
     - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
     - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' | xcpretty -s
-  tags:
-    - ios_16-2
-    - xcode_14-2
-    - macos_13-2
 
-deploy:
+deploy_project:
   stage: deploy
   script: pod spec lint ImageProc.podspec
-  environment: production
