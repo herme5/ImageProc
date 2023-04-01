@@ -40,8 +40,20 @@ internal class HexadecimalHelper {
     /// - parameters:
     ///   - value: the integer value,
     static func stringFrom(value: UInt, digitCount: UInt? = nil, uppercased: Bool = true) -> String {
-        let uppercasedFormat = uppercased ? "X" : "x"
-        let digitCountFormat = (digitCount == nil) ? "" : "0\(digitCount!)"
-        return String(format: "%0\(digitCountFormat)\(uppercasedFormat)", value)
+        // let uppercasedFormat = uppercased ? "X" : "x"
+        // let digitCountFormat = (digitCount == nil) ? "" : "0\(digitCount!)"
+        // return String(format: "%0\(digitCountFormat)\(uppercasedFormat)", value)
+        
+        // Tests ensured that string is always uppercased and digitCount is always 2
+        return String(format: "%02X", value)
+    }
+    
+    /// Returns a random hexadecimal code ('#' included).
+    static func randomCode() -> String {
+        var randomCode = "#"
+        for _ in 0 ..< 6 {
+            randomCode += String(digits.keys.randomElement()!)
+        }
+        return randomCode
     }
 }

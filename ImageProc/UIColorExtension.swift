@@ -12,6 +12,8 @@ import UIKit
 
 public extension UIColor {
     
+    private static let maximumHexValue = UInt(pow(16.0, 6))
+    
     /// The RGBA components as a tuple associated to the color object.
     var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         var red:   CGFloat = 0
@@ -50,15 +52,15 @@ public extension UIColor {
     /// - parameters:
     ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    convenience init(value hex: UInt, alpha: CGFloat = 1.0) {
+    private convenience init(value hex: UInt, alpha: CGFloat = 1.0) {
         self.init(red:   CGFloat((hex >> 16) & 0xFF) / 255.0,
                   green: CGFloat((hex >> 8)  & 0xFF) / 255.0,
                   blue:  CGFloat( hex        & 0xFF) / 255.0,
                   alpha: alpha)
     }
     
-    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
-    /// well formatted a full opaque black color is returned.
+    /// Initializes a color object represented by the specified hexadecimal color code in string. Returns nil if the
+    /// string is not well formatted.
     ///
     /// - parameters:
     ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
@@ -73,12 +75,29 @@ public extension UIColor {
         self.init(value: value, alpha: alpha)
     }
     
-    @available(swift, deprecated: 1.2, renamed: "init(hexCode:alpha:)")
+    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
+    /// well formatted a full opaque black color is returned.
+    ///
+    /// - parameters:
+    ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
+    ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
+    @available(*, deprecated, renamed: "init(hexCode:alpha:)")
     convenience init(from hexCode: String, alpha: CGFloat = 1.0) {
         if let _ = UIColor.init(hexCode: hexCode, alpha: alpha) {
             self.init(hexCode: hexCode, alpha: alpha)!
         }
         self.init(value: 0)
+    }
+    
+    /// Returns an opaque random color.
+    static func random() -> UIColor {
+        return UIColor(value: UInt.random(in: 0 ..< maximumHexValue))
+    }
+    
+    /// Returns an opaque random color.
+    @available(*, deprecated, renamed: "random()")
+    static func randomFromCode() -> UIColor {
+        return UIColor(hexCode: HexadecimalHelper.randomCode())!
     }
     
     /// Returns a color object that has an alpha value added to the specified value.
@@ -99,7 +118,7 @@ public extension UIColor {
         return moreOpaque(by: -value)
     }
     
-    /// Returns a lighter or darker color by adding `value` to the three RGB components. In the HSL color space the hue
+    /// Brings the color closer to white by adding `value` to the three RGB components. In the HSL color space the hue
     /// is kept.
     ///
     /// - parameters:
