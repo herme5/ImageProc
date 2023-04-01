@@ -16,9 +16,9 @@ stages:
   - test
   - deploy
 
-before_script:
-  - gem install cocoapods
-  - pod install
+# before_script:
+#   - gem install cocoapods
+#   - pod install
 
 test_project:
   stage: test
