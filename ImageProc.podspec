@@ -10,9 +10,9 @@ Pod::Spec.new do |spec|
 
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   spec.name         = "ImageProc"
-  spec.version      = "1.0.1"
+  spec.version      = "1.1.1"
   spec.summary      = "A collection of Image Processing Swift UIKit methods."
-  spec.homepage     = "https://github.com/herme5/ImageProc"
+  spec.homepage     = "https://gitlab.com/herme5/ImageProc"
   spec.description  = <<-DESC
                       ImageProc implements basic image processing methods that are exposed as UIImage and UIColor extension.
                       DESC
@@ -23,7 +23,7 @@ Pod::Spec.new do |spec|
   spec.ios.deployment_target  = "13.0"
   spec.swift_version          = "5.0"
   
-  spec.source               = { :git => "https://github.com/herme5/ImageProc.git", :tag => "#{spec.version}" }
+  spec.source               = { :git => "https://gitlab.com/herme5/ImageProc.git", :tag => "#{spec.version}" }
   spec.source_files         = "ImageProc/**/*.{h,m,mm,swift}"
   spec.public_header_files  = "ImageProc/ImageProc.h"
   spec.xcconfig             = { "GCC_PREPROCESSOR_DEFINITIONS" => "CI_SILENCE_GL_DEPRECATION" }
