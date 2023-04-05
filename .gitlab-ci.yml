@@ -2,14 +2,10 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
-  - lint
   - test
+  - deploy
 
-Run Linter:
-  stage: lint
-  script: pod spec lint ImageProc.podspec
-
-Run Tests:
+Test:
   stage: test
   parallel:
     matrix:
@@ -19,3 +15,11 @@ Run Tests:
   script:
     - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
     - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "$DESTINATION" | xcpretty -s
+
+Deploy:
+  stage: deploy
+  script:
+    - pod spec lint ImageProc.podspec
+    - CURRENT_VERSION=`sh .version` && git tag $CURRENT_VERSION
+    - git push --tags
+    - pod trunk push
