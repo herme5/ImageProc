@@ -1,31 +1,21 @@
-# This file is a template, and might need editing before it works on your project.
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-#
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Swift.gitlab-ci.yml
-
 variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
-# Lifted from: https://about.gitlab.com/2016/03/10/setting-up-gitlab-ci-for-ios-projects/
-# This file assumes an own GitLab CI runner, setup on a macOS system.
 stages:
+  - lint
   - test
-  - deploy
 
-# before_script:
-#   - gem install cocoapods
-#   - pod install
+Run Linter:
+  stage: lint
+  script: pod spec lint ImageProc.podspec
 
-test_project:
+Run Tests:
   stage: test
+  parallel:
+    matrix:
+      - DESTINATION:
+        - 'platform=iOS Simulator,name=iPad (10th generation)'
+        - 'platform=iOS Simulator,name=iPhone 14'
   script:
     - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
-    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' | xcpretty -s
-
-deploy_project:
-  stage: deploy
-  script: pod spec lint ImageProc.podspec
+    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "$DESTINATION" | xcpretty -s
