@@ -11,14 +11,14 @@ import Foundation
 // MARK: - HexadecimalHelper implementation
 
 internal class HexadecimalHelper {
-    
+
     /// The decimal to hexadecimal digits mapping table.
     static let digits: [Character: UInt] = ["0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7,
-                                            "8": 8, "9": 9, "A":10, "B":11, "C":12, "D":13, "E":14, "F":15]
-    
+                                            "8": 8, "9": 9, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15]
+
     /// Initializer is unavailable, this class contains only static members.
     private init() { }
-    
+
     /// Converts an hexadecimal string to integer value. The input string can be either uppercase or lowercase, but must
     /// not contain whitespace or any character that is not an hexadecimal digit. All unrecognized characters will
     /// result in the function returning 0.
@@ -28,13 +28,12 @@ internal class HexadecimalHelper {
             guard let digit = digits[char] else {
                 return nil
             }
-            // pow(16, index)
             let weight = UInt(1) << (4 * index)
             value += digit * weight
         }
         return value
     }
-    
+
     /// Converts an hexadecimal value to a string. The leading zeros and the case can be specified.
     ///
     /// - parameters:
@@ -43,11 +42,11 @@ internal class HexadecimalHelper {
         // let uppercasedFormat = uppercased ? "X" : "x"
         // let digitCountFormat = (digitCount == nil) ? "" : "0\(digitCount!)"
         // return String(format: "%0\(digitCountFormat)\(uppercasedFormat)", value)
-        
+
         // Tests ensured that string is always uppercased and digitCount is always 2
         return String(format: "%02X", value)
     }
-    
+
     /// Returns a random hexadecimal code ('#' included).
     static func randomCode() -> String {
         var randomCode = "#"

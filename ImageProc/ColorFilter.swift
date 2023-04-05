@@ -21,33 +21,28 @@ import CoreImage
 /// Note that the input color alpha component is taken into account to produce a more transparent (and always more
 /// transparent) image.
 internal class ColorFilter: CIFilter {
-    
+
     /// The original input image as a `CIImage`.
     var inputImage: CIImage?
-    
+
     /// The input color as a `CIColor`.
     var inputColor: CIColor?
-    
+
     /// The GPU-based routine that performs the colorizing algorithm.
     private static let kernel: CIColorKernel = {
         let kernelCode =
         """
         kernel vec4 colorize(__sample pixel, vec4 color) {
             pixel.rgb = pixel.a * color.rgb;
-            pixel.a *= color.a;
             return pixel;
         }
         """
         return CIColorKernel(source: kernelCode)!
     }()
-    
+
     /// The output image produced by the original image colorized with the input color.
     override var outputImage: CIImage? {
-        guard let inputImage = inputImage, let inputColor = inputColor else {
-            fatalError("Please provide the inputs for the ColorFilter. (`inputImage` and `inputColor` attributes).")
-        }
-        
-        let inputs = [inputImage, inputColor] as [Any]
-        return ColorFilter.kernel.apply(extent: inputImage.extent, arguments: inputs)
+        let inputs = [inputImage!, inputColor!] as [Any]
+        return ColorFilter.kernel.apply(extent: inputImage!.extent, arguments: inputs)
     }
 }

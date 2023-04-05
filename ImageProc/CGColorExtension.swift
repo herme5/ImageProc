@@ -11,7 +11,7 @@ import CoreGraphics
 // MARK: - CGColor extension
 
 public extension CGColor {
-    
+
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
     ///
     /// - parameters:
@@ -24,7 +24,7 @@ public extension CGColor {
                               alpha]
         return CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: rgbaComponents)!
     }
-    
+
     /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
     /// well formatted a full opaque black color is returned.
     ///
@@ -35,21 +35,19 @@ public extension CGColor {
         guard hexCode.count == 7 && hexCode[0] == "#" else {
             return nil
         }
-        
+
         guard let value = HexadecimalHelper.valueFrom(string: hexCode[1..<7]) else {
             return nil
         }
         return CGColor.from(value: value, alpha: alpha)
     }
-    
+
     /// The hexadecimal color code as a string prefixed with a `#` and representing the RGB components.
     var hexCode: String {
-        get {
-            let rgbaColor = converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil)!
-            let hexRed   = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![0] * 255), digitCount: 2)
-            let hexGreen = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![1] * 255), digitCount: 2)
-            let hexBlue  = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![2] * 255), digitCount: 2)
-            return "#\(hexRed)\(hexGreen)\(hexBlue)"
-        }
+        let rgbaColor = converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil)!
+        let hexRed   = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![0] * 255), digitCount: 2)
+        let hexGreen = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![1] * 255), digitCount: 2)
+        let hexBlue  = HexadecimalHelper.stringFrom(value: UInt(rgbaColor.components![2] * 255), digitCount: 2)
+        return "#\(hexRed)\(hexGreen)\(hexBlue)"
     }
 }
