@@ -19,7 +19,7 @@ Test:
 Deploy:
   stage: deploy
   script:
-    - pod spec lint ImageProc.podspec
     - CURRENT_VERSION=`sh .version` && git tag $CURRENT_VERSION
     - git push --tags
+    - pod spec lint ImageProc.podspec
     - pod trunk push
