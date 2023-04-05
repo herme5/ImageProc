@@ -224,7 +224,7 @@
 			buildPhases = (
 				6252C4232228583A00B7877A /* Headers */,
 				6252C4242228583A00B7877A /* Sources */,
-				625003EF29D9F515001F3147 /* ShellScript */,
+				625003EF29D9F515001F3147 /* Run Linter */,
 				6252C4252228583A00B7877A /* Frameworks */,
 				627DC34D226BC99E00FF7A45 /* Resources */,
 			);
@@ -348,7 +348,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		625003EF29D9F515001F3147 /* ShellScript */ = {
+		625003EF29D9F515001F3147 /* Run Linter */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -358,6 +358,7 @@
 			);
 			inputPaths = (
 			);
+			name = "Run Linter";
 			outputFileListPaths = (
 			);
 			outputPaths = (

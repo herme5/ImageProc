@@ -10,7 +10,7 @@ import XCTest
 @testable import ImageProc
 
 final class ImageTests: XCTestCase {
-
+    
     var appBundle: Bundle!
     var shape0: UIImage!
     var shape1: UIImage!
@@ -18,6 +18,14 @@ final class ImageTests: XCTestCase {
     var color0: UIColor!
     var color1: UIColor!
     var color2: UIColor!
+    
+    let iterationCount = 20
+    
+    func repeated(_ body: () -> Void) {
+        for _ in 0 ..< iterationCount {
+            body()
+        }
+    }
     
     override func setUpWithError() throws {
         appBundle = Bundle(for: ImageTests.self)
@@ -28,49 +36,63 @@ final class ImageTests: XCTestCase {
         color1 = UIColor.systemPink
         color2 = UIColor.systemTeal
     }
-
+    
     func testImages() throws {
-        _ = shape0.sizeInPixel
-        _ = shape0.colorized(with: color0, method: .basic)
-        _ = shape0.colorized(with: color0, method: .concurrent)
-        _ = shape0.expand(bySize: 1, method: .basic)
-        _ = shape0.expand(bySize: 1, method: .concurrent)
-        _ = shape0.stroked(with: color0, size: 1)
-        _ = shape0.smoothened(by: 1)
-        _ = shape0.stroked(with: color0, size: 1)
-        _ = shape0.withAlphaComponent(1)
-        _ = shape0.scaled(to: shape0.sizeInPixel / 2)
-        _ = shape0.scaledWidth(to: 10)
-        _ = shape0.scaledHeight(to: 10)
-        _ = shape0.cropped(to: CGRect(origin: .zero, size: shape0.sizeInPixel / 2))
-        _ = shape0.rotated(by: 60)
-        _ = shape0.flippedHorizontally()
-        _ = shape0.flippedVertically()
-        _ = shape0.drawnAbove(image: shape1)
-        _ = shape0.drawnUnder(image: shape1)
+        measure {
+            _ = shape0.sizeInPixel
+            _ = shape0.colorized(with: color0, method: .basic)
+            _ = shape0.colorized(with: color0, method: .concurrent)
+            _ = shape0.expand(bySize: 1, method: .basic)
+            _ = shape0.expand(bySize: 1, method: .concurrent)
+            _ = shape0.stroked(with: color0, size: 1)
+            _ = shape0.smoothened(by: 1)
+            _ = shape0.stroked(with: color0, size: 1)
+            _ = shape0.withAlphaComponent(1)
+            _ = shape0.scaled(to: shape0.sizeInPixel / 2)
+            _ = shape0.scaledWidth(to: 10)
+            _ = shape0.scaledHeight(to: 10)
+            _ = shape0.cropped(to: CGRect(origin: .zero, size: shape0.sizeInPixel / 2))
+            _ = shape0.rotated(by: 60)
+            _ = shape0.flippedHorizontally()
+            _ = shape0.flippedVertically()
+            _ = shape0.drawnAbove(image: shape1)
+            _ = shape0.drawnUnder(image: shape1)
+        }
+    }
+    
+    func testOperationBoundaries() throws {
+        
     }
     
     func testColorizedBasic() throws {
         measure {
-            _ = shape0.colorized(with: color0, method: .basic)
+            repeated {
+                _ = shape0.colorized(with: color0, method: .basic)
+            }
         }
     }
     
     func testColorizedConcurrent() throws {
         measure {
-            _ = shape0.colorized(with: color0, method: .concurrent)
+            repeated {
+                _ = shape0.colorized(with: color0, method: .concurrent)
+            }
         }
     }
     
-    func testBasicExpand() throws {
+    func testExpandBasic() throws {
         measure {
-            _ = shape0.expand(bySize: 20, method: .basic)
+            repeated {
+                _ = shape0.expand(bySize: 20, method: .basic)
+            }
         }
     }
     
-    func testConcurrentExpand() throws {
+    func testExpandConcurrent() throws {
         measure {
-            _ = shape0.expand(bySize: 20, method: .concurrent)
+            repeated {
+                _ = shape0.expand(bySize: 20, method: .concurrent)
+            }
         }
     }
 }
