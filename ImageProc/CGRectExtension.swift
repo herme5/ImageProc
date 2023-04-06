@@ -11,7 +11,7 @@ import CoreGraphics
 // MARK: - CGRect extension
 
 internal extension CGRect {
-    
+
     var center: CGPoint {
         get {
             return CGPoint(x: midX, y: midY)
@@ -21,7 +21,7 @@ internal extension CGRect {
             origin.y = newValue.y - (height / 2)
         }
     }
-    
+
     init(center: CGPoint, size: CGSize) {
         self.init(origin: .zero, size: size)
         self.center = center
