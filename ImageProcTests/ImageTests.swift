@@ -19,7 +19,7 @@ final class ImageTests: XCTestCase {
     var color1: UIColor!
     var color2: UIColor!
     
-    let iterationCount = 5
+    let iterationCount = 10
     
     func repeated(_ body: () -> Void) {
         for _ in 0 ..< iterationCount {

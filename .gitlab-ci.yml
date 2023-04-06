@@ -9,13 +9,13 @@ Test:
   stage: test
   parallel:
     matrix:
-      - DESTINATION:
-        - 'platform=iOS Simulator,name=iPad (10th generation)'
-        - 'platform=iOS Simulator,name=iPhone 14'
+      - DST_PLATFORM_CI: iOS Simulator
+        DST_NAME_CI: 
+          - iPad (10th generation)
+          - iPhone 14
   script:
-    - echo "Dry-run on $DESTINATION"
-    # - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
-    # - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "$DESTINATION" | xcpretty -s
+    - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
+    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination 'platform="$DST_PLATFORM_CI",name="DST_NAME_CI"' | xcpretty -s
 
 Release:
   stage: release
