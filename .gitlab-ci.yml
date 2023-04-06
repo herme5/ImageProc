@@ -2,20 +2,32 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
-  - lint
   - test
+  - release
 
-Run Linter:
-  stage: lint
-  script: pod spec lint ImageProc.podspec
-
-Run Tests:
+Test:
   stage: test
   parallel:
     matrix:
-      - DESTINATION:
-        - 'platform=iOS Simulator,name=iPad (10th generation)'
-        - 'platform=iOS Simulator,name=iPhone 14'
+      - DST_PLATFORM_CI: iOS Simulator
+        DST_NAME_CI: 
+          - iPad (10th generation)
+          - iPhone 14
   script:
+    - echo "Testing ImageProc ($DST_PLATFORM_CI - $DST_NAME_CI)"
     - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
-    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "$DESTINATION" | xcpretty -s
+    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "platform=$DST_PLATFORM_CI,name=$DST_NAME_CI" | xcpretty -s
+
+Release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "Publishing ImageProc v$CI_COMMIT_TAG on CocoaPods"
+    - pod spec lint ImageProc.podspec
+    - pod trunk push
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: 'Release $CI_COMMIT_TAG'
+    description: 'Release created using the release-cli.'
