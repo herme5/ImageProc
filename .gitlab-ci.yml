@@ -7,6 +7,8 @@ stages:
 
 Test:
   stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   parallel:
     matrix:
       - DST_PLATFORM_CI: iOS Simulator
