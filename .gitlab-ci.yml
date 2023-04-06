@@ -25,7 +25,6 @@ Release:
   script:
     - echo "Publishing ImageProc on CocoaPods"
     - pod spec lint ImageProc.podspec
-    - pod trunk register andrea.ruffino@hotmail.fr --description='CI Automation'
     - pod trunk push
   release:
     tag_name: $CI_COMMIT_TAG
