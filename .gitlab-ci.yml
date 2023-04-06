@@ -22,8 +22,8 @@ Release:
   rules:
     - if: $CI_COMMIT_TAG                  # Run this job when a tag is created manually
   script:
-    - echo "Running the release job $CI_COMMI_TAG."
-    - CURRENT_VERSION=`sh .version` && echo "$CURRENT_VERSION"
+    - echo "Publishing ImageProc $CI_COMMI_TAG ($COCOAPODS_TRUNK_TOKEN)"
+    - pod trunk register andrea.ruffino@hotmail.fr --description='CI Automation'
     - pod spec lint ImageProc.podspec
     - pod trunk push
   release:
