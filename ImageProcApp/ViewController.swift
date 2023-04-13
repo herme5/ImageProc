@@ -15,9 +15,9 @@ struct ProcessResults {
 
     var image: UIImage
 
-    init(_ parameters: [String], _ image: UIImage) {
+    init(_ parameters: [String], _ image: UIImage?) {
         self.parameters = parameters
-        self.image = image
+        self.image = image ?? "⚠️".image()!
     }
 }
 
@@ -59,10 +59,10 @@ class ViewController: UIViewController {
             blue: CGFloat.random(in: 0.0...1.0),
             alpha: 1.0)
 
-        let img_0 = UIImage(named: "shape_0")!
-        let img_1 = UIImage(named: "shape_1")!
-        let img_2 = img_1.colorized(with: col_2)
-        let img_3 = UIImage(named: "shape_2")!
+        let img_0 = UIImage(named: "splash-rounded-100")!
+        let img_1 = UIImage(named: "splash-square-100")!
+        let img_2 = img_1.colorized(with: col_2)!
+        let img_3 = UIImage(named: "splash-square-line-100")!
 
         var res_0 = ProcessedImage()
         measureTime(output: &res_0) { (output) in
@@ -220,7 +220,7 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults(
                     ["im0.rotated(by: 45).colorized(with: \(col_1.hexCode))"],
-                    img_0.drawnUnder(image: img_0.rotated(by: 45).colorized(with: col_1))),
+                    img_0.drawnUnder(image: img_0.rotated(by: 45)!.colorized(with: col_1)!)),
                 ProcessResults(
                     ["im2"],
                     img_0.drawnUnder(image: img_2))
@@ -233,7 +233,7 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults(
                     ["im0.rotated(by: 45).colorized(with: \(col_1.hexCode))"],
-                    img_0.drawnAbove(image: img_0.rotated(by: 45).colorized(with: col_1))),
+                    img_0.drawnAbove(image: img_0.rotated(by: 45)!.colorized(with: col_1)!)),
                 ProcessResults(
                     ["im2"],
                     img_0.drawnAbove(image: img_2))

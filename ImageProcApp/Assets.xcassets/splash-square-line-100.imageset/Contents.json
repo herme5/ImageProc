@@ -1,15 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "splash-square-line-100@1x.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "deer-stroke-32.png",
+      "filename" : "splash-square-line-100@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "splash-square-line-100@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
