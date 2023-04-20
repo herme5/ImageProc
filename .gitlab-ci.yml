@@ -3,6 +3,7 @@ variables:
 
 stages:
   - test
+  - bump
   - release
 
 Test:
@@ -24,7 +25,7 @@ Test:
 Bump:
   stage: bump
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_APPROVED == true
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_APPROVED == 'true'
   script:
     - ./Scripts/bump.sh
 
