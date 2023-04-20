@@ -29,7 +29,4 @@ git tag "$version"
 git push origin master --follow-tags
 git checkout - >/dev/null 2>&1
 
-echo "\n* Restoring previous state"
-git stash pop
-
 cd - >/dev/null || exit 1
