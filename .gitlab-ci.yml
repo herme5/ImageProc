@@ -2,10 +2,16 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
+  - analysis
   - version
   - test
   - bump
   - release
+
+Analysis:
+  stage: analysis
+  script:
+    - export
 
 Run Tests:
   stage: test
@@ -30,12 +36,12 @@ Check Version:
   script:
     - ./Scripts/check_version.sh
 
-Bump:
-  stage: bump
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_APPROVED == 'true'
-  script:
-    - ./Scripts/bump.sh
+# Bump:
+#   stage: bump
+#   rules:
+#     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_APPROVED == 'true'
+#   script:
+#     - ./Scripts/bump.sh
 
 Release:
   stage: release
