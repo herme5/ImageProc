@@ -29,9 +29,13 @@
 		62A1C8612955100A0069D590 /* ImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A1C8602955100A0069D590 /* ImageTests.swift */; };
 		62A1C8622955100A0069D590 /* ImageProc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; };
 		62A1C869295514B20069D590 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 627DC360226BCB6C00FF7A45 /* Assets.xcassets */; };
+		62AC4BDD29E628F900ECD294 /* CompareFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4BDC29E628F900ECD294 /* CompareFilter.swift */; };
+		62AC4C3429E6B47900ECD294 /* UIImageExtension+Colorized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4C3329E6B47900ECD294 /* UIImageExtension+Colorized.swift */; };
+		62AC4C3629E6B59E00ECD294 /* UIImageExtension+Expand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4C3529E6B59E00ECD294 /* UIImageExtension+Expand.swift */; };
 		62C16E8B2276047500A20413 /* ProcessedImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C16E8A2276047500A20413 /* ProcessedImageCell.swift */; };
 		62DA4C0F2289C6F100D08D4F /* ImageProc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; };
 		62DA4C112289CB4100D08D4F /* ImageProc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		62F4309A29E93729000CD8E6 /* UIImageExtension+Stroked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F4309929E93729000CD8E6 /* UIImageExtension+Stroked.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,7 +104,11 @@
 		627DC36F226BF97D00FF7A45 /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
 		62A1C85E2955100A0069D590 /* ImageProcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageProcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		62A1C8602955100A0069D590 /* ImageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTests.swift; sourceTree = "<group>"; };
+		62AC4BDC29E628F900ECD294 /* CompareFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompareFilter.swift; sourceTree = "<group>"; };
+		62AC4C3329E6B47900ECD294 /* UIImageExtension+Colorized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageExtension+Colorized.swift"; sourceTree = "<group>"; };
+		62AC4C3529E6B59E00ECD294 /* UIImageExtension+Expand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageExtension+Expand.swift"; sourceTree = "<group>"; };
 		62C16E8A2276047500A20413 /* ProcessedImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessedImageCell.swift; sourceTree = "<group>"; };
+		62F4309929E93729000CD8E6 /* UIImageExtension+Stroked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageExtension+Stroked.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +166,7 @@
 				6252C42B2228583A00B7877A /* ImageProc.h */,
 				6252C42C2228583A00B7877A /* Info.plist */,
 				624C6CA829BB483F0068FFA3 /* ColorFilter.swift */,
+				62AC4BDC29E628F900ECD294 /* CompareFilter.swift */,
 				624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */,
 				624C6CA429BB42210068FFA3 /* CGColorExtension.swift */,
 				624C6CA029BB41060068FFA3 /* CGPointExtension.swift */,
@@ -166,6 +175,9 @@
 				624C6C9E29BB401F0068FFA3 /* CGVectorExtension.swift */,
 				6252C446222858DF00B7877A /* UIColorExtension.swift */,
 				6252C4482228590A00B7877A /* UIImageExtension.swift */,
+				62AC4C3329E6B47900ECD294 /* UIImageExtension+Colorized.swift */,
+				62AC4C3529E6B59E00ECD294 /* UIImageExtension+Expand.swift */,
+				62F4309929E93729000CD8E6 /* UIImageExtension+Stroked.swift */,
 				6252C4422228588000B7877A /* StringExtension.swift */,
 			);
 			path = ImageProc;
@@ -377,12 +389,16 @@
 				624C6CA729BB43430068FFA3 /* HexadecimalHelper.swift in Sources */,
 				624C6CA929BB483F0068FFA3 /* ColorFilter.swift in Sources */,
 				6252C447222858DF00B7877A /* UIColorExtension.swift in Sources */,
+				62AC4C3629E6B59E00ECD294 /* UIImageExtension+Expand.swift in Sources */,
 				624C6C9F29BB401F0068FFA3 /* CGVectorExtension.swift in Sources */,
 				624C6CA329BB41110068FFA3 /* CGSizeExtension.swift in Sources */,
 				624C6CA129BB41060068FFA3 /* CGPointExtension.swift in Sources */,
 				6252C4432228588000B7877A /* StringExtension.swift in Sources */,
 				6252C445222858B900B7877A /* CGRectExtension.swift in Sources */,
 				6252C4492228590A00B7877A /* UIImageExtension.swift in Sources */,
+				62F4309A29E93729000CD8E6 /* UIImageExtension+Stroked.swift in Sources */,
+				62AC4BDD29E628F900ECD294 /* CompareFilter.swift in Sources */,
+				62AC4C3429E6B47900ECD294 /* UIImageExtension+Colorized.swift in Sources */,
 				624C6CA529BB42210068FFA3 /* CGColorExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
