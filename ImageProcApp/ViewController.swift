@@ -92,8 +92,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20", "60"], img_1.expand(bySize: 20, each: 60, method: .basic)),
                 ProcessResults(["20", "20"], img_1.expand(bySize: 20, each: 20, method: .basic)),
                 ProcessResults(["20", "10"], img_1.expand(bySize: 20, each: 10, method: .basic)),
-                ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .basic)),
-                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .basic))
+                ProcessResults(["20", "4"], img_1.expand(bySize: 20, each: 4, method: .basic)),
+                ProcessResults(["20", "3"], img_1.expand(bySize: 20, each: 3, method: .basic))
             ]
         }
         var res_3 = ProcessedImage()
@@ -104,8 +104,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20", "60"], img_1.expand(bySize: 20, each: 60, method: .concurrent)),
                 ProcessResults(["20", "20"], img_1.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20", "10"], img_1.expand(bySize: 20, each: 10, method: .concurrent)),
-                ProcessResults(["20", "2"], img_1.expand(bySize: 20, each: 2, method: .concurrent)),
-                ProcessResults(["20", "1"], img_1.expand(bySize: 20, each: 1, method: .concurrent))
+                ProcessResults(["20", "4"], img_1.expand(bySize: 20, each: 4, method: .concurrent)),
+                ProcessResults(["20", "3"], img_1.expand(bySize: 20, each: 3, method: .concurrent))
             ]
         }
         var res_22 = ProcessedImage()
@@ -116,8 +116,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20", "60"], img_3.expand(bySize: 20, each: 60, method: .basic)),
                 ProcessResults(["20", "20"], img_3.expand(bySize: 20, each: 20, method: .basic)),
                 ProcessResults(["20", "10"], img_3.expand(bySize: 20, each: 10, method: .basic)),
-                ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .basic)),
-                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .basic))
+                ProcessResults(["20", "4"], img_3.expand(bySize: 20, each: 4, method: .basic)),
+                ProcessResults(["20", "3"], img_3.expand(bySize: 20, each: 3, method: .basic))
             ]
         }
         var res_32 = ProcessedImage()
@@ -128,8 +128,8 @@ class ViewController: UIViewController {
                 ProcessResults(["20", "60"], img_3.expand(bySize: 20, each: 60, method: .concurrent)),
                 ProcessResults(["20", "20"], img_3.expand(bySize: 20, each: 20, method: .concurrent)),
                 ProcessResults(["20", "10"], img_3.expand(bySize: 20, each: 10, method: .concurrent)),
-                ProcessResults(["20", "2"], img_3.expand(bySize: 20, each: 2, method: .concurrent)),
-                ProcessResults(["20", "1"], img_3.expand(bySize: 20, each: 1, method: .concurrent))
+                ProcessResults(["20", "4"], img_3.expand(bySize: 20, each: 4, method: .concurrent)),
+                ProcessResults(["20", "3"], img_3.expand(bySize: 20, each: 3, method: .concurrent))
             ]
         }
         var res_4 = ProcessedImage()
@@ -137,8 +137,8 @@ class ViewController: UIViewController {
             output.function = "im1.stroked(with: UIColor, size: CGFloat, alpha: CGFloat)"
             output.sourceImage = img_1
             output.processedImage = [
-                ProcessResults([col_1.hexCode, "10", "0.5"], img_1.stroked(with: col_1, size: 10, alpha: 0.5)),
-                ProcessResults([col_2.hexCode, "10", "0.7"], img_1.stroked(with: col_2, size: 10, alpha: 0.7)),
+                ProcessResults([col_1.hexCode, "10", "0.2"], img_1.stroked(with: col_1, size: 10, alpha: 0.2)),
+                ProcessResults([col_2.hexCode, "10", "0.5"], img_1.stroked(with: col_2, size: 10, alpha: 0.5)),
                 ProcessResults([col_3.hexCode, "10", "1.0"], img_1.stroked(with: col_3, size: 10, alpha: 1.0))
             ]
         }
