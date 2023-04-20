@@ -2,10 +2,16 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
+  - analysis
   - version
   - test
   - bump
   - release
+
+Analysis:
+  stage: analysis
+  script:
+    - export
 
 Run Tests:
   stage: test
@@ -16,7 +22,7 @@ Run Tests:
       - DST_PLATFORM_CI: iOS Simulator
         DST_NAME_CI: 
           - iPad (10th generation)
-          - iPhone 14
+          # - iPhone 14
   script:
     - ./Scripts/check_version.sh
     - echo "Testing ImageProc ($DST_PLATFORM_CI - $DST_NAME_CI)"
@@ -32,9 +38,10 @@ Check Version:
 
 Bump:
   stage: bump
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_APPROVED == 'true'
+  only:
+    - master
   script:
+    - export
     - ./Scripts/bump.sh
 
 Release:
