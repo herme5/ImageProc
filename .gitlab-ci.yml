@@ -2,16 +2,10 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
-  - analysis
   - version
   - test
   - bump
   - release
-
-Analysis:
-  stage: analysis
-  script:
-    - export
 
 Run Tests:
   stage: test
@@ -36,13 +30,14 @@ Check Version:
   script:
     - ./Scripts/check_version.sh
 
-Bump:
-  stage: bump
-  only:
-    - master
-  script:
-    - export
-    - ./Scripts/bump.sh
+# Does not work. Consider calling locally manual Scripts/bump.sh
+# Bump:
+#   stage: bump
+#   only:
+#     - master
+#   script:
+#     - export
+#     - ./Scripts/bump.sh
 
 Release:
   stage: release
