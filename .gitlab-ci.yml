@@ -2,10 +2,12 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
+  - version
   - test
+  - bump
   - release
 
-Test:
+Run Tests:
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -16,9 +18,24 @@ Test:
           - iPad (10th generation)
           - iPhone 14
   script:
+    - ./Scripts/check_version.sh
     - echo "Testing ImageProc ($DST_PLATFORM_CI - $DST_NAME_CI)"
     - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
     - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "platform=$DST_PLATFORM_CI,name=$DST_NAME_CI" | xcpretty -s
+
+Check Version:
+  stage: version
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - ./Scripts/check_version.sh
+
+Bump:
+  stage: bump
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_APPROVED == 'true'
+  script:
+    - ./Scripts/bump.sh
 
 Release:
   stage: release
@@ -26,6 +43,7 @@ Release:
   rules:
     - if: $CI_COMMIT_TAG
   script:
+    - ./.version
     - echo "Publishing ImageProc v$CI_COMMIT_TAG on CocoaPods"
     - pod spec lint ImageProc.podspec
     - pod trunk push

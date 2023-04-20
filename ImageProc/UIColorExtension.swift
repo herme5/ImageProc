@@ -36,15 +36,7 @@ public extension UIColor {
 
     /// The hexadecimal color code as a string prefixed with a `#` and representing the RGB components.
     var hexCode: String {
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        let hexRed   = HexadecimalHelper.stringFrom(value: UInt(red   * 255), digitCount: 2)
-        let hexGreen = HexadecimalHelper.stringFrom(value: UInt(green * 255), digitCount: 2)
-        let hexBlue  = HexadecimalHelper.stringFrom(value: UInt(blue  * 255), digitCount: 2)
-        return "#\(hexRed)\(hexGreen)\(hexBlue)"
+        cgColor.hexCode
     }
 
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
@@ -54,8 +46,8 @@ public extension UIColor {
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
     private convenience init(value hex: UInt, alpha: CGFloat = 1.0) {
         self.init(red: CGFloat((hex >> 16) & 0xFF) / 255.0,
-                  green: CGFloat((hex >> 8)  & 0xFF) / 255.0,
-                  blue: CGFloat( hex        & 0xFF) / 255.0,
+                  green: CGFloat((hex >> 8) & 0xFF) / 255.0,
+                  blue: CGFloat(hex & 0xFF) / 255.0,
                   alpha: alpha)
     }
 
