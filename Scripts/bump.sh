@@ -18,7 +18,7 @@ git checkout - >/dev/null 2>&1
 echo "\n* Tagging"
 git checkout master
 git tag "$version"
-git push --folow-tags
+git push --follow-tags
 git checkout - >/dev/null 2>&1
 
 echo "\n* Restoring previous state"

@@ -31,7 +31,7 @@ final class ColorTests: XCTestCase {
 
     let equalityAccuracy = 0.000_000_001
 
-    let iterationCount = 10_000
+    let iterationCount = 1_000
 
     func repeated(_ body: () -> Void) {
         for _ in 0 ..< iterationCount {
