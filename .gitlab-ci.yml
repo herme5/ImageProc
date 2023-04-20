@@ -45,7 +45,7 @@ Release:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - ./.version
+    - ./Scripts/get_version.sh
     - echo "Publishing ImageProc v$CI_COMMIT_TAG on CocoaPods"
     - pod spec lint ImageProc.podspec
     - pod trunk push
