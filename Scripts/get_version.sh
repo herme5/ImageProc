@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SCRIPT_DIR="$(realpath "$(dirname "$0")")"
-PROJECT_ROOT="$(realpath "$SCRIPT_DIR")"
+PROJECT_ROOT="$(realpath "$SCRIPT_DIR"/..)"
 cd "$PROJECT_ROOT" || exit 1
 
 var_name="spec.version"
@@ -24,4 +24,3 @@ else
 fi
 
 cd - >/dev/null || exit 1
-
