@@ -39,15 +39,20 @@ public extension UIImage {
             return nil
         }
 
+        var color = color
+        if color.cgColor.colorSpace == nil || color.cgColor.colorSpace!.model != .rgb {
+            let conv = color.cgColor.converted(to: CGColor.defaultRGB, intent: .defaultIntent, options: nil)!
+            color = UIColor(cgColor: conv)
+        }
+
         switch method {
         case .basic:
             filter = colorizedBasic(color: color)
         case .concurrent:
             filter = colorizedConcurrent(color: color)
         }
-        
-        let colorSpace = color.cgColor.colorSpace ?? CGColor.rgbColorSpace
-        let context = CIContext(options: [.workingColorSpace: colorSpace])
+
+        let context = CIContext(options: [.workingColorSpace: color.cgColor.colorSpace!])
         let ciOutput = filter.outputImage!
         let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
@@ -67,7 +72,7 @@ public extension UIImage {
     ///   - size: The distance in point.
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func expand(bySize delta: CGFloat, each degree: CGFloat = 2, method: OptimizationMethod = .concurrent) -> UIImage? {
+    func expand(bySize delta: CGFloat, each degree: CGFloat = 3, method: OptimizationMethod = .concurrent) -> UIImage? {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return nil
@@ -78,7 +83,7 @@ public extension UIImage {
         let translationRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
-        UIImage.setupCachedRange(degree)
+        UIImage._setupCachedRange(degree)
 
         // Create the final output context (only one will be used if basic optimisation)
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
@@ -88,9 +93,9 @@ public extension UIImage {
 
         switch method {
         case .basic:
-            expandBasic( context: context, tRect: translationRect, tVector: translationVector)
+            _expandBasic( context: context, tRect: translationRect, tVector: translationVector)
         case .concurrent:
-            expandConcurrent( context: context, tRect: translationRect, tVector: translationVector, newSize: newSize)
+            _expandConcurrent( context: context, tRect: translationRect, tVector: translationVector, newSize: newSize)
         }
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
@@ -105,11 +110,13 @@ public extension UIImage {
     ///   - size: The border size.
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
-    func stroked(with color: UIColor, size: CGFloat, each degree: CGFloat = 2, alpha: CGFloat = 1) -> UIImage? {
-        return colorized(with: color)?
-            .expand(bySize: size, each: degree)?
-            .withAlphaComponent(alpha)
-            .drawnUnder(image: self)
+    func stroked(with color: UIColor, size: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage? {
+        guard cgImage != nil else {
+            print(UIImage._ciImageErrorMessage)
+            return nil
+        }
+
+        return _stroked(with: color, size: size, each: degree, alpha: alpha).withOptions(from: self)
     }
 
     /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
@@ -131,9 +138,8 @@ public extension UIImage {
 
         gaussianFilter.setValue(radius, forKey: kCIInputRadiusKey)
         gaussianFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
-        
-        let colorSpace = CGColor.rgbColorSpace
-        let context = CIContext(options: [.workingColorSpace: colorSpace])
+
+        let context = CIContext()
         let ciOutput = gaussianFilter.outputImage!
         let rect = sizeKept ? CGRect(origin: .zero, size: sizeInPixel) : ciOutput.extent
         let cgOutput = context.createCGImage(ciOutput, from: rect)!
@@ -370,35 +376,35 @@ public extension UIImage {
             print(UIImage._ciImageErrorMessage)
             return nil
         }
-        
+
         let maxSize = CGSize(
             width: max(self.size.width, image.size.width),
             height: max(self.size.height, image.size.height))
         let maxCenter = CGPoint(
             x: maxSize.width/2,
             y: maxSize.height/2)
-        
+
         UIGraphicsBeginImageContextWithOptions(maxSize, false, scale)
         let context = UIGraphicsGetCurrentContext()!
-        
+
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
         let inputFirstImageRect = CGRect(center: maxCenter, size: self.size)
         let inputSecondImageRect = CGRect(center: maxCenter, size: image.size)
-        
+
         context.concatenate(verticalFlip)
         context.draw(self.cgImage!, in: inputFirstImageRect)
         let inputFirstImage = context.makeImage()!
         context.clear(CGRect(origin: .zero, size: maxSize))
         context.draw(image.cgImage!, in: inputSecondImageRect)
         let inputSecondImage = context.makeImage()!
-        
+
         UIGraphicsEndImageContext()
-        
-        let colorSpace = CGColor.rgbColorSpace
+
+        let colorSpace = CGColor.defaultRGB
         filter.inputFirstImage = CIImage(cgImage: inputFirstImage)
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
         let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
-        
+
         guard let ciOutput = filter.outputImage else {
             return nil
         }

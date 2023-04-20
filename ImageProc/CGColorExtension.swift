@@ -12,7 +12,7 @@ import CoreGraphics
 
 public extension CGColor {
 
-    static let rgbColorSpace = CGColorSpace(name: CGColorSpace.genericRGBLinear)!
+    static let defaultRGB = CGColorSpace(name: CGColorSpace.extendedSRGB)!
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
     ///
@@ -24,7 +24,7 @@ public extension CGColor {
                               CGFloat((hex >> 8) & 0xFF) / 255.0,
                               CGFloat(hex & 0xFF) / 255.0,
                               alpha]
-        return CGColor(colorSpace: CGColor.rgbColorSpace, components: rgbaComponents)!
+        return CGColor(colorSpace: CGColor.defaultRGB, components: rgbaComponents)!
     }
 
     /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
@@ -53,7 +53,7 @@ public extension CGColor {
             )
             return HexadecimalHelper.stringFrom(value: red + green + blue)
         } else {
-            let rgb = converted(to: CGColor.rgbColorSpace, intent: .defaultIntent, options: nil)!
+            let rgb = converted(to: CGColor.defaultRGB, intent: .defaultIntent, options: nil)!
             return rgb.hexCode
         }
     }

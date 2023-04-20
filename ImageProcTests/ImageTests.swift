@@ -140,4 +140,13 @@ final class ImageTests: XCTestCase {
             }
         }
     }
+    
+    func testStroked() throws {
+        let color = UIColor.black
+        measure {
+            repeated {
+                _ = shape0.stroked(with: color, size: 20)
+            }
+        }
+    }
 }
