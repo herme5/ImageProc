@@ -61,7 +61,7 @@ class ViewController: UIViewController {
 
         let img_0 = UIImage(named: "splash-rounded-100")!
         let img_1 = UIImage(named: "splash-square-100")!
-        let img_2 = img_1.colorized(with: col_2)!
+        let img_2 = img_1.colorized(with: col_2)
         let img_3 = UIImage(named: "splash-square-line-100")!
 
         var res_0 = ProcessedImage()
@@ -220,7 +220,7 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults(
                     ["im0.rotated(by: 45).colorized(with: \(col_1.hexCode))"],
-                    img_0.drawnUnder(image: img_0.rotated(by: 45)!.colorized(with: col_1)!)),
+                    img_0.drawnUnder(image: img_0.rotated(by: 45).colorized(with: col_1))),
                 ProcessResults(
                     ["im2"],
                     img_0.drawnUnder(image: img_2))
@@ -233,7 +233,7 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults(
                     ["im0.rotated(by: 45).colorized(with: \(col_1.hexCode))"],
-                    img_0.drawnAbove(image: img_0.rotated(by: 45)!.colorized(with: col_1)!)),
+                    img_0.drawnAbove(image: img_0.rotated(by: 45).colorized(with: col_1))),
                 ProcessResults(
                     ["im2"],
                     img_0.drawnAbove(image: img_2))
