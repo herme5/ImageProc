@@ -32,11 +32,11 @@ public extension UIImage {
     /// - parameters:
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func colorized(with color: UIColor, method: OptimizationMethod = .basic) -> UIImage? {
+    func colorized(with color: UIColor, method: OptimizationMethod = .basic) -> UIImage {
         var filter: CIFilter!
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         var color = color
@@ -72,10 +72,10 @@ public extension UIImage {
     ///   - size: The distance in point.
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func expand(bySize delta: CGFloat, each degree: CGFloat = 3, method: OptimizationMethod = .concurrent) -> UIImage? {
+    func expand(bySize delta: CGFloat, each degree: CGFloat = 3, method: OptimizationMethod = .concurrent) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         let newSize = CGSize(width: size.width + (2 * delta), height: size.height + (2 * delta))
@@ -110,10 +110,10 @@ public extension UIImage {
     ///   - size: The border size.
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
-    func stroked(with color: UIColor, size: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage? {
+    func stroked(with color: UIColor, size: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         return _stroked(with: color, size: size, each: degree, alpha: alpha).withOptions(from: self)
@@ -127,10 +127,10 @@ public extension UIImage {
     ///   - sizeKept: Whether the output image should keep the same size as before, or its size is increased by radius
     ///               so that we are sure the blur effect can exceed the initial size.
     /// - returns: A smoothened `UIImage`.
-    func smoothened(by radius: CGFloat, sizeKept: Bool = false) -> UIImage? {
+    func smoothened(by radius: CGFloat, sizeKept: Bool = false) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         // smoothen the image with a gaussian blur
@@ -165,10 +165,10 @@ public extension UIImage {
     /// - parameters:
     ///   - newSize: The new size of the output image.
     /// - returns: A sclaed `UIImage`.
-    func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage? {
+    func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         let newRect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height).integral
@@ -193,7 +193,7 @@ public extension UIImage {
     ///   - newWidth: The new width of the output image.
     /// - returns: A sclaed `UIImage`.
     func scaledWidth(to newWidth: CGFloat, keepAspectRatio: Bool = true,
-                     interpolationQuality: CGInterpolationQuality = .default) -> UIImage? {
+                     interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newHeight = keepAspectRatio ? size.height * (newWidth / size.width) : size.height
         return scaled(to: CGSize(width: newWidth, height: newHeight), interpolationQuality: interpolationQuality)
     }
@@ -205,7 +205,7 @@ public extension UIImage {
     ///   - newHeight: The new height of the output image.
     /// - returns: A sclaed `UIImage`.
     func scaledHeight(to newHeight: CGFloat, keepAspectRatio: Bool = true,
-                      interpolationQuality: CGInterpolationQuality = .default) -> UIImage? {
+                      interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newWidth = keepAspectRatio ? size.width * (newHeight / size.height) : size.width
         return scaled(to: CGSize(width: newWidth, height: newHeight), interpolationQuality: interpolationQuality)
     }
@@ -215,14 +215,14 @@ public extension UIImage {
     /// - parameters:
     ///   - rect: The new rect to which the image will be cropped.
     /// - returns: A cropped `UIImage`.
-    func cropped(to rect: CGRect) -> UIImage? {
+    func cropped(to rect: CGRect) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
         let contextRect = CGRect(origin: rect.origin * scale, size: rect.size * scale)
         guard let cropped = cgImage!.cropping(to: contextRect) else {
-            return nil
+            return self
         }
         return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
@@ -234,10 +234,10 @@ public extension UIImage {
     ///   - flip: boolean that indicate if the image should be flipped in the zero degree direction axis after the
     ///           rotation.
     /// - returns: A rotated `UIImage`.
-    func rotated(by degrees: CGFloat) -> UIImage? {
+    func rotated(by degrees: CGFloat) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         let degreesToRadians: (CGFloat) -> CGFloat = { return $0 / 180.0 * CGFloat.pi }
@@ -272,10 +272,10 @@ public extension UIImage {
     /// Flips along X and returns a copy of this image.
     ///
     /// - returns: A horizontally flipped `UIImage`.
-    func flippedHorizontally() -> UIImage? {
+    func flippedHorizontally() -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
@@ -294,10 +294,10 @@ public extension UIImage {
     /// Flips along Y and returns a copy of this image.
     ///
     /// - returns: A vertically flipped `UIImage`.
-    func flippedVertically() -> UIImage? {
+    func flippedVertically() -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
         
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
@@ -314,10 +314,10 @@ public extension UIImage {
     /// Overlays this image under another image and returns a copy of the two images combined.
     ///
     /// - returns: A `UIImage` where this image is under the other.
-    func drawnUnder(image: UIImage) -> UIImage? {
+    func drawnUnder(image: UIImage) -> UIImage {
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         // We explicitly use `self` to keep the comparison between the under and the above image.
@@ -348,7 +348,7 @@ public extension UIImage {
     /// Overlays this image above another image and returns a copy of the two images combined.
     ///
     /// - returns: A `UIImage` where this image is above the other.
-    func drawnAbove(image: UIImage) -> UIImage? {
+    func drawnAbove(image: UIImage) -> UIImage {
         return image.drawnUnder(image: self)
     }
 
@@ -370,11 +370,11 @@ public extension UIImage {
     /// - parameters:
     ///   - image: TODO
     /// - returns: TODO
-    func diff(from image: UIImage) -> UIImage? {
+    func diff(from image: UIImage) -> UIImage {
         let filter = CompareFilter()
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
-            return nil
+            return self
         }
 
         let maxSize = CGSize(
@@ -406,7 +406,7 @@ public extension UIImage {
         let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
 
         guard let ciOutput = filter.outputImage else {
-            return nil
+            return self
         }
         let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
