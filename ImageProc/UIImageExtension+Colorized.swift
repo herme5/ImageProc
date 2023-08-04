@@ -23,7 +23,7 @@ internal extension UIImage {
         colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputRVector")
         colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputGVector")
         colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 0), forKey: "inputBVector")
-        colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: 1), forKey: "inputAVector")
+        colorMatrixFilter.setValue(CIVector(x: 0, y: 0, z: 0, w: channels.alpha), forKey: "inputAVector")
         colorMatrixFilter.setValue(CIVector(x: channels.red, y: channels.green, z: channels.blue, w: 0),
                                    forKey: "inputBiasVector")
         colorMatrixFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)

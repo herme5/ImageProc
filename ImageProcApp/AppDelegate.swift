@@ -92,3 +92,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 }
+
+// swiftlint:enable vertical_whitespace line_length

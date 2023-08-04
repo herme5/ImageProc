@@ -20,6 +20,16 @@ import CoreImage
 ///
 /// Note that the input color alpha component is taken into account to produce a more transparent (and always more
 /// transparent) image.
+///
+/// Previous shader implementation
+/// ```
+/// kernel vec4
+/// colorize(__sample p, vec4 c) {
+///   p.rgb = p.a * c.rgb;
+///   p.a *= c.a;
+///   return p;
+/// }
+/// ```
 internal class ColorFilter: CIFilter {
 
     /// The original input image as a `CIImage`.
@@ -30,14 +40,22 @@ internal class ColorFilter: CIFilter {
 
     /// The GPU-based routine that performs the colorizing algorithm.
     private static let kernel: CIColorKernel = {
-        let kernelCode =
-        """
-        kernel vec4 colorize(__sample pixel, vec4 color) {
-            pixel.rgb = pixel.a * color.rgb;
-            return pixel;
+        guard let bundle = Bundle(
+            identifier: "com.andrearuffino.ImageProc") else {
+            fatalError("Could not find the framework bundle")
         }
-        """
-        return CIColorKernel(source: kernelCode)!
+        guard let url = bundle.url(
+          forResource: "ColorFilterKernel.ci",
+          withExtension: "metallib"),
+          let data = try? Data(contentsOf: url) else {
+          fatalError("Unable to load metallib")
+        }
+        guard let kernel = try? CIColorKernel(
+          functionName: "colorFilterKernel",
+          fromMetalLibraryData: data) else {
+          fatalError("Unable to create color kernel")
+        }
+        return kernel
     }()
 
     /// The output image produced by the original image colorized with the input color.
