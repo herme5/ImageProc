@@ -29,6 +29,7 @@
 		62A1C8612955100A0069D590 /* ImageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A1C8602955100A0069D590 /* ImageTests.swift */; };
 		62A1C8622955100A0069D590 /* ImageProc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; };
 		62A1C869295514B20069D590 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 627DC360226BCB6C00FF7A45 /* Assets.xcassets */; };
+		62AA78362A7D592B001846AD /* ColorFilterKernel.ci.metal in Sources */ = {isa = PBXBuildFile; fileRef = 62AA78352A7D592B001846AD /* ColorFilterKernel.ci.metal */; };
 		62AC4BDD29E628F900ECD294 /* CompareFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4BDC29E628F900ECD294 /* CompareFilter.swift */; };
 		62AC4C3429E6B47900ECD294 /* UIImageExtension+Colorized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4C3329E6B47900ECD294 /* UIImageExtension+Colorized.swift */; };
 		62AC4C3629E6B59E00ECD294 /* UIImageExtension+Expand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62AC4C3529E6B59E00ECD294 /* UIImageExtension+Expand.swift */; };
@@ -37,6 +38,37 @@
 		62DA4C112289CB4100D08D4F /* ImageProc.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6252C4282228583A00B7877A /* ImageProc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		62F4309A29E93729000CD8E6 /* UIImageExtension+Stroked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F4309929E93729000CD8E6 /* UIImageExtension+Stroked.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		62AA78372A7D5A71001846AD /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ci.metal";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/${INPUT_FILE_BASE}.air",
+			);
+			runOncePerArchitecture = 0;
+			script = "xcrun metal -c -fcikernel \"${INPUT_FILE_PATH}\" -o \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+		62AA78382A7D5B11001846AD /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ci.air";
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+				"$(METAL_LIBRARY_OUTPUT_DIR)/$(INPUT_FILE_BASE).metallib",
+			);
+			runOncePerArchitecture = 0;
+			script = "xcrun metallib -cikernel \"${INPUT_FILE_PATH}\" -o \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		62A1C8632955100A0069D590 /* PBXContainerItemProxy */ = {
@@ -104,6 +136,7 @@
 		627DC36F226BF97D00FF7A45 /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
 		62A1C85E2955100A0069D590 /* ImageProcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImageProcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		62A1C8602955100A0069D590 /* ImageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTests.swift; sourceTree = "<group>"; };
+		62AA78352A7D592B001846AD /* ColorFilterKernel.ci.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ColorFilterKernel.ci.metal; sourceTree = "<group>"; };
 		62AC4BDC29E628F900ECD294 /* CompareFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompareFilter.swift; sourceTree = "<group>"; };
 		62AC4C3329E6B47900ECD294 /* UIImageExtension+Colorized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageExtension+Colorized.swift"; sourceTree = "<group>"; };
 		62AC4C3529E6B59E00ECD294 /* UIImageExtension+Expand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageExtension+Expand.swift"; sourceTree = "<group>"; };
@@ -165,6 +198,7 @@
 			children = (
 				6252C42B2228583A00B7877A /* ImageProc.h */,
 				6252C42C2228583A00B7877A /* Info.plist */,
+				62AA78352A7D592B001846AD /* ColorFilterKernel.ci.metal */,
 				624C6CA829BB483F0068FFA3 /* ColorFilter.swift */,
 				62AC4BDC29E628F900ECD294 /* CompareFilter.swift */,
 				624C6CA629BB43430068FFA3 /* HexadecimalHelper.swift */,
@@ -241,6 +275,8 @@
 				627DC34D226BC99E00FF7A45 /* Resources */,
 			);
 			buildRules = (
+				62AA78382A7D5B11001846AD /* PBXBuildRule */,
+				62AA78372A7D5A71001846AD /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -388,6 +424,7 @@
 			files = (
 				624C6CA729BB43430068FFA3 /* HexadecimalHelper.swift in Sources */,
 				624C6CA929BB483F0068FFA3 /* ColorFilter.swift in Sources */,
+				62AA78362A7D592B001846AD /* ColorFilterKernel.ci.metal in Sources */,
 				6252C447222858DF00B7877A /* UIColorExtension.swift in Sources */,
 				62AC4C3629E6B59E00ECD294 /* UIImageExtension+Expand.swift in Sources */,
 				624C6C9F29BB401F0068FFA3 /* CGVectorExtension.swift in Sources */,
