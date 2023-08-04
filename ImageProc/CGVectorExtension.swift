@@ -25,5 +25,6 @@ internal extension CGVector {
         let y = origin.y + radius * sin(newAzimuth)
 
         return CGVector(dx: x, dy: y)
+        // swiftlint:enable identifier_name
     }
 }
