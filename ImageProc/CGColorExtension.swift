@@ -12,7 +12,7 @@ import CoreGraphics
 
 public extension CGColor {
 
-    static let defaultRGB = CGColorSpace(name: CGColorSpace.extendedSRGB)!
+    static let defaultRGB = CGColorSpaceCreateDeviceRGB()
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
     ///

@@ -31,7 +31,7 @@ final class ColorTests: XCTestCase {
 
     let equalityAccuracy = 0.000_000_001
 
-    let iterationCount = 1_000
+    let iterationCount = 10_000
 
     func repeated(_ body: () -> Void) {
         for _ in 0 ..< iterationCount {
@@ -143,34 +143,26 @@ final class ColorTests: XCTestCase {
 
     func testInitializationPerformanceFromValue() throws {
         measure {
-            repeated {
-                _ = UIColor.random()
-            }
+            repeated { _ = UIColor.random() }
         }
     }
 
     func testInitializationPerformanceFromHexCode() throws {
         let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
         measure {
-            repeated {
-                _ = deprecatedWrapper.uiColorRandomFromCode()
-            }
+            repeated { _ = deprecatedWrapper.uiColorRandomFromCode() }
         }
     }
 
     func testUIColorHexCodePerformance() throws {
         measure {
-            repeated {
-                let color = UIColor.random()
-                _ = color.cgColor.hexCode
-            }
+            repeated { _ = UIColor.random().cgColor.hexCode }
         }
     }
 }
 
 // MARK: - DeprecatedWrapper
-// Workaround to silence deprecated warnings, but still interesting to test:
-// https://stackoverflow.com/questions/31540446/how-to-silence-a-warning-in-swift
+// Workaround to silence deprecated warnings, but we still want to test
 
 class DeprecatedWrapper {
 
