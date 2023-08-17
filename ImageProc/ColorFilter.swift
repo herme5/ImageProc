@@ -38,24 +38,12 @@ internal class ColorFilter: CIFilter {
     /// The input color as a `CIColor`.
     var inputColor: CIColor?
 
+    /// The metal routine name of the color filter.
+    private static let functionName = "colorize"
+
     /// The GPU-based routine that performs the colorizing algorithm.
     private static let kernel: CIColorKernel = {
-        guard let bundle = Bundle(
-            identifier: "com.andrearuffino.ImageProc") else {
-            fatalError("Could not find the framework bundle")
-        }
-        guard let url = bundle.url(
-          forResource: "ColorFilterKernel.ci",
-          withExtension: "metallib"),
-          let data = try? Data(contentsOf: url) else {
-          fatalError("Unable to load metallib")
-        }
-        guard let kernel = try? CIColorKernel(
-          functionName: "colorFilterKernel",
-          fromMetalLibraryData: data) else {
-          fatalError("Unable to create color kernel")
-        }
-        return kernel
+        return KernelLoader.loadFunction(named: functionName)
     }()
 
     /// The output image produced by the original image colorized with the input color.

@@ -10,16 +10,9 @@ import UIKit
 import CoreGraphics
 
 // MARK: - UIImage extension
+// swiftlint:disable file_length
 
 public extension UIImage {
-
-    /// Optimization methods used in the extension util functions when available.
-    enum OptimizationMethod {
-        /// `basic` optimization usually stands for sequential algorithms or native API based.
-        case basic
-        /// `concurrent` optimization usually stands for GPU parallel algorithms or concurrent dispatch queues.
-        case concurrent
-    }
 
     var sizeInPixel: CGSize { return size * scale }
 
@@ -32,7 +25,7 @@ public extension UIImage {
     /// - parameters:
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func colorized(with color: UIColor, method: OptimizationMethod = .basic) -> UIImage {
+    func colorized(with color: UIColor) -> UIImage {
         var filter: CIFilter!
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
@@ -45,17 +38,18 @@ public extension UIImage {
             color = UIColor(cgColor: conv)
         }
 
-        switch method {
-        case .basic:
-            filter = colorizedBasic(color: color)
-        case .concurrent:
-            filter = colorizedConcurrent(color: color)
-        }
+        filter = Self._colorizedImpl(args: ColorizedArguments(color: color), cgImage: cgImage!)
 
         let context = CIContext(options: [.workingColorSpace: color.cgColor.colorSpace!])
         let ciOutput = filter.outputImage!
         let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
+    }
+
+    /// Renamed to `expanded(bySize:each:)`
+    @available(*, deprecated, renamed: "expanded(bySize:each:)")
+    func expand(bySize delta: CGFloat, each degree: CGFloat = 3) -> UIImage {
+        return expanded(bySize: delta, each: degree)
     }
 
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque
@@ -72,7 +66,7 @@ public extension UIImage {
     ///   - size: The distance in point.
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
-    func expand(bySize delta: CGFloat, each degree: CGFloat = 3, method: OptimizationMethod = .concurrent) -> UIImage {
+    func expanded(bySize delta: CGFloat, each degree: CGFloat = 3) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -80,7 +74,7 @@ public extension UIImage {
 
         let newSize = CGSize(width: size.width + (2 * delta), height: size.height + (2 * delta))
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-        let translationRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
+        let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
         UIImage._setupCachedRange(degree)
@@ -91,12 +85,14 @@ public extension UIImage {
         context.interpolationQuality = interpQuality
         context.concatenate(verticalFlip)
 
-        switch method {
-        case .basic:
-            _expandBasic( context: context, tRect: translationRect, tVector: translationVector)
-        case .concurrent:
-            _expandConcurrent( context: context, tRect: translationRect, tVector: translationVector, newSize: newSize)
-        }
+        Self._expandedImpl(
+            args: ExpandedArguments(
+                context: context,
+                translatedRect: translatedRect,
+                translationVector: translationVector,
+                size: newSize,
+                scale: scale),
+            cgImage: cgImage!)
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
         UIGraphicsEndImageContext()
@@ -110,13 +106,62 @@ public extension UIImage {
     ///   - size: The border size.
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
-    func stroked(with color: UIColor, size: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage {
+    func stroked(with color: UIColor, size delta: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
-        return _stroked(with: color, size: size, each: degree, alpha: alpha).withOptions(from: self)
+        // Colorize
+        let colorFilter = Self._colorizedImpl(args: ColorizedArguments(color: color), cgImage: cgImage!)
+        let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGB])
+        let ciOutput = colorFilter.outputImage!
+        var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
+
+        // Expand
+        let newSize = CGSize(width: size.width + (2 * delta), height: size.height + (2 * delta))
+        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+        let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
+        let translationVector = CGVector(dx: delta, dy: 0)
+        let interpQuality = CGInterpolationQuality.default
+        UIImage._setupCachedRange(degree)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
+        let cgContext = UIGraphicsGetCurrentContext()!
+
+        cgContext.interpolationQuality = interpQuality
+        cgContext.concatenate(verticalFlip)
+
+        UIImage._expandedImpl(
+            args: ExpandedArguments(
+                context: cgContext,
+                translatedRect: translatedRect,
+                translationVector: translationVector,
+                size: newSize,
+                scale: scale),
+            cgImage: cgOutput)
+
+        // Draw expanded under colorized
+        let newRect = CGRect(origin: .zero, size: newSize)
+        cgOutput = cgContext.makeImage()!
+        cgContext.clear(newRect)
+
+        let otherImageRect = CGRect(center: newRect.center, size: CGSize(width: cgOutput.width, height: cgOutput.height) / scale)
+        cgContext.saveGState()
+        cgContext.setBlendMode(.normal)
+        cgContext.setAlpha(alpha)
+        cgContext.draw(cgOutput, in: otherImageRect)
+        cgContext.restoreGState()
+
+        let thisImageRect = CGRect(center: newRect.center, size: self.size)
+        cgContext.draw(self.cgImage!, in: thisImageRect)
+
+        let newImage = UIImage(cgImage: cgContext.makeImage()!,
+                               scale: self.scale,
+                               orientation: self.imageOrientation)
+        UIGraphicsEndImageContext()
+
+        return newImage.withOptions(from: self)
     }
 
     /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
@@ -370,7 +415,7 @@ public extension UIImage {
     /// - parameters:
     ///   - image: TODO
     /// - returns: TODO
-    func diff(from image: UIImage) -> UIImage {
+    func alphaMasked(with image: UIImage) -> UIImage {
         let filter = CompareFilter()
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
@@ -394,6 +439,7 @@ public extension UIImage {
         context.concatenate(verticalFlip)
         context.draw(self.cgImage!, in: inputFirstImageRect)
         let inputFirstImage = context.makeImage()!
+
         context.clear(CGRect(origin: .zero, size: maxSize))
         context.draw(image.cgImage!, in: inputSecondImageRect)
         let inputSecondImage = context.makeImage()!
@@ -411,4 +457,50 @@ public extension UIImage {
         let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
+
+    /// Extracts the bitmap data with the form of an array of UIColor.
+    /// This function returns the result of the handler.
+    func withBitmapData<T>(_ handler: ([UIColor]) -> T?) -> T? {
+        guard let cgImage else {
+            print(UIImage._ciImageErrorMessage)
+            return nil
+        }
+        return cgImage.withBitmapData { cgColors in
+            handler(cgColors.map { cgColor in
+                UIColor(cgColor: cgColor)
+            })
+        }
+    }
+
+    /// The percentage of opaque pixels in the image
+    var opaquePixelDensity: Double? {
+        guard let alphaLayer = withBitmapData({ colors in colors.map { $0.rgba.alpha } }) else {
+            return nil
+        }
+
+        let total = sizeInPixel.width * sizeInPixel.height
+        return alphaLayer.reduce(0, +) / CGFloat(total)
+    }
+
+    // MARK: - Swizzling methods
+
+    @objc dynamic
+    internal static func _colorizedImpl(args: ColorizedArguments, cgImage: CGImage) -> CIFilter {
+        return _colorized_ciColorMatrix(args: args, cgImage: cgImage)
+    }
+
+    @objc dynamic
+    internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) {
+        _expanded_concurrent(args: args, cgImage: cgImage)
+    }
+
+    static func useMetalColorizationMethod() {
+        let originalMethod = class_getClassMethod(Self.self, #selector(_colorizedImpl))
+        let swizzledMethod = class_getClassMethod(Self.self, #selector(_colorized_mtlColorFilter))
+        guard let originalMethod, let swizzledMethod else {
+            fatalError("Could not swizzle implementation")
+        }
+        method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+
 }

@@ -1,5 +1,5 @@
 //
-//  ColorFilterKernel.ci.metal
+//  ImageProcKernel.ci.metal
 //  ImageProc
 //
 //  Created by Andrea Ruffino on 04/08/2023.
@@ -10,10 +10,18 @@
 
 extern "C" {
     namespace coreimage {
-        float4 colorFilterKernel(sample_t pixel, float4 color) {
+
+        float4 colorize(sample_t pixel, float4 color) {
             pixel.rgb = pixel.a * color.rgb;
             pixel.a *= color.a;
             return pixel;
+        }
+
+        float4 compare(sample_t pixel_a, sample_t pixel_b) {
+            // float4 pixel;
+            // pixel.a = abs(pixel_b.a - pixel_a.a);
+            // return pixel;
+            return abs(pixel_a - pixel_b);
         }
     }
 }
