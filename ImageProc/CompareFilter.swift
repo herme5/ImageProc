@@ -19,17 +19,12 @@ internal class CompareFilter: CIFilter {
     /// The second input `CIImage` to compare.
     var inputSecondImage: CIImage?
 
+    /// The metal routine name of the color filter.
+    private static let functionName = "compare"
+
     /// The GPU-based routine.
     private static let kernel: CIColorKernel = {
-        let kernelCode =
-        """
-        kernel vec4 colorize(__sample pixel_a, __sample pixel_b) {
-            vec4 pixel;
-            pixel.a = abs(pixel_b.a - pixel_a.a);
-            return pixel;
-        }
-        """
-        return CIColorKernel(source: kernelCode)!
+        return KernelLoader.loadFunction(named: functionName)
     }()
 
     /// The output image produced by the original image colorized with the input color.
