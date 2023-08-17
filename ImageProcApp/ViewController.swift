@@ -47,17 +47,17 @@ class ViewController: UIViewController {
             red: CGFloat.random(in: 0.0...1.0),
             green: CGFloat.random(in: 0.0...1.0),
             blue: CGFloat.random(in: 0.0...1.0),
-            alpha: 1.0)
+            alpha: 0.2)
         let col_2 = UIColor(
             red: CGFloat.random(in: 0.0...1.0),
             green: CGFloat.random(in: 0.0...1.0),
             blue: CGFloat.random(in: 0.0...1.0),
-            alpha: 0.6)
+            alpha: 0.5)
         let col_3 = UIColor(
             red: CGFloat.random(in: 0.0...1.0),
             green: CGFloat.random(in: 0.0...1.0),
             blue: CGFloat.random(in: 0.0...1.0),
-            alpha: 0.4)
+            alpha: 1.0)
 
         let img_0 = UIImage(named: "splash-rounded-100")!
         let img_1 = UIImage(named: "splash-square-100")!
@@ -66,70 +66,47 @@ class ViewController: UIViewController {
 
         var res_0 = ProcessedImage()
         measureTime(output: &res_0) { (output) in
-            output.function = "im0.colorized(with: UIColor, method: .basic)"
+            output.function = "im0.colorized(with: UIColor, method: .ciFilter)"
             output.sourceImage = img_0
             output.processedImage = [
-                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .basic)),
-                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2, method: .basic)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .basic))
+                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1)),
+                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2)),
+                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3))
             ]
         }
+        UIImage.useMetalColorizationMethod()
         var res_1 = ProcessedImage()
         measureTime(output: &res_1) { (output) in
-            output.function = "im0.colorized(with: UIColor, method: .concurrent)"
+            output.function = "im0.colorized(with: UIColor, method: .metalKernel)"
             output.sourceImage = img_0
             output.processedImage = [
-                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1, method: .concurrent)),
-                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2, method: .concurrent)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3, method: .concurrent))
-            ]
-        }
-        var res_2 = ProcessedImage()
-        measureTime(output: &res_2) { (output) in
-            output.function = "im1.expand(bySize: CGFloat, each: CGFloat, method: .basic)"
-            output.sourceImage = img_1
-            output.processedImage = [
-                ProcessResults(["20", "60"], img_1.expand(bySize: 20, each: 60, method: .basic)),
-                ProcessResults(["20", "20"], img_1.expand(bySize: 20, each: 20, method: .basic)),
-                ProcessResults(["20", "10"], img_1.expand(bySize: 20, each: 10, method: .basic)),
-                ProcessResults(["20", "4"], img_1.expand(bySize: 20, each: 4, method: .basic)),
-                ProcessResults(["20", "3"], img_1.expand(bySize: 20, each: 3, method: .basic))
+                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1)),
+                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2)),
+                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3))
             ]
         }
         var res_3 = ProcessedImage()
         measureTime(output: &res_3) { (output) in
-            output.function = "im1.expand(bySize: CGFloat, each: CGFloat, method: .concurrent)"
+            output.function = "im1.expanded(bySize: CGFloat, each: CGFloat)"
             output.sourceImage = img_1
             output.processedImage = [
-                ProcessResults(["20", "60"], img_1.expand(bySize: 20, each: 60, method: .concurrent)),
-                ProcessResults(["20", "20"], img_1.expand(bySize: 20, each: 20, method: .concurrent)),
-                ProcessResults(["20", "10"], img_1.expand(bySize: 20, each: 10, method: .concurrent)),
-                ProcessResults(["20", "4"], img_1.expand(bySize: 20, each: 4, method: .concurrent)),
-                ProcessResults(["20", "3"], img_1.expand(bySize: 20, each: 3, method: .concurrent))
-            ]
-        }
-        var res_22 = ProcessedImage()
-        measureTime(output: &res_22) { (output) in
-            output.function = "im3.expand(bySize: CGFloat, each: CGFloat, method: .basic)"
-            output.sourceImage = img_3
-            output.processedImage = [
-                ProcessResults(["20", "60"], img_3.expand(bySize: 20, each: 60, method: .basic)),
-                ProcessResults(["20", "20"], img_3.expand(bySize: 20, each: 20, method: .basic)),
-                ProcessResults(["20", "10"], img_3.expand(bySize: 20, each: 10, method: .basic)),
-                ProcessResults(["20", "4"], img_3.expand(bySize: 20, each: 4, method: .basic)),
-                ProcessResults(["20", "3"], img_3.expand(bySize: 20, each: 3, method: .basic))
+                ProcessResults(["20", "60"], img_1.expanded(bySize: 20, each: 60)),
+                ProcessResults(["20", "20"], img_1.expanded(bySize: 20, each: 20)),
+                ProcessResults(["20", "10"], img_1.expanded(bySize: 20, each: 10)),
+                ProcessResults(["20", "4"], img_1.expanded(bySize: 20, each: 4)),
+                ProcessResults(["20", "3"], img_1.expanded(bySize: 20, each: 3))
             ]
         }
         var res_32 = ProcessedImage()
         measureTime(output: &res_32) { (output) in
-            output.function = "im3.expand(bySize: CGFloat, each: CGFloat, method: .concurrent)"
+            output.function = "im3.expanded(bySize: CGFloat, each: CGFloat)"
             output.sourceImage = img_3
             output.processedImage = [
-                ProcessResults(["20", "60"], img_3.expand(bySize: 20, each: 60, method: .concurrent)),
-                ProcessResults(["20", "20"], img_3.expand(bySize: 20, each: 20, method: .concurrent)),
-                ProcessResults(["20", "10"], img_3.expand(bySize: 20, each: 10, method: .concurrent)),
-                ProcessResults(["20", "4"], img_3.expand(bySize: 20, each: 4, method: .concurrent)),
-                ProcessResults(["20", "3"], img_3.expand(bySize: 20, each: 3, method: .concurrent))
+                ProcessResults(["20", "60"], img_3.expanded(bySize: 20, each: 60)),
+                ProcessResults(["20", "20"], img_3.expanded(bySize: 20, each: 20)),
+                ProcessResults(["20", "10"], img_3.expanded(bySize: 20, each: 10)),
+                ProcessResults(["20", "4"], img_3.expanded(bySize: 20, each: 4)),
+                ProcessResults(["20", "3"], img_3.expanded(bySize: 20, each: 3))
             ]
         }
         var res_4 = ProcessedImage()
@@ -240,8 +217,22 @@ class ViewController: UIViewController {
             ]
         }
 
+        var res_14 = ProcessedImage()
+        measureTime(output: &res_14) { (output) in
+            output.function = "im0.comparedAlpha(to: UIImage)"
+            output.sourceImage = img_0
+            output.processedImage = [
+                ProcessResults(
+                    ["im1"],
+                    img_0.alphaMasked(with: img_1)),
+                ProcessResults(
+                    ["im0.colorized"],
+                    img_0.alphaMasked(with: img_0.colorized(with: .blue)))
+            ]
+        }
+
         items.append(contentsOf: [
-            res_0, res_1, res_2, res_3, res_22, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13
+            res_0, res_1, res_3, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13, res_14
             ])
 
         self.back = BackgroundView()
