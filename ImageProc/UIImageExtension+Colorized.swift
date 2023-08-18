@@ -9,8 +9,6 @@
 import UIKit
 import CoreGraphics
 
-// MARK: - UIImage extension
-
 internal extension UIImage {
 
     @objc dynamic

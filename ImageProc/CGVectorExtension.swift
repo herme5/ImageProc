@@ -8,8 +8,6 @@
 
 import CoreGraphics
 
-// MARK: - CGVector extension
-
 internal extension CGVector {
 
     func rotated(around origin: CGPoint, byDegrees: CGFloat) -> CGVector {

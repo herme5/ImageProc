@@ -8,8 +8,6 @@
 
 import Foundation
 
-// MARK: - HexadecimalHelper implementation
-
 internal class HexadecimalHelper {
 
     /// The decimal to hexadecimal digits mapping table.

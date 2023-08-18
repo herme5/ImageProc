@@ -8,8 +8,6 @@
 
 import UIKit
 
-// MARK: - UIColor extension
-
 public extension UIColor {
 
     private static let maximumHexValue = UInt(pow(16.0, 6))
@@ -44,7 +42,7 @@ public extension UIColor {
     /// - parameters:
     ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    private convenience init(value hex: UInt, alpha: CGFloat = 1.0) {
+    convenience init(value hex: UInt, alpha: CGFloat = 1.0) {
         self.init(red: CGFloat((hex >> 16) & 0xFF) / 255.0,
                   green: CGFloat((hex >> 8) & 0xFF) / 255.0,
                   blue: CGFloat(hex & 0xFF) / 255.0,

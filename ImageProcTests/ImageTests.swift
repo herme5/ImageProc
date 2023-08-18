@@ -17,6 +17,7 @@ final class ImageTests: XCTestCase {
     var gradientQuarterImage: UIImage!
     var notSoBlueImage: UIImage!
     var smallGradientImage: UIImage!
+    var emptyImage: UIImage!
     var color0: UIColor!
     var color1: UIColor!
     var color2: UIColor!
@@ -32,6 +33,7 @@ final class ImageTests: XCTestCase {
         color0 = UIColor.systemIndigo
         color1 = UIColor.systemPink
         color2 = UIColor.systemTeal
+        emptyImage = UIImage(data: Data(repeating: 0, count: 0))
 
         // This CIImage will be used for initializion
         // A UIImage initialized this way cannot use some features of this lib.
@@ -48,16 +50,19 @@ final class ImageTests: XCTestCase {
         XCTAssertNotNil(shape0.smoothened(by: 1, sizeKept: false))
         XCTAssertNotNil(shape0.withAlphaComponent(1))
         XCTAssertNotNil(shape0.scaled(to: shape0.sizeInPixel / 2))
+        XCTAssertNotNil(shape0.scaled(uniform: 0.5))
         XCTAssertNotNil(shape0.scaledWidth(to: 10, keepAspectRatio: true))
         XCTAssertNotNil(shape0.scaledWidth(to: 10, keepAspectRatio: false))
         XCTAssertNotNil(shape0.scaledHeight(to: 10, keepAspectRatio: true))
         XCTAssertNotNil(shape0.scaledHeight(to: 10, keepAspectRatio: false))
-        XCTAssertNotNil(shape0.cropped(to: CGRect(origin: .zero, size: shape0.sizeInPixel / 2)))
+        XCTAssertNotNil(shape0.cropped(to: CGRect(origin: .zero, size: shape0.size / 2)))
         XCTAssertNotNil(shape0.rotated(by: 60))
         XCTAssertNotNil(shape0.flippedHorizontally())
         XCTAssertNotNil(shape0.flippedVertically())
         XCTAssertNotNil(shape0.drawnAbove(image: shape1))
         XCTAssertNotNil(shape0.drawnUnder(image: shape1))
+        XCTAssertNotNil(shape0.colorInverted())
+        XCTAssertNotNil(shape0.alphaExclusion(with: shape1))
     }
 
     func testOperationBoundaries() throws {
@@ -81,9 +86,15 @@ final class ImageTests: XCTestCase {
         XCTAssertNotNil(image.flippedVertically())
         XCTAssertNotNil(image.drawnAbove(image: shape1))
         XCTAssertNotNil(image.drawnUnder(image: shape1))
+        XCTAssertNotNil(image.colorInverted())
+        XCTAssertNotNil(image.alphaExclusion(with: shape0))
+        XCTAssertNotNil(shape0.alphaExclusion(with: image))
+        XCTAssertNil(image.withBitmapAsUIColorArray({ $0 }))
+        XCTAssertNil(image.opaquePixelDensity)
 
         // These tests try to enhance coverage (unexpected values, specific cases)
         XCTAssertNotNil(shape0.colorized(with: UIColor(ciColor: CIColor(string: "0.0 0.0 0.0 0.0"))))
+        XCTAssertNotNil(shape0.colorized(with: .black))
         XCTAssertNotNil(shape0.expanded(bySize: 1))
         XCTAssertNotNil(shape0.stroked(with: color0, size: 1))
         XCTAssertNotNil(shape0.smoothened(by: 1, sizeKept: true))
@@ -94,18 +105,25 @@ final class ImageTests: XCTestCase {
         XCTAssertNotNil(shape0.scaledWidth(to: 10, keepAspectRatio: false))
         XCTAssertNotNil(shape0.scaledHeight(to: 10, keepAspectRatio: true))
         XCTAssertNotNil(shape0.scaledHeight(to: 10, keepAspectRatio: false))
-        XCTAssertNotNil(shape0.cropped(to: CGRect(origin: .zero, size: shape0.sizeInPixel / 2)))
+        XCTAssertNotNil(shape0.cropped(to: CGRect(
+            origin: CGPoint(x: shape0.size.width, y: shape0.size.height),
+            size: shape0.size)))
         XCTAssertNotNil(shape0.rotated(by: 60))
         XCTAssertNotNil(shape0.flippedHorizontally())
         XCTAssertNotNil(shape0.flippedVertically())
         XCTAssertNotNil(shape0.drawnAbove(image: shape1))
         XCTAssertNotNil(shape0.drawnUnder(image: shape1))
+        XCTAssertNotNil(shape0.cgImage!.colors(
+            at: [CGImage.PixelCoordinate(column: -1, row: 0)]))
+        XCTAssertNotNil(shape0.cgImage!.colors(
+            at: [CGImage.PixelCoordinate(column: -1, row: 0)]))
+        XCTAssertNotNil(shape0.cgImage!.colors(at: []))
     }
 
     func testBitmapProcessing() throws {
 
         // Exclusion with the same image should result in full transparent image
-        let density0 = shape0.alphaMasked(with: shape0).opaquePixelDensity
+        let density0 = shape0.alphaExclusion(with: shape0).opaquePixelDensity
         XCTAssertNotNil(density0)
         XCTAssertEqual(density0!, 0.0)
 
