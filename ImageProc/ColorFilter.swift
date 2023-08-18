@@ -8,28 +8,13 @@
 
 import CoreImage
 
-// MARK: - ColorFilter implementation
-
-/// An image processor that produces an monochromatic image.
+/// An image processor that produces a monochromatic image.
 ///
 /// The ColorFilter class produces a CIImage object as output. The filter takes an image and a color as input.
-///
-/// Unless you are sure to reject all the original colors, it is recommended to use a monochromatic shape image as input
-/// to modify that one color footprint, (for example, giving a full opaque image will just result in a square colorized
-/// with the color input).
+/// When using this Filter, make sure the input color is RGBA compliant, otherwise it will crash.
 ///
 /// Note that the input color alpha component is taken into account to produce a more transparent (and always more
 /// transparent) image.
-///
-/// Previous shader implementation
-/// ```
-/// kernel vec4
-/// colorize(__sample p, vec4 c) {
-///   p.rgb = p.a * c.rgb;
-///   p.a *= c.a;
-///   return p;
-/// }
-/// ```
 internal class ColorFilter: CIFilter {
 
     /// The original input image as a `CIImage`.
@@ -38,15 +23,15 @@ internal class ColorFilter: CIFilter {
     /// The input color as a `CIColor`.
     var inputColor: CIColor?
 
-    /// The metal routine name of the color filter.
+    /// The Metal function name.
     private static let functionName = "colorize"
 
-    /// The GPU-based routine that performs the colorizing algorithm.
+    /// The Metal kernel.
     private static let kernel: CIColorKernel = {
         return KernelLoader.loadFunction(named: functionName)
     }()
 
-    /// The output image produced by the original image colorized with the input color.
+    /// The resulting image.
     override var outputImage: CIImage? {
         let inputs = [inputImage!, inputColor!] as [Any]
         return ColorFilter.kernel.apply(extent: inputImage!.extent, arguments: inputs)

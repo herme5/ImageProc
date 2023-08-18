@@ -63,6 +63,7 @@ class ViewController: UIViewController {
         let img_1 = UIImage(named: "splash-square-100")!
         let img_2 = img_1.colorized(with: col_2)
         let img_3 = UIImage(named: "splash-square-line-100")!
+        let img_4 = UIImage(named: "gradient-square-100")!
 
         var res_0 = ProcessedImage()
         measureTime(output: &res_0) { (output) in
@@ -224,15 +225,29 @@ class ViewController: UIViewController {
             output.processedImage = [
                 ProcessResults(
                     ["im1"],
-                    img_0.alphaMasked(with: img_1)),
+                    img_0.alphaExclusion(with: img_1)),
                 ProcessResults(
-                    ["im0.colorized"],
-                    img_0.alphaMasked(with: img_0.colorized(with: .blue)))
+                    ["im1.scaled(uniform: 0.6)"],
+                    img_0.alphaExclusion(with: img_1.scaled(uniform: 0.6))),
+                ProcessResults(
+                    ["im0"],
+                    img_0.alphaExclusion(with: img_0))
+            ]
+        }
+
+        var res_15 = ProcessedImage()
+        measureTime(output: &res_15) { (output) in
+            output.function = "im4.colorInverted()"
+            output.sourceImage = img_4
+            output.processedImage = [
+                ProcessResults(
+                    ["im4"],
+                    img_4.colorInverted())
             ]
         }
 
         items.append(contentsOf: [
-            res_0, res_1, res_3, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13, res_14
+            res_0, res_1, res_3, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13, res_14, res_15
             ])
 
         self.back = BackgroundView()

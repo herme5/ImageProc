@@ -8,8 +8,6 @@
 
 import CoreGraphics
 
-// MARK: - CGRect extension
-
 internal extension CGRect {
 
     var center: CGPoint {
