@@ -8,8 +8,6 @@
 
 import Foundation
 
-// MARK: - String extension
-
 internal extension String {
 
     subscript (index: Int) -> Character {

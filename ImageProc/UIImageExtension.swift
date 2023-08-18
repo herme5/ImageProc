@@ -9,16 +9,29 @@
 import UIKit
 import CoreGraphics
 
-// MARK: - UIImage extension
 // swiftlint:disable file_length
 
 public extension UIImage {
 
-    var sizeInPixel: CGSize { return size * scale }
-
+    /// The default message when cgImage property is not available.
     private static let _ciImageErrorMessage =
         "Core Graphics image property `cgImage` is required to use this method. " +
         "Avoid using init(ciImage:) initializer."
+
+    /// The size in pixel.
+    var sizeInPixel: CGSize { return size * scale }
+
+    /// The percentage of opaque pixels in the image.
+    var opaquePixelDensity: Double? {
+        guard let alphaLayer = withBitmapAsUIColorArray({ colors in colors.map { $0.rgba.alpha } }) else {
+            return nil
+        }
+
+        let total = sizeInPixel.width * sizeInPixel.height
+        return alphaLayer.reduce(0, +) / CGFloat(total)
+    }
+
+    // MARK: - Processing methods
 
     /// Renders a copy of this image where all opaque pixels have their color replaced by pixels of the given color.
     ///
@@ -34,7 +47,7 @@ public extension UIImage {
 
         var color = color
         if color.cgColor.colorSpace == nil || color.cgColor.colorSpace!.model != .rgb {
-            let conv = color.cgColor.converted(to: CGColor.defaultRGB, intent: .defaultIntent, options: nil)!
+            let conv = color.cgColor.converted(to: CGColor.defaultRGBColorSpace, intent: .defaultIntent, options: nil)!
             color = UIColor(cgColor: conv)
         }
 
@@ -114,7 +127,7 @@ public extension UIImage {
 
         // Colorize
         let colorFilter = Self._colorizedImpl(args: ColorizedArguments(color: color), cgImage: cgImage!)
-        let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGB])
+        let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
         let ciOutput = colorFilter.outputImage!
         var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
 
@@ -164,7 +177,7 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
-    /// Renders a a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
+    /// Renders a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
     /// time the output image will be larger than the source image.
     ///
     /// - parameters:
@@ -209,7 +222,7 @@ public extension UIImage {
     ///
     /// - parameters:
     ///   - newSize: The new size of the output image.
-    /// - returns: A sclaed `UIImage`.
+    /// - returns: A scaled `UIImage`.
     func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
@@ -231,12 +244,21 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
+    /// Renders a scaled copy of this image given a scale factor. The scale value must not be negative. A 1.0 scale value preserves the size and 2.0 doubles it.
+    ///
+    /// - parameters:
+    ///   - newSize: The new size of the output image.
+    /// - returns: A scaled `UIImage`.
+    func scaled(uniform scalar: CGFloat, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
+        return scaled(to: size * scalar, interpolationQuality: interpolationQuality)
+    }
+
     /// Renders a scaled copy of this image given a new width in points, the height is computed so that aspect ratio is
     /// kept to 1:1.
     ///
     /// - parameters:
     ///   - newWidth: The new width of the output image.
-    /// - returns: A sclaed `UIImage`.
+    /// - returns: A scaled `UIImage`.
     func scaledWidth(to newWidth: CGFloat, keepAspectRatio: Bool = true,
                      interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newHeight = keepAspectRatio ? size.height * (newWidth / size.width) : size.height
@@ -248,14 +270,14 @@ public extension UIImage {
     ///
     /// - parameters:
     ///   - newHeight: The new height of the output image.
-    /// - returns: A sclaed `UIImage`.
+    /// - returns: A scaled `UIImage`.
     func scaledHeight(to newHeight: CGFloat, keepAspectRatio: Bool = true,
                       interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
         let newWidth = keepAspectRatio ? size.width * (newHeight / size.height) : size.width
         return scaled(to: CGSize(width: newWidth, height: newHeight), interpolationQuality: interpolationQuality)
     }
 
-    /// Crops and returns a copy of this image given a new rect.
+    /// Renders a cropped copy of this image given a new rect.
     ///
     /// - parameters:
     ///   - rect: The new rect to which the image will be cropped.
@@ -272,7 +294,7 @@ public extension UIImage {
         return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
-    /// Rotates and returns a copy of this image given an angle in degrees.
+    /// Renders a rotated copy of this image given an angle in degrees.
     ///
     /// - parameters:
     ///   - degrees: the clockwise angle to which the image has to be rotated.
@@ -314,7 +336,7 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
-    /// Flips along X and returns a copy of this image.
+    /// Renders a copy of this image which is flipped along the X-axis.
     ///
     /// - returns: A horizontally flipped `UIImage`.
     func flippedHorizontally() -> UIImage {
@@ -336,9 +358,9 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
-    /// Flips along Y and returns a copy of this image.
+    /// Renders a copy of this image which is flipped along the Y-axis.
     ///
-    /// - returns: A vertically flipped `UIImage`.
+    /// - returns: A horizontally flipped `UIImage`.
     func flippedVertically() -> UIImage {
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
@@ -356,7 +378,7 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
-    /// Overlays this image under another image and returns a copy of the two images combined.
+    /// Renders all opaque pixels under an other image.
     ///
     /// - returns: A `UIImage` where this image is under the other.
     func drawnUnder(image: UIImage) -> UIImage {
@@ -390,33 +412,46 @@ public extension UIImage {
         return newImage.withOptions(from: self)
     }
 
-    /// Overlays this image above another image and returns a copy of the two images combined.
+    /// Renders all opaque pixels above an other image.
     ///
     /// - returns: A `UIImage` where this image is above the other.
     func drawnAbove(image: UIImage) -> UIImage {
         return image.drawnUnder(image: self)
     }
 
-    private func withOptions(from other: UIImage) -> UIImage {
-        var result = withRenderingMode(other.renderingMode)
-            .withAlignmentRectInsets(other.alignmentRectInsets)
-
-        if let configuration = other.configuration {
-            result = result.withConfiguration(configuration)
-        }
-        if let baselineOffsetFromBottom = other.baselineOffsetFromBottom {
-            result = result.withBaselineOffset(fromBottom: baselineOffsetFromBottom)
+    /// Renders a copy of this image where all colors are inverted (typically white become black, blue becomes red and so on...).
+    ///
+    /// - returns: A `UIImage` where the colors are inverted.
+    func colorInverted() -> UIImage {
+        guard cgImage != nil else {
+            print(UIImage._ciImageErrorMessage)
+            return self
         }
 
-        return result
+        let filter = CIFilter(name: "CIColorInvert")!
+        filter.setDefaults()
+        filter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
+
+        let context = CIContext(options: nil)
+        let ciOutput = filter.outputImage!
+        let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
+        return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
-    /// TODO
+    /// Renders an image where the alpha channel is the absolute differences between this image and an other (`abs(im0.a-im1.a)`).
+    ///
+    /// For two pixels located at the same coordinate:
+    ///   - If both pixels are transparent, the result will be transparent.
+    ///   - If a pixel is opaque in an image and transparent in the other, the result will be the opaque pixel.
+    ///   - If both pixels are opaque, the result will be transparent.
+    ///
+    /// Size is important when doing the process, the default behaviour is to take the rect that emcompasses the two images (the smaller one will be then centered). In order to control the positioning of the images, do the scaling, cropping by yourself into one single coordinate space and size.
+    ///
     /// - parameters:
-    ///   - image: TODO
-    /// - returns: TODO
-    func alphaMasked(with image: UIImage) -> UIImage {
-        let filter = CompareFilter()
+    ///   - image: An other `UIImage`.
+    /// - returns: The result of the alpha exclusion.
+    func alphaExclusion(with image: UIImage) -> UIImage {
+        let filter = ExcludeFilter()
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -446,40 +481,41 @@ public extension UIImage {
 
         UIGraphicsEndImageContext()
 
-        let colorSpace = CGColor.defaultRGB
+        let colorSpace = CGColor.defaultRGBColorSpace
         filter.inputFirstImage = CIImage(cgImage: inputFirstImage)
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
         let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
 
-        guard let ciOutput = filter.outputImage else {
-            return self
-        }
+        let ciOutput = filter.outputImage!
         let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
-    /// Extracts the bitmap data with the form of an array of UIColor.
-    /// This function returns the result of the handler.
-    func withBitmapData<T>(_ handler: ([UIColor]) -> T?) -> T? {
+    /// Invokes the given closure with the array of colors of this image.
+    /// This function returns, if any, the result of the closure.
+    func withBitmapAsUIColorArray<T>(_ handler: ([UIColor]) -> T?) -> T? {
         guard let cgImage else {
             print(UIImage._ciImageErrorMessage)
             return nil
         }
-        return cgImage.withBitmapData { cgColors in
-            handler(cgColors.map { cgColor in
-                UIColor(cgColor: cgColor)
-            })
+        return cgImage.withBitmapAsCGColorArray { cgColors in
+            handler(cgColors.map { UIColor(cgColor: $0) })
         }
     }
 
-    /// The percentage of opaque pixels in the image
-    var opaquePixelDensity: Double? {
-        guard let alphaLayer = withBitmapData({ colors in colors.map { $0.rgba.alpha } }) else {
-            return nil
+    /// Returns an image which have all options (when application) of an other image.
+    private func withOptions(from other: UIImage) -> UIImage {
+        var result = withRenderingMode(other.renderingMode)
+            .withAlignmentRectInsets(other.alignmentRectInsets)
+
+        if let configuration = other.configuration {
+            result = result.withConfiguration(configuration)
+        }
+        if let baselineOffsetFromBottom = other.baselineOffsetFromBottom {
+            result = result.withBaselineOffset(fromBottom: baselineOffsetFromBottom)
         }
 
-        let total = sizeInPixel.width * sizeInPixel.height
-        return alphaLayer.reduce(0, +) / CGFloat(total)
+        return result
     }
 
     // MARK: - Swizzling methods

@@ -11,8 +11,6 @@ import Foundation
 import UIKit
 import CoreGraphics
 
-// MARK: - UIImage extension
-
 internal extension UIImage {
     // TODO: Move _stroked() from UIImageExtension+Expand to here or adapt the architecture
 }

@@ -8,8 +8,6 @@
 
 import CoreGraphics
 
-// MARK: - CGPoint operator overloading
-
 // internal func + (left: CGPoint, right: CGPoint) -> CGPoint {
 //     return CGPoint(x: left.x + right.x, y: left.y + right.y)
 // }
