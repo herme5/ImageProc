@@ -17,10 +17,7 @@ extern "C" {
             return pixel;
         }
 
-        float4 compare(sample_t pixel_a, sample_t pixel_b) {
-            // float4 pixel;
-            // pixel.a = abs(pixel_b.a - pixel_a.a);
-            // return pixel;
+        float4 exclude(sample_t pixel_a, sample_t pixel_b) {
             return abs(pixel_a - pixel_b);
         }
     }
