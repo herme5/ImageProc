@@ -17,6 +17,8 @@ Run Tests:
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    # Also verify master itself, so a release can never be tagged from an untested commit.
+    - if: $CI_COMMIT_BRANCH == 'master'
   parallel:
     matrix:
       - DST_PLATFORM_CI: iOS Simulator
