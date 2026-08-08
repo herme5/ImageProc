@@ -16,7 +16,8 @@ internal extension String {
 
     subscript (range: Range<Int>) -> Substring {
         let start = index(startIndex, offsetBy: range.lowerBound)
-        return self[start ..< endIndex]
+        let end = index(startIndex, offsetBy: range.upperBound)
+        return self[start ..< end]
     }
 
     subscript (range: Range<Int>) -> String {
