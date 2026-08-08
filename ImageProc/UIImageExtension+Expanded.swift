@@ -11,31 +11,23 @@ import CoreGraphics
 
 internal extension UIImage {
 
-    private static let lock = NSLock()
     private static let _concurrentExpandMethodQueue = DispatchQueue(
         label: "fr.andrearuffino.ImageProc.expandMethodQueue",
         attributes: .concurrent)
-    private static var _cachedRangeDegree = CGFloat(2)
-    private static var _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
-    private static var _cachedRange = _cachedRangeStride.map { $0 }
 
-    static func _setupCachedRange(_ degree: CGFloat) {
-        if degree != _cachedRangeDegree {
-            lock.lock()
-            _cachedRangeDegree = degree
-            _cachedRangeStride = stride(from: CGFloat(0.0), to: CGFloat(360), by: _cachedRangeDegree)
-            _cachedRange = _cachedRangeStride.map { $0 }
-            lock.unlock()
-        }
+    /// Returns the directions, in degrees, to which the shape has to be replicated. The iteration goes from 0 to 360
+    /// (excluded) by the given step.
+    ///
+    /// The result is computed for each call rather than cached: the array is small and sharing it across calls would
+    /// require synchronizing every read against concurrent expansions using a different step.
+    static func _expansionAngles(each degree: CGFloat) -> [CGFloat] {
+        return stride(from: CGFloat(0.0), to: CGFloat(360), by: degree).map { $0 }
     }
 
-    @objc dynamic
     static func _expanded_basic(args: ExpandedArguments, cgImage: CGImage) {
-        let range = UIImage._cachedRangeStride
-
         // Perform a translatation transform in each direction so that the context draw the shape shifted all
         // around the original position. Remember to perform the inverse translation for next iteration.
-        for angle in range {
+        for angle in args.angles {
             let vector = args.translationVector.rotated(around: .zero, byDegrees: angle)
             args.context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
             args.context.draw(cgImage, in: args.translatedRect)
@@ -43,10 +35,9 @@ internal extension UIImage {
         }
     }
 
-    @objc dynamic
     static func _expanded_concurrent(args: ExpandedArguments, cgImage: CGImage) {
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: args.size.height)
-        let angles = UIImage._cachedRange
+        let angles = args.angles
 
         // Each iteration is a new layers that will be drawn at the end.
         // Use concurrentPerform method to let the native API manage the parallelism.
@@ -73,19 +64,12 @@ internal extension UIImage {
         }
     }
 
-    class ExpandedArguments: NSObject {
+    struct ExpandedArguments {
         var context: CGContext
         var translatedRect: CGRect
         var translationVector: CGVector
         var size: CGSize
         var scale: CGFloat
-
-        init(context: CGContext, translatedRect: CGRect, translationVector: CGVector, size: CGSize, scale: CGFloat) {
-            self.context = context
-            self.translatedRect = translatedRect
-            self.translationVector = translationVector
-            self.size = size
-            self.scale = scale
-        }
+        var angles: [CGFloat]
     }
 }

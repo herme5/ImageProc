@@ -93,7 +93,7 @@ public extension UIImage {
         let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
-        UIImage._setupCachedRange(degree)
+        let angles = Self._expansionAngles(each: degree)
 
         // Create the final output context (only one will be used if basic optimisation)
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
@@ -107,7 +107,8 @@ public extension UIImage {
                 translatedRect: translatedRect,
                 translationVector: translationVector,
                 size: newSize,
-                scale: scale),
+                scale: scale,
+                angles: angles),
             cgImage: cgImage!)
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
@@ -140,7 +141,7 @@ public extension UIImage {
         let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
-        UIImage._setupCachedRange(degree)
+        let angles = Self._expansionAngles(each: degree)
 
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
         let cgContext = UIGraphicsGetCurrentContext()!
@@ -154,7 +155,8 @@ public extension UIImage {
                 translatedRect: translatedRect,
                 translationVector: translationVector,
                 size: newSize,
-                scale: scale),
+                scale: scale,
+                angles: angles),
             cgImage: cgOutput)
 
         // Draw expanded under colorized
