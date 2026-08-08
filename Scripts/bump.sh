@@ -19,11 +19,24 @@ if [ -n "$(git tag -l "$version")" ]; then
   exit 1
 fi
 
+echo "\n* Fetching"
+git fetch
+
+# The tag is created on 'master', and the step further down hard-resets 'develop' onto it and force
+# pushes. That is only safe once 'develop' has been merged into 'master'. Otherwise it discards
+# every commit that exists on 'develop' alone, both locally and on the remote, and then tags the
+# release at whatever stale commit 'master' happens to point at.
+if ! git merge-base --is-ancestor develop origin/master; then
+  echo "error: 'develop' is not merged into 'master', refusing to continue." >&2
+  echo "note: $(git rev-list --count origin/master..develop) commit(s) on 'develop' would be discarded." >&2
+  echo "note: merge 'develop' into 'master' first, then run this again." >&2
+  exit 1
+fi
+
 echo "\n* Saving current changes"
 git stash
 
 echo "\n* Update local master"
-git fetch
 git checkout master >/dev/null 2>&1
 git pull
 git checkout - >/dev/null 2>&1
