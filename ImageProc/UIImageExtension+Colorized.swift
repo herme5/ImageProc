@@ -11,49 +11,30 @@ import CoreGraphics
 
 internal extension UIImage {
 
-    @objc dynamic
-    static func _colorized_ciColorMatrix(args: ColorizedArguments, cgImage: CGImage) -> CIFilter {
-        let colorMatrixFilter = CIFilter(name: "CIColorMatrix")!
-        let channels = args.color.rgba
-        let r = channels.red,
-            g = channels.green,
-            b = channels.blue,
-            a = channels.alpha
-
-        // Throw away existing colors, and fill the non transparent pixels with the input color
-        // s.r = dot(s, redVector)
-        // s.g = dot(s, greenVector)
-        // s.b = dot(s, blueVector)
-        // s.a = dot(s, alphaVector)
-        // s = s + bias
-        let keys = ["inputRVector", "inputGVector", "inputBVector", "inputAVector", "inputBiasVector"]
-        let matrix = [
-            keys[0]: CIVector(x: 0, y: 0, z: 0, w: 0), // inputRVector
-            keys[1]: CIVector(x: 0, y: 0, z: 0, w: 0), // inputGVector
-            keys[2]: CIVector(x: 0, y: 0, z: 0, w: 0), // inputBVector
-            keys[3]: CIVector(x: 0, y: 0, z: 0, w: a), // inputAVector
-            keys[4]: CIVector(x: r, y: g, z: b, w: 0) // inputBiasVector
-        ]
-
-        matrix.forEach { colorMatrixFilter.setValue($0.value, forKey: $0.key) }
-        colorMatrixFilter.setValue(CIImage(cgImage: cgImage), forKey: kCIInputImageKey)
-        return colorMatrixFilter
-    }
-
-    @objc dynamic
-    static func _colorized_mtlColorFilter(args: ColorizedArguments, cgImage: CGImage) -> CIFilter {
+    /// Builds the filter that throws away existing colors and fills the non transparent pixels with the input color.
+    ///
+    /// The color must belong to an RGB color space, pass it through `_rgbCompliant(_:)` beforehand.
+    static func _colorizedFilter(color: UIColor, cgImage: CGImage) -> CIFilter {
         // Use a custom CIFilter based on a Metal routine
         let colorFilter = ColorFilter()
         colorFilter.inputImage = CIImage(cgImage: cgImage)
-        colorFilter.inputColor = CIColor(color: args.color)
+        colorFilter.inputColor = CIColor(color: color)
         return colorFilter
     }
 
-    class ColorizedArguments: NSObject {
-        var color: UIColor
-
-        init(color: UIColor) {
-            self.color = color
+    /// Returns a color that is guaranteed to belong to an RGB color space, converting it when needed.
+    ///
+    /// `ColorFilter` requires an RGBA compliant color, and system colors such as `UIColor.black` belong to a
+    /// monochrome color space.
+    static func _rgbCompliant(_ color: UIColor) -> UIColor {
+        if let colorSpace = color.cgColor.colorSpace, colorSpace.model == .rgb {
+            return color
         }
+        guard let converted = color.cgColor.converted(to: CGColor.defaultRGBColorSpace,
+                                                      intent: .defaultIntent,
+                                                      options: nil) else {
+            return color
+        }
+        return UIColor(cgColor: converted)
     }
 }

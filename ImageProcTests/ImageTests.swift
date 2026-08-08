@@ -152,14 +152,7 @@ final class ImageTests: XCTestCase {
         }
     }
 
-    func testColorizedWithCiFilter() throws {
-        // CIFilter colorization is the default unless UIImage.useMetalColorizationMethod() is called before.
-        measure { _ = shape0.colorized(with: color0) }
-    }
-
-    func testColorizedWithMetal() throws {
-        // Metal colorization is selected when UIImage.useMetalColorizationMethod() is called.
-        UIImage.useMetalColorizationMethod()
+    func testColorized() throws {
         measure { _ = shape0.colorized(with: color0) }
     }
 
@@ -168,7 +161,7 @@ final class ImageTests: XCTestCase {
     }
 
     func testStroked() throws {
-        // Keep in mind that regarding of the previous test CIFilter or Metal colorization is called.
+        // UIColor.black belongs to a monochrome color space, it exercises the conversion done before colorizing.
         let color = UIColor.black
         measure { _ = shape0.stroked(with: color, size: 20) }
     }

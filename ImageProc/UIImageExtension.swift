@@ -48,19 +48,13 @@ public extension UIImage {
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func colorized(with color: UIColor) -> UIImage {
-        var filter: CIFilter!
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
-        var color = color
-        if color.cgColor.colorSpace == nil || color.cgColor.colorSpace!.model != .rgb {
-            let conv = color.cgColor.converted(to: CGColor.defaultRGBColorSpace, intent: .defaultIntent, options: nil)!
-            color = UIColor(cgColor: conv)
-        }
-
-        filter = Self._colorizedImpl(args: ColorizedArguments(color: color), cgImage: cgImage!)
+        let color = Self._rgbCompliant(color)
+        let filter = Self._colorizedFilter(color: color, cgImage: cgImage!)
 
         let context = CIContext(options: [.workingColorSpace: color.cgColor.colorSpace!])
         let ciOutput = filter.outputImage!
@@ -135,7 +129,7 @@ public extension UIImage {
         }
 
         // Colorize
-        let colorFilter = Self._colorizedImpl(args: ColorizedArguments(color: color), cgImage: cgImage!)
+        let colorFilter = Self._colorizedFilter(color: Self._rgbCompliant(color), cgImage: cgImage!)
         let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
         let ciOutput = colorFilter.outputImage!
         var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
@@ -527,25 +521,8 @@ public extension UIImage {
         return result
     }
 
-    // MARK: - Swizzling methods
-
-    @objc dynamic
-    internal static func _colorizedImpl(args: ColorizedArguments, cgImage: CGImage) -> CIFilter {
-        return _colorized_ciColorMatrix(args: args, cgImage: cgImage)
-    }
-
-    @objc dynamic
     internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) {
         _expanded_concurrent(args: args, cgImage: cgImage)
-    }
-
-    static func useMetalColorizationMethod() {
-        let originalMethod = class_getClassMethod(Self.self, #selector(_colorizedImpl))
-        let swizzledMethod = class_getClassMethod(Self.self, #selector(_colorized_mtlColorFilter))
-        guard let originalMethod, let swizzledMethod else {
-            fatalError("Could not swizzle implementation")
-        }
-        method_exchangeImplementations(originalMethod, swizzledMethod)
     }
 
 }

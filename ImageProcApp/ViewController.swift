@@ -67,18 +67,7 @@ class ViewController: UIViewController {
 
         var res_0 = ProcessedImage()
         measureTime(output: &res_0) { (output) in
-            output.function = "im0.colorized(with: UIColor, method: .ciFilter)"
-            output.sourceImage = img_0
-            output.processedImage = [
-                ProcessResults([col_1.hexCode], img_0.colorized(with: col_1)),
-                ProcessResults([col_2.hexCode], img_0.colorized(with: col_2)),
-                ProcessResults([col_3.hexCode], img_0.colorized(with: col_3))
-            ]
-        }
-        UIImage.useMetalColorizationMethod()
-        var res_1 = ProcessedImage()
-        measureTime(output: &res_1) { (output) in
-            output.function = "im0.colorized(with: UIColor, method: .metalKernel)"
+            output.function = "im0.colorized(with: UIColor)"
             output.sourceImage = img_0
             output.processedImage = [
                 ProcessResults([col_1.hexCode], img_0.colorized(with: col_1)),
@@ -247,7 +236,7 @@ class ViewController: UIViewController {
         }
 
         items.append(contentsOf: [
-            res_0, res_1, res_3, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13, res_14, res_15
+            res_0, res_3, res_32, res_4, res_5, res_6, res_7, res_8, res_9, res_10, res_11, res_12, res_13, res_14, res_15
             ])
 
         self.back = BackgroundView()
