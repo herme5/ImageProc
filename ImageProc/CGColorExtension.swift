@@ -43,17 +43,27 @@ public extension CGColor {
     }
 
     /// The hexadecimal color code as a string prefixed with a `#` and representing the RGB components.
+    ///
+    /// Components are rounded to the nearest 8-bit value, and clamped to the `0.0 ... 1.0` range: converting a wide
+    /// gamut color to the RGB color space can produce components outside of that range, which no hexadecimal code can
+    /// represent.
     var hexCode: String {
+        let rgbColor: CGColor
         if let colorSpace = colorSpace, colorSpace.model == .rgb {
-            let (red, green, blue) = (
-                UInt(components![0] * 255) * 65_536,
-                UInt(components![1] * 255) * 256,
-                UInt(components![2] * 255)
-            )
-            return HexadecimalHelper.stringFrom(value: red + green + blue)
+            rgbColor = self
+        } else if let converted = converted(to: CGColor.defaultRGBColorSpace, intent: .defaultIntent, options: nil) {
+            rgbColor = converted
         } else {
-            let rgb = converted(to: CGColor.defaultRGBColorSpace, intent: .defaultIntent, options: nil)!
-            return rgb.hexCode
+            return HexadecimalHelper.stringFrom(value: 0)
         }
+
+        guard let components = rgbColor.components, components.count >= 3 else {
+            return HexadecimalHelper.stringFrom(value: 0)
+        }
+
+        let channel: (CGFloat) -> UInt = { UInt((min(max($0, 0.0), 1.0) * 255).rounded()) }
+        return HexadecimalHelper.stringFrom(value: channel(components[0]) * 65_536
+                                            + channel(components[1]) * 256
+                                            + channel(components[2]))
     }
 }

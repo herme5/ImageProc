@@ -95,11 +95,14 @@ final class ColorTests: XCTestCase {
         XCTAssertEqual(color.rgba.alpha, color.moreOpaque().lessOpaque().rgba.alpha)
         XCTAssertEqual(color.hsla.alpha, color.moreOpaque().lessOpaque().hsla.alpha)
 
-        color = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0)
+        // Components are deliberately kept away from a half 8-bit step: `hexCode` rounds to the nearest byte, so a
+        // component landing exactly on `x.5 / 255` flips between two codes for a one ulp difference, which an
+        // operation followed by its inverse is free to introduce.
+        color = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
         XCTAssertEqual(color.hexCode, color.lighter().darker().hexCode)
 
         let hue = CGFloat.random(in: 0.0 ..< 1.0)
-        color = UIColor(hue: hue, saturation: 0.5, brightness: 0.5, alpha: 1.0)
+        color = UIColor(hue: hue, saturation: 0.6, brightness: 0.6, alpha: 1.0)
         XCTAssertEqual(color.hexCode, color.saturated(by: 0.2).saturated(by: -0.2).hexCode)
         XCTAssertEqual(color.hexCode, color.brightened(by: 0.2).brightened(by: -0.2).hexCode)
         XCTAssertEqual(color.hexCode, color.hueOffset(by: 0.2).hueOffset(by: -0.2).hexCode)
