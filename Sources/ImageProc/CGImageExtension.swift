@@ -6,6 +6,7 @@
 //  Copyright © 2023 Andrea Ruffino. All rights reserved.
 //
 
+import CoreGraphics
 import Foundation
 
 extension CGImage {

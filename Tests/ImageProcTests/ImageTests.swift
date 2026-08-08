@@ -11,7 +11,7 @@ import XCTest
 
 final class ImageTests: XCTestCase {
 
-    var appBundle: Bundle!
+    var fixtureBundle: Bundle!
     var shape0: UIImage!
     var shape1: UIImage!
     var gradientQuarterImage: UIImage!
@@ -24,12 +24,12 @@ final class ImageTests: XCTestCase {
     var shape0ciImage: CIImage!
 
     override func setUpWithError() throws {
-        appBundle = Bundle(for: ImageTests.self)
-        shape0 = UIImage(named: "splash-rounded-100", in: appBundle, with: nil)
-        shape1 = UIImage(named: "splash-square-100", in: appBundle, with: nil)
-        gradientQuarterImage = UIImage(named: "gradient-quarter-100", in: appBundle, with: nil)
-        notSoBlueImage = UIImage(named: "not-so-blue-square-100", in: appBundle, with: nil)
-        smallGradientImage = UIImage(named: "small-gradient-4", in: appBundle, with: nil)
+        fixtureBundle = Bundle.module
+        shape0 = UIImage(named: "splash-rounded-100", in: fixtureBundle, with: nil)
+        shape1 = UIImage(named: "splash-square-100", in: fixtureBundle, with: nil)
+        gradientQuarterImage = UIImage(named: "gradient-quarter-100", in: fixtureBundle, with: nil)
+        notSoBlueImage = UIImage(named: "not-so-blue-square-100", in: fixtureBundle, with: nil)
+        smallGradientImage = UIImage(named: "small-gradient-4", in: fixtureBundle, with: nil)
         color0 = UIColor.systemIndigo
         color1 = UIColor.systemPink
         color2 = UIColor.systemTeal
@@ -150,6 +150,15 @@ final class ImageTests: XCTestCase {
             XCTAssertNotNil(color)
             XCTAssertEqual(color!.hexCode, entry.value)
         }
+    }
+
+    func testKernelLoading() throws {
+        // The kernels ship as a package resource compiled by the CIKernelCompiler plugin. Loading
+        // them used to be a fatalError, which is how the CocoaPods distribution came to crash
+        // instead of degrading, so an unresolvable function must simply return nil.
+        XCTAssertNil(KernelLoader.loadFunction(named: "thisFunctionDoesNotExist"))
+        XCTAssertNotNil(KernelLoader.loadFunction(named: "colorize"))
+        XCTAssertNotNil(KernelLoader.loadFunction(named: "exclude"))
     }
 
     func testColorized() throws {

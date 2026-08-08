@@ -57,7 +57,9 @@ public extension UIImage {
         let filter = Self._colorizedFilter(color: color, cgImage: cgImage!)
 
         let context = CIContext(options: [.workingColorSpace: color.cgColor.colorSpace!])
-        let ciOutput = filter.outputImage!
+        guard let ciOutput = filter.outputImage else {
+            return self
+        }
         let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
@@ -132,7 +134,9 @@ public extension UIImage {
         // Colorize
         let colorFilter = Self._colorizedFilter(color: Self._rgbCompliant(color), cgImage: cgImage!)
         let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
-        let ciOutput = colorFilter.outputImage!
+        guard let ciOutput = colorFilter.outputImage else {
+            return self
+        }
         var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
 
         // Expand
@@ -491,7 +495,9 @@ public extension UIImage {
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
         let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
 
-        let ciOutput = filter.outputImage!
+        guard let ciOutput = filter.outputImage else {
+            return self
+        }
         let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }

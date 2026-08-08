@@ -26,14 +26,17 @@ internal class ColorFilter: CIFilter {
     /// The Metal function name.
     private static let functionName = "colorize"
 
-    /// The Metal kernel.
-    private static let kernel: CIColorKernel = {
+    /// The Metal kernel, or `nil` when the compiled library could not be loaded.
+    private static let kernel: CIColorKernel? = {
         return KernelLoader.loadFunction(named: functionName)
     }()
 
-    /// The resulting image.
+    /// The resulting image, or `nil` when the kernel is unavailable.
     override var outputImage: CIImage? {
+        guard let kernel = ColorFilter.kernel else {
+            return nil
+        }
         let inputs = [inputImage!, inputColor!] as [Any]
-        return ColorFilter.kernel.apply(extent: inputImage!.extent, arguments: inputs)
+        return kernel.apply(extent: inputImage!.extent, arguments: inputs)
     }
 }

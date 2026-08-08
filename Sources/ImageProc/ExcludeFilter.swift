@@ -23,13 +23,16 @@ internal class ExcludeFilter: CIFilter {
     /// The Metal function name.
     private static let functionName = "exclude"
 
-    /// The Metal kernel.
-    private static let kernel: CIColorKernel = {
+    /// The Metal kernel, or `nil` when the compiled library could not be loaded.
+    private static let kernel: CIColorKernel? = {
         return KernelLoader.loadFunction(named: functionName)
     }()
 
-    /// The resulting image.
+    /// The resulting image, or `nil` when the kernel is unavailable.
     override var outputImage: CIImage? {
+        guard let kernel = ExcludeFilter.kernel else {
+            return nil
+        }
         let inputs = [inputFirstImage!, inputSecondImage!] as [Any]
 
         // Check is done at a higher level.
@@ -38,6 +41,6 @@ internal class ExcludeFilter: CIFilter {
         //     return nil
         // }
 
-        return ExcludeFilter.kernel.apply(extent: inputFirstImage!.extent, arguments: inputs)
+        return kernel.apply(extent: inputFirstImage!.extent, arguments: inputs)
     }
 }
