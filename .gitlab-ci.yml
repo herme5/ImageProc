@@ -2,42 +2,36 @@ variables:
   LC_ALL: "en_US.UTF-8" # Needed for xcpretty to work
 
 stages:
-  - version
+  - lint
   - test
-  - bump
   - release
+
+Lint:
+  stage: lint
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - swiftlint --strict
 
 Run Tests:
   stage: test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    # Also verify master itself, so a release can never be tagged from an untested commit.
+    - if: $CI_COMMIT_BRANCH == 'master'
   parallel:
     matrix:
       - DST_PLATFORM_CI: iOS Simulator
-        DST_NAME_CI: 
-          - iPad (10th generation)
-          # - iPhone 14
+        DST_NAME_CI:
+          - iPad (A16)
   script:
-    - ./Scripts/check_version.sh
+    # The Core Image kernels are compiled by the CIKernelCompiler build tool plugin, and since
+    # Xcode 26 the Metal compiler is a separately downloadable component rather than part of
+    # Xcode itself. This is a no-op once the runner has it.
+    - xcodebuild -downloadComponent MetalToolchain
     - echo "Testing ImageProc ($DST_PLATFORM_CI - $DST_NAME_CI)"
-    - xcodebuild clean -project ImageProc.xcodeproj -scheme ImageProc | xcpretty
-    - xcodebuild test -project ImageProc.xcodeproj -scheme ImageProcTests -destination "platform=$DST_PLATFORM_CI,name=$DST_NAME_CI" | xcpretty -s
-
-Check Version:
-  stage: version
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-  script:
-    - ./Scripts/check_version.sh
-
-# Does not work. Consider calling locally manual Scripts/bump.sh
-# Bump:
-#   stage: bump
-#   only:
-#     - master
-#   script:
-#     - export
-#     - ./Scripts/bump.sh
+    - xcodebuild test -scheme ImageProc -destination "platform=$DST_PLATFORM_CI,name=$DST_NAME_CI" | xcpretty -s
+    - xcodebuild build -project Demo/ImageProcApp.xcodeproj -scheme ImageProcApp -destination "platform=$DST_PLATFORM_CI,name=$DST_NAME_CI" | xcpretty
 
 Release:
   stage: release
@@ -45,10 +39,8 @@ Release:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - ./Scripts/get_version.sh
-    - echo "Publishing ImageProc v$CI_COMMIT_TAG on CocoaPods"
-    - pod spec lint ImageProc.podspec
-    - pod trunk push
+    # Swift Package Manager has no publish step: consumers resolve the git tag directly.
+    - echo "Releasing ImageProc $CI_COMMIT_TAG"
   release:
     tag_name: $CI_COMMIT_TAG
     name: 'Release $CI_COMMIT_TAG'

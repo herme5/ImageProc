@@ -18,13 +18,14 @@ xcuserdata/
 *.pyc
 *.lock
 
-# Podfiles
+# Swift Package Manager
 # ==============================================================================
-Pods
+.build/
+.swiftpm/
+DerivedData/
 
 # AppIcons
 # ==============================================================================
 resources/appicon/appicon-*.png
 Products
 *.xctimeline
-ImageProc.xcodeproj/xcshareddata
