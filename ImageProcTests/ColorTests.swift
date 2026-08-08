@@ -41,13 +41,12 @@ final class ColorTests: XCTestCase {
 
     func testInitializerSuccesses() throws {
         for validHexCode in validHexCodes {
-            XCTAssertNotNil(UIColor(hexCode: validHexCode))
+            let uiColor = UIColor(hexCode: validHexCode)
+            XCTAssertNotNil(uiColor)
             XCTAssertNotNil(CGColor.from(hexCode: validHexCode))
 
-            // Deprecated
-            let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
-            XCTAssertNotNil(deprecatedWrapper.uiColor(from: validHexCode, alpha: 1)
-            )
+            // The color has to actually carry the requested code, not merely be non nil.
+            XCTAssertEqual(uiColor!.hexCode, validHexCode.uppercased())
         }
     }
 
@@ -55,13 +54,6 @@ final class ColorTests: XCTestCase {
         for invalidHexCode in invalidHexCodes {
             XCTAssertNil(UIColor(hexCode: invalidHexCode))
             XCTAssertNil(CGColor.from(hexCode: invalidHexCode))
-
-            // Deprecated
-            let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
-            let color = deprecatedWrapper.uiColor(from: invalidHexCode, alpha: 1)
-            XCTAssertEqual(color.rgba.red, CGFloat(0))
-            XCTAssertEqual(color.rgba.green, CGFloat(0))
-            XCTAssertEqual(color.rgba.blue, CGFloat(0))
         }
     }
 
@@ -170,19 +162,12 @@ final class ColorTests: XCTestCase {
 class DeprecatedWrapper {
 
     @available(iOS, deprecated: 1.0)
-    static func uiColor(from hexcode: String, alpha: CGFloat = 1.0) -> UIColor {
-        return UIColor(from: hexcode, alpha: alpha)
-    }
-
-    @available(iOS, deprecated: 1.0)
     static func uiColorRandomFromCode() -> UIColor {
         return UIColor.randomFromCode()
     }
 }
 
 private protocol Silenced {
-
-    static func uiColor(from hexcode: String, alpha: CGFloat) -> UIColor
 
     static func uiColorRandomFromCode() -> UIColor
 }

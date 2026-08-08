@@ -65,20 +65,6 @@ public extension UIColor {
         self.init(value: value, alpha: alpha)
     }
 
-    /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not
-    /// well formatted a full opaque black color is returned.
-    ///
-    /// - parameters:
-    ///   - string: The color code must be prefixed by "#" and followed by 6 hexadecimal digits.
-    ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    @available(*, deprecated, renamed: "init(hexCode:alpha:)")
-    convenience init(from hexCode: String, alpha: CGFloat = 1.0) {
-        if UIColor.init(hexCode: hexCode, alpha: alpha) != nil {
-            self.init(hexCode: hexCode, alpha: alpha)!
-        }
-        self.init(value: 0)
-    }
-
     /// Returns an opaque random color.
     static func random() -> UIColor {
         return UIColor(value: UInt.random(in: 0 ..< maximumHexValue))
