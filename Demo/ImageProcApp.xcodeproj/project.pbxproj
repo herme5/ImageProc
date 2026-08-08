@@ -1,0 +1,388 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00F65BF27AF1806C00E50ADC /* ImageProc in Frameworks */ = {isa = PBXBuildFile; productRef = 6A9548274BA4AE83A401208B /* ImageProc */; };
+		115264323EBC4F416ECF61EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EEB6DC55174EA4B912EF3FD7 /* Assets.xcassets */; };
+		12ED7AB96A6142F27E74185F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C376AAB900B647B0C9BE59D8 /* ViewController.swift */; };
+		287D4239DBABAD306A2A58CA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3C018D606972DF7B41C740F9 /* Foundation.framework */; };
+		5731790B467B4CE64D24511E /* BackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0985E899244DFE87A9212EE3 /* BackgroundView.swift */; };
+		7A75CFD84676FFF7E16373EC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1CBB3B5EBB6B59D5939E3926 /* LaunchScreen.storyboard */; };
+		85B5889082B7A41934E2B5E2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 232AB318394F734F68892AE1 /* AppDelegate.swift */; };
+		90264965B3355EF3468CDDD9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0BD2D4DFB1B721C4A3413E00 /* Main.storyboard */; };
+		C0BB3090605D346D685C9C6A /* ProcessedImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1BD8D1036BF3F7E1AFB46F /* ProcessedImageCell.swift */; };
+		E2D8DBC32592B1CC087FAAFF /* ImageProcApp.xcdatamodeld in Resources */ = {isa = PBXBuildFile; fileRef = EA0DC53615AE75A7EC83AC91 /* ImageProcApp.xcdatamodeld */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0985E899244DFE87A9212EE3 /* BackgroundView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
+		0BD2D4DFB1B721C4A3413E00 /* Main.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		121AA9A34B326D0E4C928A5D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1CBB3B5EBB6B59D5939E3926 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		232AB318394F734F68892AE1 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3C018D606972DF7B41C740F9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		5E1BD8D1036BF3F7E1AFB46F /* ProcessedImageCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProcessedImageCell.swift; sourceTree = "<group>"; };
+		64FB42C8A7C38CDBDF95BF16 /* ImageProcApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageProcApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		93DCEDCC64A56B7E413240CB /* ImageProcApp.xcdatamodel */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcdatamodel; path = ImageProcApp.xcdatamodel; sourceTree = "<group>"; };
+		C376AAB900B647B0C9BE59D8 /* ViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EEB6DC55174EA4B912EF3FD7 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3C067383394A3F93D49DC2F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				287D4239DBABAD306A2A58CA /* Foundation.framework in Frameworks */,
+				00F65BF27AF1806C00E50ADC /* ImageProc in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		29F6DE123CE9FA8A478A2735 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FA9B20B75D7D4CE43C510F48 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6D08F30BFCB1453FDEF30AD0 /* ImageProcApp */ = {
+			isa = PBXGroup;
+			children = (
+				232AB318394F734F68892AE1 /* AppDelegate.swift */,
+				C376AAB900B647B0C9BE59D8 /* ViewController.swift */,
+				0985E899244DFE87A9212EE3 /* BackgroundView.swift */,
+				5E1BD8D1036BF3F7E1AFB46F /* ProcessedImageCell.swift */,
+				EEB6DC55174EA4B912EF3FD7 /* Assets.xcassets */,
+				1CBB3B5EBB6B59D5939E3926 /* LaunchScreen.storyboard */,
+				0BD2D4DFB1B721C4A3413E00 /* Main.storyboard */,
+				EA0DC53615AE75A7EC83AC91 /* ImageProcApp.xcdatamodeld */,
+				121AA9A34B326D0E4C928A5D /* Info.plist */,
+			);
+			name = ImageProcApp;
+			path = ImageProcApp;
+			sourceTree = "<group>";
+		};
+		D75B2A3DA9EF0F5F7499BCC5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				64FB42C8A7C38CDBDF95BF16 /* ImageProcApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F8135C13BD17355F869C3DA5 = {
+			isa = PBXGroup;
+			children = (
+				D75B2A3DA9EF0F5F7499BCC5 /* Products */,
+				29F6DE123CE9FA8A478A2735 /* Frameworks */,
+				6D08F30BFCB1453FDEF30AD0 /* ImageProcApp */,
+			);
+			sourceTree = "<group>";
+		};
+		FA9B20B75D7D4CE43C510F48 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3C018D606972DF7B41C740F9 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D4AD5F43CAC7C9B92FFA89C4 /* ImageProcApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33B30EFC86E0C99B8A119D95 /* Build configuration list for PBXNativeTarget "ImageProcApp" */;
+			buildPhases = (
+				2B7E8F4571DBA6A7C40B8AEF /* Sources */,
+				3C067383394A3F93D49DC2F9 /* Frameworks */,
+				A1098E6E00357AF13707A314 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ImageProcApp;
+			packageProductDependencies = (
+				6A9548274BA4AE83A401208B /* ImageProc */,
+			);
+			productName = ImageProcApp;
+			productReference = 64FB42C8A7C38CDBDF95BF16 /* ImageProcApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C5B565FB07C79FA4C474E726 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 0CBBE36FF6011B3B9F394A25 /* Build configuration list for PBXProject "ImageProcApp" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F8135C13BD17355F869C3DA5;
+			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				BA0961A93B5373545EAA0475 /* XCLocalSwiftPackageReference ".." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D75B2A3DA9EF0F5F7499BCC5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D4AD5F43CAC7C9B92FFA89C4 /* ImageProcApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1098E6E00357AF13707A314 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				115264323EBC4F416ECF61EB /* Assets.xcassets in Resources */,
+				7A75CFD84676FFF7E16373EC /* LaunchScreen.storyboard in Resources */,
+				90264965B3355EF3468CDDD9 /* Main.storyboard in Resources */,
+				E2D8DBC32592B1CC087FAAFF /* ImageProcApp.xcdatamodeld in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B7E8F4571DBA6A7C40B8AEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				85B5889082B7A41934E2B5E2 /* AppDelegate.swift in Sources */,
+				12ED7AB96A6142F27E74185F /* ViewController.swift in Sources */,
+				5731790B467B4CE64D24511E /* BackgroundView.swift in Sources */,
+				C0BB3090605D346D685C9C6A /* ProcessedImageCell.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A687998ECD5AEF98DD277772 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		CA509AD14A15D31104C10E59 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ImageProcApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcApp;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DEB94A99F371CA6D488F28BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = ImageProcApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcApp;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EC3E78A5D058BA4402901046 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0CBBE36FF6011B3B9F394A25 /* Build configuration list for PBXProject "ImageProcApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC3E78A5D058BA4402901046 /* Debug */,
+				A687998ECD5AEF98DD277772 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		33B30EFC86E0C99B8A119D95 /* Build configuration list for PBXNativeTarget "ImageProcApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEB94A99F371CA6D488F28BC /* Release */,
+				CA509AD14A15D31104C10E59 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		BA0961A93B5373545EAA0475 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6A9548274BA4AE83A401208B /* ImageProc */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ImageProc;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		EA0DC53615AE75A7EC83AC91 /* ImageProcApp.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				93DCEDCC64A56B7E413240CB /* ImageProcApp.xcdatamodel */,
+			);
+			currentVersion = 93DCEDCC64A56B7E413240CB /* ImageProcApp.xcdatamodel */;
+			path = ImageProcApp.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = C5B565FB07C79FA4C474E726 /* Project object */;
+}
