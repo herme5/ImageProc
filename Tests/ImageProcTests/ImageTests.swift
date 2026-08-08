@@ -152,6 +152,22 @@ final class ImageTests: XCTestCase {
         }
     }
 
+    func testTextRendering() throws {
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 24)]
+
+        XCTAssertNotNil(UIImage(text: "hello"))
+        XCTAssertNotNil(UIImage(text: "hello", attributes: attributes))
+        XCTAssertNotNil(UIImage(text: NSAttributedString(string: "hello", attributes: attributes)))
+
+        // An explicit size wins over the size the text needs.
+        let sized = UIImage(text: "hello", size: CGSize(width: 40, height: 20))
+        XCTAssertEqual(sized?.size, CGSize(width: 40, height: 20))
+
+        // Nothing to draw means no image, rather than an empty one.
+        XCTAssertNil(UIImage(text: ""))
+        XCTAssertNil(UIImage(text: "hello", size: .zero))
+    }
+
     func testKernelLoading() throws {
         // The kernels ship as a package resource compiled by the CIKernelCompiler plugin. Loading
         // them used to be a fatalError, which is how the CocoaPods distribution came to crash

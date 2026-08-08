@@ -70,12 +70,6 @@ public extension UIColor {
         return UIColor(value: UInt.random(in: 0 ..< maximumHexValue))
     }
 
-    /// Returns an opaque random color.
-    @available(*, deprecated, renamed: "random()")
-    static func randomFromCode() -> UIColor {
-        return UIColor(hexCode: HexadecimalHelper.randomCode())!
-    }
-
     /// Returns a color object that has an alpha value added to the specified value.
     ///
     /// - parameters:

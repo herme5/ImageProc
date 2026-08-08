@@ -7,6 +7,7 @@
 //
 
 import XCTest
+@testable import ImageProc
 
 final class ColorTests: XCTestCase {
 
@@ -143,9 +144,8 @@ final class ColorTests: XCTestCase {
     }
 
     func testInitializationPerformanceFromHexCode() throws {
-        let deprecatedWrapper = DeprecatedWrapper.self as Silenced.Type
         measure {
-            repeated { _ = deprecatedWrapper.uiColorRandomFromCode() }
+            repeated { _ = UIColor(hexCode: HexadecimalHelper.randomCode()) }
         }
     }
 
@@ -155,21 +155,3 @@ final class ColorTests: XCTestCase {
         }
     }
 }
-
-// MARK: - DeprecatedWrapper
-// Workaround to silence deprecated warnings, but we still want to test
-
-class DeprecatedWrapper {
-
-    @available(iOS, deprecated: 1.0)
-    static func uiColorRandomFromCode() -> UIColor {
-        return UIColor.randomFromCode()
-    }
-}
-
-private protocol Silenced {
-
-    static func uiColorRandomFromCode() -> UIColor
-}
-
-extension DeprecatedWrapper: Silenced { }

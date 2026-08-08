@@ -17,7 +17,7 @@ struct ProcessResults {
 
     init(_ parameters: [String], _ image: UIImage?) {
         self.parameters = parameters
-        self.image = image ?? "⚠️".image()!
+        self.image = image ?? UIImage(text: "⚠️")!
     }
 }
 

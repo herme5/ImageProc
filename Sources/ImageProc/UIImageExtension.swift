@@ -64,12 +64,6 @@ public extension UIImage {
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
-    /// Renamed to `expanded(bySize:each:)`
-    @available(*, deprecated, renamed: "expanded(bySize:each:)")
-    func expand(bySize delta: CGFloat, each degree: CGFloat = 3) -> UIImage {
-        return expanded(bySize: delta, each: degree)
-    }
-
     /// Renders copy of this image where all opaque pixels are replicated all around the origin. This make an opaque
     /// shape bigger in more or less all direction. The degree parameters must be a step iteration between 0 and 360.
     ///

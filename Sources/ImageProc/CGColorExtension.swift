@@ -8,7 +8,7 @@
 
 import CoreGraphics
 
-public extension CGColor {
+internal extension CGColor {
 
     /// The default RGB colorspace
     static let defaultRGBColorSpace = CGColorSpaceCreateDeviceRGB()
