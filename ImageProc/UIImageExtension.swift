@@ -23,12 +23,21 @@ public extension UIImage {
 
     /// The percentage of opaque pixels in the image.
     var opaquePixelDensity: Double? {
-        guard let alphaLayer = withBitmapAsUIColorArray({ colors in colors.map { $0.rgba.alpha } }) else {
+        guard let cgImage else {
+            print(UIImage._ciImageErrorMessage)
             return nil
         }
 
-        let total = sizeInPixel.width * sizeInPixel.height
-        return alphaLayer.reduce(0, +) / CGFloat(total)
+        let total = cgImage.width * cgImage.height
+        guard total > 0 else {
+            return nil
+        }
+
+        // Only the alpha channel is needed, so the bitmap is summed in place rather than turned into color objects.
+        let sum = cgImage.withBitmapBuffer { pixels in
+            pixels.reduce(into: Double(0)) { partial, pixel in partial += Double(pixel & 255) }
+        }
+        return sum / 255 / Double(total)
     }
 
     // MARK: - Processing methods

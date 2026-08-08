@@ -71,10 +71,29 @@ extension CGImage {
         guard !coordinates.isEmpty else {
             return []
         }
-        return withBitmapAsCGColorArray { cgColors in
-            coordinates.map { c in
-                guard c.isValid(in: self) else { return nil }
-                return cgColors[c.bitmapIndex(in: self)]
+        let valid = coordinates.filter { $0.isValid(in: self) }
+        guard let minColumn = valid.map({ $0.column }).min(),
+              let maxColumn = valid.map({ $0.column }).max(),
+              let minRow = valid.map({ $0.row }).min(),
+              let maxRow = valid.map({ $0.row }).max() else {
+            return coordinates.map { _ in nil }
+        }
+
+        // Only the region enclosing the requested coordinates has to be rendered, which keeps reading a single pixel
+        // out of a large image cheap.
+        let region = CGRect(x: minColumn, y: minRow, width: maxColumn - minColumn + 1, height: maxRow - minRow + 1)
+        let cropped = cropping(to: region)
+        let source = cropped ?? self
+        let origin = cropped == nil
+            ? PixelCoordinate(column: 0, row: 0)
+            : PixelCoordinate(column: minColumn, row: minRow)
+
+        return source.withBitmapBuffer { pixels in
+            coordinates.map { coordinate in
+                guard coordinate.isValid(in: self) else { return nil }
+                let local = PixelCoordinate(column: coordinate.column - origin.column,
+                                            row: coordinate.row - origin.row)
+                return CGImage.color(fromPremultiplied: pixels[local.bitmapIndex(width: source.width)])
             }
         }
     }
@@ -82,9 +101,16 @@ extension CGImage {
     /// Invokes the given closure with the array of colors of this image.
     /// This function returns, if any, the result of the closure.
     func withBitmapAsCGColorArray<T>(_ handler: ([CGColor]) -> T) -> T {
-        // guard width != 0 && height != 0 else {
-        //     return nil
-        // }
+        return withBitmapBuffer { pixels in
+            handler(pixels.map { CGImage.color(fromPremultiplied: $0) })
+        }
+    }
+
+    /// Invokes the given closure with the raw bitmap of this image, as one packed premultiplied RGBA value per pixel.
+    /// This function returns the result of the closure.
+    ///
+    /// The buffer is only valid for the duration of the call, it must not escape the closure.
+    internal func withBitmapBuffer<T>(_ handler: (UnsafeMutableBufferPointer<UInt32>) -> T) -> T {
         let colorSpace = CGColor.defaultRGBColorSpace
         let bytesPerPixel = 4
         let bytesPerRow = bytesPerPixel * width
@@ -98,16 +124,25 @@ extension CGImage {
         }
         context.draw(self, in: CGRect(origin: .zero, size: CGSize(width: width, height: height)))
 
-        let total = width * height
-        let pixels = UnsafeMutableBufferPointer<UInt32>(start: pointer, count: Int(total))
-        let colors = pixels.map { pixel in
-            let r = CGFloat(UInt8((pixel >> 24) & 255)) / 255
-            let g = CGFloat(UInt8((pixel >> 16) & 255)) / 255
-            let b = CGFloat(UInt8((pixel >> 8) & 255)) / 255
-            let a = CGFloat(UInt8((pixel >> 0) & 255)) / 255
-            return CGColor(srgbRed: r, green: g, blue: b, alpha: a)
-        }
+        let pixels = UnsafeMutableBufferPointer<UInt32>(start: pointer, count: width * height)
+        return handler(pixels)
+    }
 
-        return handler(colors)
+    /// Converts one packed premultiplied RGBA value into a straight alpha color.
+    ///
+    /// The bitmap stores color components already multiplied by their alpha, so they have to be divided back by it,
+    /// otherwise a semi transparent pixel reports a color darker than the one it actually holds.
+    internal static func color(fromPremultiplied pixel: UInt32) -> CGColor {
+        let alpha = CGFloat(UInt8((pixel >> 0) & 255)) / 255
+        guard alpha > 0 else {
+            return CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 0)
+        }
+        let component: (UInt32) -> CGFloat = { shifted in
+            min(CGFloat(UInt8(shifted & 255)) / 255 / alpha, 1.0)
+        }
+        return CGColor(srgbRed: component(pixel >> 24),
+                       green: component(pixel >> 16),
+                       blue: component(pixel >> 8),
+                       alpha: alpha)
     }
 }
