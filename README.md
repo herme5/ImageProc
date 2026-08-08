@@ -1,5 +1,4 @@
 ![build_status](https://gitlab.com/herme5/ImageProc/badges/master/pipeline.svg)
-![coverage](https://gitlab.com/herme5/ImageProc/badges/master/coverage.svg?job=coverage)
 
 ## Introduction
 
@@ -9,13 +8,25 @@ Sometimes icons have to be dynamically transformed, adding to the burden of the 
 
 ## Demo
 
-![](https://github.com/herme5/ImageProc/blob/master/ImageProcApp/benchmark.png)
+![](Demo/ImageProcApp/benchmark.png)
 
 ## Installation
 
-You can either build and link the framework to your project, or directly copy paste the Swift sources.
+ImageProc is a Swift package and requires iOS 15 or later.
 
-If you choose to build and link the framework, remember to `#import ImageProc`.
+In Xcode, use *File ▸ Add Package Dependencies…* and enter `https://gitlab.com/herme5/ImageProc.git`.
+
+Or add it to the dependencies of your own `Package.swift`:
+
+```swift
+.package(url: "https://gitlab.com/herme5/ImageProc.git", from: "2.0.0")
+```
+
+Then `import ImageProc` where you need it.
+
+Some operations are implemented as Core Image kernels written in Metal, which the package compiles
+for you through a build tool plugin. Xcode may ask you to trust and enable that plugin the first
+time you build.
 
 ## Usage
 
