@@ -124,6 +124,11 @@ final class ImageTests: XCTestCase {
         // Every processing method returns an image that looks like its receiver: rendering mode, alignment insets,
         // configuration, baseline offset and scale are carried over. `drawnAbove` used to lose all of them, because
         // it was implemented by swapping the two images around `drawnUnder`, which made the argument the receiver.
+        //
+        // The color is deliberately an invariant one: a system color varies with the color traits, which makes the
+        // output dynamic, and a dynamic image cannot carry a baseline offset. `TraitTests` covers that case.
+        let invariantColor = UIColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 1)
+
         for scale in [CGFloat(2), CGFloat(3)] {
             var source = UIImage(cgImage: shape0.cgImage!, scale: scale, orientation: .up)
                 .withRenderingMode(.alwaysTemplate)
@@ -138,9 +143,9 @@ final class ImageTests: XCTestCase {
             let other = UIImage(cgImage: shape1.cgImage!, scale: scale + 1, orientation: .up)
 
             let outputs: [(String, UIImage)] = [
-                ("colorized", source.colorized(with: color0)),
+                ("colorized", source.colorized(with: invariantColor)),
                 ("expanded", source.expanded(bySize: 2, each: 90)),
-                ("stroked", source.stroked(with: color0, size: 2, each: 90)),
+                ("stroked", source.stroked(with: invariantColor, size: 2, each: 90)),
                 ("smoothened(sizeKept:)", source.smoothened(by: 2, sizeKept: true)),
                 ("smoothened", source.smoothened(by: 2, sizeKept: false)),
                 ("withAlphaComponent", source.withAlphaComponent(0.5)),

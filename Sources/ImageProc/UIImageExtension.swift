@@ -48,6 +48,11 @@ public extension UIImage {
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func colorized(with color: UIColor) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: color._colorTraitVariance, {
+            $0.colorized(with: color.resolvedColor(with: $1))
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -79,6 +84,9 @@ public extension UIImage {
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func expanded(bySize delta: CGFloat, each degree: CGFloat = 3) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.expanded(bySize: delta, each: degree) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -123,6 +131,11 @@ public extension UIImage {
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
     func stroked(with color: UIColor, size delta: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: color._colorTraitVariance, {
+            $0.stroked(with: color.resolvedColor(with: $1), size: delta, each: degree, alpha: alpha)
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -193,6 +206,9 @@ public extension UIImage {
     ///               so that we are sure the blur effect can exceed the initial size.
     /// - returns: A smoothened `UIImage`.
     func smoothened(by radius: CGFloat, sizeKept: Bool = false) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.smoothened(by: radius, sizeKept: sizeKept) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -220,6 +236,9 @@ public extension UIImage {
     ///   - value: The maximum alpha component value of the rendered image.
     /// - returns: A more transparent `UIImage`.
     func withAlphaComponent(_ value: CGFloat) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.withAlphaComponent(value) }) {
+            return dynamic
+        }
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         draw(at: .zero, blendMode: .normal, alpha: value)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()!
@@ -234,6 +253,11 @@ public extension UIImage {
     ///   - newSize: The new size of the output image.
     /// - returns: A scaled `UIImage`.
     func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in
+            image.scaled(to: newSize, interpolationQuality: interpolationQuality)
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -299,6 +323,9 @@ public extension UIImage {
     ///   - rect: The new rect to which the image will be cropped.
     /// - returns: A cropped `UIImage`.
     func cropped(to rect: CGRect) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.cropped(to: rect) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -321,6 +348,9 @@ public extension UIImage {
     ///           rotation.
     /// - returns: A rotated `UIImage`.
     func rotated(by degrees: CGFloat) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.rotated(by: degrees) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -389,6 +419,9 @@ public extension UIImage {
     ///   - bufferAlongX: Whether to flip the buffer along its X-axis rather than its Y-axis.
     /// - returns: A flipped `UIImage`.
     private func _flipped(bufferAlongX: Bool) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image._flipped(bufferAlongX: bufferAlongX) }) {
+            return dynamic
+        }
         let sourceSize = _bufferSize
         UIGraphicsBeginImageContextWithOptions(sourceSize, false, scale)
         let context = UIGraphicsGetCurrentContext()!
@@ -411,6 +444,11 @@ public extension UIImage {
     ///
     /// - returns: A `UIImage` where this image is under the other.
     func drawnUnder(image: UIImage) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.drawnUnder(image: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -422,6 +460,11 @@ public extension UIImage {
     ///
     /// - returns: A `UIImage` where this image is above the other.
     func drawnAbove(image: UIImage) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.drawnAbove(image: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -470,6 +513,9 @@ public extension UIImage {
     ///
     /// - returns: A `UIImage` where the colors are inverted.
     func colorInverted() -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.colorInverted() }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -498,6 +544,11 @@ public extension UIImage {
     ///   - image: An other `UIImage`.
     /// - returns: The result of the alpha exclusion.
     func alphaExclusion(with image: UIImage) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.alphaExclusion(with: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
         let filter = ExcludeFilter()
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
@@ -558,7 +609,7 @@ public extension UIImage {
     }
 
     /// Returns an image which have all options (when application) of an other image.
-    private func withOptions(from other: UIImage) -> UIImage {
+    internal func withOptions(from other: UIImage) -> UIImage {
         var result = withRenderingMode(other.renderingMode)
             .withAlignmentRectInsets(other.alignmentRectInsets)
 
