@@ -115,7 +115,8 @@ public extension UIImage {
                 translationVector: translationVector,
                 size: newSize,
                 scale: scale,
-                angles: angles),
+                angles: angles,
+                degreeStep: degree),
             cgImage: cgImage!)
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
@@ -171,7 +172,8 @@ public extension UIImage {
                 translationVector: translationVector,
                 size: newSize,
                 scale: scale,
-                angles: angles),
+                angles: angles,
+                degreeStep: degree),
             cgImage: cgOutput)
 
         // Draw expanded under colorized
@@ -624,7 +626,18 @@ public extension UIImage {
     }
 
     internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) {
-        _expanded_concurrent(args: args, cgImage: cgImage)
+        switch _expandImplementation {
+        case .metal:
+            guard _expanded_metal(args: args, cgImage: cgImage) else {
+                // The compiled kernel is missing, so fall back rather than produce nothing.
+                _expanded_concurrent(args: args, cgImage: cgImage)
+                return
+            }
+        case .concurrent:
+            _expanded_concurrent(args: args, cgImage: cgImage)
+        case .basic:
+            _expanded_basic(args: args, cgImage: cgImage)
+        }
     }
 
 }
