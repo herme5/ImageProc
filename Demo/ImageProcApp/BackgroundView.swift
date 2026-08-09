@@ -8,6 +8,24 @@
 
 import UIKit
 
+private enum Style {
+    static let backgroundColor = UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .unspecified, .light: return UIColor(displayP3Red: 0.20, green: 0.20, blue: 0.20, alpha: 1.0)
+        case .dark: return UIColor(displayP3Red: 0.90, green: 0.90, blue: 0.90, alpha: 1.0)
+        @unknown default: fatalError("Unknown user interface trait \"\(traitCollection.userInterfaceStyle)\"")
+        }
+    }
+
+    static let lineColor = UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .unspecified, .light: return UIColor(displayP3Red: 0.14, green: 0.14, blue: 0.14, alpha: 1.0)
+        case .dark: return UIColor(displayP3Red: 0.84, green: 0.84, blue: 0.84, alpha: 1.0)
+        @unknown default: fatalError("Unknown user interface trait \"\(traitCollection.userInterfaceStyle)\"")
+        }
+    }
+}
+
 class BackgroundView: UIView {
 
     private var backgroundLayer: BackgroundLayer {
@@ -33,13 +51,37 @@ class BackgroundView: UIView {
     }
 
     private func commonInit() {
+        backgroundColor = Style.backgroundColor
         layer.contentsScale = UIScreen.main.scale
+        updateLineColor()
+
+        if #available(iOS 17.0, *) {
+            registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: BackgroundView, _) in
+                view.updateLineColor()
+            }
+        }
+    }
+
+    @available(iOS, deprecated: 17.0, message: "registerForTraitChanges(_:handler:) takes over from iOS 17")
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        guard #unavailable(iOS 17.0) else { return }
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateLineColor()
+        }
+    }
+
+    private func updateLineColor() {
+        backgroundLayer.lineColor = Style.lineColor.resolvedColor(with: traitCollection).cgColor
     }
 }
 
 private class BackgroundLayer: CALayer {
 
-    private let lineColor = UIColor(displayP3Red: 0.14, green: 0.14, blue: 0.14, alpha: 1.0)
+    /// Resolved by the view against its own trait collection, and redrawn whenever it changes.
+    var lineColor = Style.lineColor.cgColor {
+        didSet { setNeedsDisplay() }
+    }
 
     private let minorLineWidth = CGFloat(1)
 
@@ -57,7 +99,7 @@ private class BackgroundLayer: CALayer {
         }
 
         UIGraphicsPushContext(context)
-        context.setStrokeColor(lineColor.cgColor)
+        context.setStrokeColor(lineColor)
 
         // Minor lines
         context.setLineWidth(minorLineWidth)
