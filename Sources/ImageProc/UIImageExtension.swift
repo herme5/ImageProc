@@ -48,6 +48,11 @@ public extension UIImage {
     ///   - color: The color to apply as a mask.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func colorized(with color: UIColor) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: color._colorTraitVariance, {
+            $0.colorized(with: color.resolvedColor(with: $1))
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -79,14 +84,20 @@ public extension UIImage {
     ///   - degree: Defines the direction iteration step to where the image have to be replicated.
     /// - returns: An `UIImage` where all opaque pixels are colored.
     func expanded(bySize delta: CGFloat, each degree: CGFloat = 3) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.expanded(bySize: delta, each: degree) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
-        let newSize = CGSize(width: size.width + (2 * delta), height: size.height + (2 * delta))
+        // The context is filled with the raw `cgImage` buffer, so the geometry is expressed in that buffer's space.
+        // Expanding is isotropic, so growing it by the same delta on both axes holds whatever the orientation is.
+        let sourceSize = _bufferSize
+        let newSize = CGSize(width: sourceSize.width + (2 * delta), height: sourceSize.height + (2 * delta))
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-        let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
+        let translatedRect = CGRect(origin: CGPoint(x: delta, y: delta), size: sourceSize).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
         let angles = Self._expansionAngles(each: degree)
@@ -104,7 +115,8 @@ public extension UIImage {
                 translationVector: translationVector,
                 size: newSize,
                 scale: scale,
-                angles: angles),
+                angles: angles,
+                degreeStep: degree),
             cgImage: cgImage!)
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
@@ -120,6 +132,11 @@ public extension UIImage {
     ///   - alpha: The border transparency.
     /// - returns: An `UIImage` where the opaque region is surrounded by a border.
     func stroked(with color: UIColor, size delta: CGFloat, each degree: CGFloat = 3, alpha: CGFloat = 1) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: color._colorTraitVariance, {
+            $0.stroked(with: color.resolvedColor(with: $1), size: delta, each: degree, alpha: alpha)
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -133,10 +150,11 @@ public extension UIImage {
         }
         var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
 
-        // Expand
-        let newSize = CGSize(width: size.width + (2 * delta), height: size.height + (2 * delta))
+        // Expand, in the coordinate space of the `cgImage` buffer the context is filled with.
+        let sourceSize = _bufferSize
+        let newSize = CGSize(width: sourceSize.width + (2 * delta), height: sourceSize.height + (2 * delta))
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-        let translatedRect = CGRect(x: delta, y: delta, width: size.width, height: size.height).integral
+        let translatedRect = CGRect(origin: CGPoint(x: delta, y: delta), size: sourceSize).integral
         let translationVector = CGVector(dx: delta, dy: 0)
         let interpQuality = CGInterpolationQuality.default
         let angles = Self._expansionAngles(each: degree)
@@ -154,7 +172,8 @@ public extension UIImage {
                 translationVector: translationVector,
                 size: newSize,
                 scale: scale,
-                angles: angles),
+                angles: angles,
+                degreeStep: degree),
             cgImage: cgOutput)
 
         // Draw expanded under colorized
@@ -169,7 +188,7 @@ public extension UIImage {
         cgContext.draw(cgOutput, in: otherImageRect)
         cgContext.restoreGState()
 
-        let thisImageRect = CGRect(center: newRect.center, size: self.size)
+        let thisImageRect = CGRect(center: newRect.center, size: sourceSize)
         cgContext.draw(self.cgImage!, in: thisImageRect)
 
         let newImage = UIImage(cgImage: cgContext.makeImage()!,
@@ -189,6 +208,9 @@ public extension UIImage {
     ///               so that we are sure the blur effect can exceed the initial size.
     /// - returns: A smoothened `UIImage`.
     func smoothened(by radius: CGFloat, sizeKept: Bool = false) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.smoothened(by: radius, sizeKept: sizeKept) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -200,9 +222,12 @@ public extension UIImage {
         gaussianFilter.setValue(radius, forKey: kCIInputRadiusKey)
         gaussianFilter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
 
+        // Keeping the size means cropping back to the input extent, which is the `cgImage` buffer rather than
+        // `sizeInPixel`: the two differ under a quarter-turn orientation.
+        let bufferExtent = CGSize(width: cgImage!.width, height: cgImage!.height)
         let context = CIContext()
         let ciOutput = gaussianFilter.outputImage!
-        let rect = sizeKept ? CGRect(origin: .zero, size: sizeInPixel) : ciOutput.extent
+        let rect = sizeKept ? CGRect(origin: .zero, size: bufferExtent) : ciOutput.extent
         let cgOutput = context.createCGImage(ciOutput, from: rect)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
@@ -213,6 +238,9 @@ public extension UIImage {
     ///   - value: The maximum alpha component value of the rendered image.
     /// - returns: A more transparent `UIImage`.
     func withAlphaComponent(_ value: CGFloat) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.withAlphaComponent(value) }) {
+            return dynamic
+        }
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
         draw(at: .zero, blendMode: .normal, alpha: value)
         let newImage = UIGraphicsGetImageFromCurrentImageContext()!
@@ -227,16 +255,27 @@ public extension UIImage {
     ///   - newSize: The new size of the output image.
     /// - returns: A scaled `UIImage`.
     func scaled(to newSize: CGSize, interpolationQuality: CGInterpolationQuality = .default) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in
+            image.scaled(to: newSize, interpolationQuality: interpolationQuality)
+        }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
-        let newRect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height).integral
-        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
+        // The context is filled with the raw `cgImage` buffer and the result carries the receiver's orientation
+        // again, so it has to be sized in that buffer's space rather than in the displayed one. A quarter-turn
+        // orientation exchanges the two, and sizing the context in the displayed space transposes the result.
+        let contextSize = _orientationSwapsAxes
+            ? CGSize(width: newSize.height, height: newSize.width)
+            : newSize
+        let newRect = CGRect(origin: .zero, size: contextSize).integral
+        UIGraphicsBeginImageContextWithOptions(contextSize, false, scale)
         let context = UIGraphicsGetCurrentContext()!
 
-        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
+        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: contextSize.height)
         context.interpolationQuality = interpolationQuality
         context.concatenate(verticalFlip)
         context.draw(cgImage!, in: newRect)
@@ -286,11 +325,17 @@ public extension UIImage {
     ///   - rect: The new rect to which the image will be cropped.
     /// - returns: A cropped `UIImage`.
     func cropped(to rect: CGRect) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.cropped(to: rect) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
-        let contextRect = CGRect(origin: rect.origin * scale, size: rect.size * scale)
+        // The caller expresses the rect in the displayed space, `cropping(to:)` works on the buffer: a non-`.up`
+        // orientation moves the region, and a quarter-turn one also transposes it.
+        let bufferRect = _bufferRect(from: rect)
+        let contextRect = CGRect(origin: bufferRect.origin * scale, size: bufferRect.size * scale)
         guard let cropped = cgImage!.cropping(to: contextRect) else {
             return self
         }
@@ -305,16 +350,23 @@ public extension UIImage {
     ///           rotation.
     /// - returns: A rotated `UIImage`.
     func rotated(by degrees: CGFloat) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.rotated(by: degrees) }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
         let degreesToRadians: (CGFloat) -> CGFloat = { return $0 / 180.0 * CGFloat.pi }
-        let radians = -degreesToRadians(degrees)
+
+        // The rotation is applied to the `cgImage` buffer, and a mirrored orientation reverses the direction it
+        // appears to turn in once displayed, so the angle has to be reversed with it.
+        let radians = (_orientationIsMirrored ? 1 : -1) * degreesToRadians(degrees)
+        let sourceSize = _bufferSize
 
         // Calculate the size of the rotated view's containing box for our drawing space
-        let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: size))
+        let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: sourceSize))
         rotatedViewBox.transform = rotatedViewBox.transform.rotated(by: radians)
         let newSize = rotatedViewBox.frame.integral.size
 
@@ -331,8 +383,8 @@ public extension UIImage {
 
         // Now, draw the rotated/scaled image into the context
         // Remember to replace the center
-        context.translateBy(x: -size.width / 2, y: -size.height / 2)
-        context.draw(cgImage!, in: CGRect(origin: .zero, size: size))
+        context.translateBy(x: -sourceSize.width / 2, y: -sourceSize.height / 2)
+        context.draw(cgImage!, in: CGRect(origin: .zero, size: sourceSize))
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
         UIGraphicsEndImageContext()
@@ -347,18 +399,9 @@ public extension UIImage {
             print(UIImage._ciImageErrorMessage)
             return self
         }
-
-        UIGraphicsBeginImageContextWithOptions(size, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
-
-        // Transform that flips x (and also y, because CGContexts are y inverted by default)
-        let bothFlip = CGAffineTransform(a: -1, b: 0, c: 0, d: -1, tx: size.width, ty: size.height)
-        context.concatenate(bothFlip)
-        context.draw(cgImage!, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
-
-        let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
-        UIGraphicsEndImageContext()
-        return newImage.withOptions(from: self)
+        // A quarter-turn orientation exchanges the axes, so flipping the displayed image along X means flipping its
+        // buffer along Y. Whether the orientation also mirrors does not matter: flips along one axis commute.
+        return _flipped(bufferAlongX: !_orientationSwapsAxes)
     }
 
     /// Renders a copy of this image which is flipped along the Y-axis.
@@ -369,12 +412,30 @@ public extension UIImage {
             print(UIImage._ciImageErrorMessage)
             return self
         }
-        
-        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        return _flipped(bufferAlongX: _orientationSwapsAxes)
+    }
+
+    /// Renders a copy of this image whose `cgImage` buffer is flipped along one axis.
+    ///
+    /// - parameters:
+    ///   - bufferAlongX: Whether to flip the buffer along its X-axis rather than its Y-axis.
+    /// - returns: A flipped `UIImage`.
+    private func _flipped(bufferAlongX: Bool) -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image._flipped(bufferAlongX: bufferAlongX) }) {
+            return dynamic
+        }
+        let sourceSize = _bufferSize
+        UIGraphicsBeginImageContextWithOptions(sourceSize, false, scale)
         let context = UIGraphicsGetCurrentContext()!
 
-        // No transform because CGContexts are y inverted by default
-        context.draw(cgImage!, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        // Nothing to concatenate to flip along y, because CGContexts are y inverted by default. Flipping along x
+        // means flipping both, so that the default inversion is compensated.
+        if bufferAlongX {
+            let bothFlip = CGAffineTransform(a: -1, b: 0, c: 0, d: -1,
+                                             tx: sourceSize.width, ty: sourceSize.height)
+            context.concatenate(bothFlip)
+        }
+        context.draw(cgImage!, in: CGRect(origin: .zero, size: sourceSize))
 
         let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
         UIGraphicsEndImageContext()
@@ -385,47 +446,78 @@ public extension UIImage {
     ///
     /// - returns: A `UIImage` where this image is under the other.
     func drawnUnder(image: UIImage) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.drawnUnder(image: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
-
-        // We explicitly use `self` to keep the comparison between the under and the above image.
-        let maxWidth = max(self.size.width, image.size.width)
-        let maxHeight = max(self.size.height, image.size.height)
-        let maxSize = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: maxHeight))
-
-        UIGraphicsBeginImageContextWithOptions(maxSize.size, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
-
-        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
-        context.concatenate(verticalFlip)
-
-        let thisImageRect = CGRect(center: maxSize.center, size: self.size)
-        context.draw(self.cgImage!, in: thisImageRect)
-
-        let otherImageRect = CGRect(center: maxSize.center, size: image.size)
-        context.draw(image.cgImage!, in: otherImageRect)
-
-        let newImage = UIImage(cgImage: context.makeImage()!,
-                               scale: self.scale,
-                               orientation: self.imageOrientation)
-        UIGraphicsEndImageContext()
-
-        return newImage.withOptions(from: self)
+        return Self._composited(under: self, over: image._reoriented(to: imageOrientation), like: self)
     }
 
     /// Renders all opaque pixels above an other image.
     ///
     /// - returns: A `UIImage` where this image is above the other.
     func drawnAbove(image: UIImage) -> UIImage {
-        return image.drawnUnder(image: self)
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.drawnAbove(image: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
+        guard self.cgImage != nil && image.cgImage != nil else {
+            print(UIImage._ciImageErrorMessage)
+            return self
+        }
+        // Not `image.drawnUnder(image: self)`: that would render in the other image's coordinate space and carry over
+        // its options, whereas the receiver is the one the result has to look like.
+        return Self._composited(under: image._reoriented(to: imageOrientation), over: self, like: self)
+    }
+
+    /// Draws one image on top of an other, both centered in the rect that encompasses the two.
+    ///
+    /// - parameters:
+    ///   - lower: The image drawn first.
+    ///   - upper: The image drawn over the first one.
+    ///   - receiver: The image whose scale, orientation and options the result adopts.
+    /// - returns: The composited `UIImage`.
+    private static func _composited(under lower: UIImage, over upper: UIImage, like receiver: UIImage) -> UIImage {
+        // Both buffers are drawn raw, so the rect that encompasses the two is measured in buffer space.
+        let lowerSize = lower._bufferSize
+        let upperSize = upper._bufferSize
+        let maxWidth = max(lowerSize.width, upperSize.width)
+        let maxHeight = max(lowerSize.height, upperSize.height)
+        let maxSize = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: maxHeight))
+
+        UIGraphicsBeginImageContextWithOptions(maxSize.size, false, receiver.scale)
+        let context = UIGraphicsGetCurrentContext()!
+
+        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
+        context.concatenate(verticalFlip)
+
+        let lowerImageRect = CGRect(center: maxSize.center, size: lowerSize)
+        context.draw(lower.cgImage!, in: lowerImageRect)
+
+        let upperImageRect = CGRect(center: maxSize.center, size: upperSize)
+        context.draw(upper.cgImage!, in: upperImageRect)
+
+        let newImage = UIImage(cgImage: context.makeImage()!,
+                               scale: receiver.scale,
+                               orientation: receiver.imageOrientation)
+        UIGraphicsEndImageContext()
+
+        return newImage.withOptions(from: receiver)
     }
 
     /// Renders a copy of this image where all colors are inverted (typically white become black, blue becomes red and so on...).
     ///
     /// - returns: A `UIImage` where the colors are inverted.
     func colorInverted() -> UIImage {
+        if let dynamic = _perColorTrait({ image, _ in image.colorInverted() }) {
+            return dynamic
+        }
         guard cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
@@ -454,15 +546,25 @@ public extension UIImage {
     ///   - image: An other `UIImage`.
     /// - returns: The result of the alpha exclusion.
     func alphaExclusion(with image: UIImage) -> UIImage {
+        if let dynamic = _perColorTrait(alsoVarying: image._colorTraitVariance, {
+            $0.alphaExclusion(with: image._flattened(for: $1))
+        }) {
+            return dynamic
+        }
         let filter = ExcludeFilter()
         guard self.cgImage != nil && image.cgImage != nil else {
             print(UIImage._ciImageErrorMessage)
             return self
         }
 
+        // Both buffers are drawn raw, so they have to share an orientation, and the encompassing rect is measured in
+        // that buffer space.
+        let other = image._reoriented(to: imageOrientation)
+        let thisSize = self._bufferSize
+        let otherSize = other._bufferSize
         let maxSize = CGSize(
-            width: max(self.size.width, image.size.width),
-            height: max(self.size.height, image.size.height))
+            width: max(thisSize.width, otherSize.width),
+            height: max(thisSize.height, otherSize.height))
         let maxCenter = CGPoint(
             x: maxSize.width/2,
             y: maxSize.height/2)
@@ -471,15 +573,15 @@ public extension UIImage {
         let context = UIGraphicsGetCurrentContext()!
 
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
-        let inputFirstImageRect = CGRect(center: maxCenter, size: self.size)
-        let inputSecondImageRect = CGRect(center: maxCenter, size: image.size)
+        let inputFirstImageRect = CGRect(center: maxCenter, size: thisSize)
+        let inputSecondImageRect = CGRect(center: maxCenter, size: otherSize)
 
         context.concatenate(verticalFlip)
         context.draw(self.cgImage!, in: inputFirstImageRect)
         let inputFirstImage = context.makeImage()!
 
         context.clear(CGRect(origin: .zero, size: maxSize))
-        context.draw(image.cgImage!, in: inputSecondImageRect)
+        context.draw(other.cgImage!, in: inputSecondImageRect)
         let inputSecondImage = context.makeImage()!
 
         UIGraphicsEndImageContext()
@@ -509,7 +611,7 @@ public extension UIImage {
     }
 
     /// Returns an image which have all options (when application) of an other image.
-    private func withOptions(from other: UIImage) -> UIImage {
+    internal func withOptions(from other: UIImage) -> UIImage {
         var result = withRenderingMode(other.renderingMode)
             .withAlignmentRectInsets(other.alignmentRectInsets)
 
@@ -524,7 +626,18 @@ public extension UIImage {
     }
 
     internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) {
-        _expanded_concurrent(args: args, cgImage: cgImage)
+        switch _expandImplementation {
+        case .metal:
+            guard _expanded_metal(args: args, cgImage: cgImage) else {
+                // The compiled kernel is missing, so fall back rather than produce nothing.
+                _expanded_concurrent(args: args, cgImage: cgImage)
+                return
+            }
+        case .concurrent:
+            _expanded_concurrent(args: args, cgImage: cgImage)
+        case .basic:
+            _expanded_basic(args: args, cgImage: cgImage)
+        }
     }
 
 }

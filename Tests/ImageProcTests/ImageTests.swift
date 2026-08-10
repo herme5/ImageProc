@@ -120,6 +120,60 @@ final class ImageTests: XCTestCase {
         XCTAssertNotNil(shape0.cgImage!.colors(at: []))
     }
 
+    func testOptionsPreservation() throws {
+        // Every processing method returns an image that looks like its receiver: rendering mode, alignment insets,
+        // configuration, baseline offset and scale are carried over. `drawnAbove` used to lose all of them, because
+        // it was implemented by swapping the two images around `drawnUnder`, which made the argument the receiver.
+        //
+        // The color is deliberately an invariant one: a system color varies with the color traits, which makes the
+        // output dynamic, and a dynamic image cannot carry a baseline offset. `TraitTests` covers that case.
+        let invariantColor = UIColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 1)
+
+        for scale in [CGFloat(2), CGFloat(3)] {
+            var source = UIImage(cgImage: shape0.cgImage!, scale: scale, orientation: .up)
+                .withRenderingMode(.alwaysTemplate)
+                .withAlignmentRectInsets(UIEdgeInsets(top: 1, left: 2, bottom: 3, right: 4))
+                .withBaselineOffset(fromBottom: 10)
+
+            // Applying a configuration resolves it against the current trait environment, so round-trip the source
+            // once to compare a resolved configuration with a resolved one.
+            source = source.withConfiguration(source.configuration!)
+
+            // The other image deliberately has a different scale, to catch an output rendered in its space.
+            let other = UIImage(cgImage: shape1.cgImage!, scale: scale + 1, orientation: .up)
+
+            let outputs: [(String, UIImage)] = [
+                ("colorized", source.colorized(with: invariantColor)),
+                ("expanded", source.expanded(bySize: 2, each: 90)),
+                ("stroked", source.stroked(with: invariantColor, size: 2, each: 90)),
+                ("smoothened(sizeKept:)", source.smoothened(by: 2, sizeKept: true)),
+                ("smoothened", source.smoothened(by: 2, sizeKept: false)),
+                ("withAlphaComponent", source.withAlphaComponent(0.5)),
+                ("scaled(to:)", source.scaled(to: CGSize(width: 50, height: 50))),
+                ("scaled(uniform:)", source.scaled(uniform: 0.5)),
+                ("scaledWidth(to:)", source.scaledWidth(to: 50)),
+                ("scaledHeight(to:)", source.scaledHeight(to: 50)),
+                ("cropped", source.cropped(to: CGRect(origin: .zero, size: source.size / 2))),
+                ("rotated", source.rotated(by: 30)),
+                ("flippedHorizontally", source.flippedHorizontally()),
+                ("flippedVertically", source.flippedVertically()),
+                ("drawnUnder", source.drawnUnder(image: other)),
+                ("drawnAbove", source.drawnAbove(image: other)),
+                ("colorInverted", source.colorInverted()),
+                ("alphaExclusion", source.alphaExclusion(with: other))
+            ]
+
+            for (name, output) in outputs {
+                let message = "\(name) at scale \(scale)"
+                XCTAssertEqual(output.scale, source.scale, message)
+                XCTAssertEqual(output.renderingMode, source.renderingMode, message)
+                XCTAssertEqual(output.alignmentRectInsets, source.alignmentRectInsets, message)
+                XCTAssertEqual(output.baselineOffsetFromBottom, source.baselineOffsetFromBottom, message)
+                XCTAssertEqual(output.configuration, source.configuration, message)
+            }
+        }
+    }
+
     func testBitmapProcessing() throws {
 
         // Exclusion with the same image should result in full transparent image

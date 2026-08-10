@@ -23,14 +23,36 @@ internal enum KernelLoader {
         "source image unchanged. This means the compiled kernel is missing from the package " +
         "resources, which is a packaging problem rather than a usage error."
 
-    /// Returns the kernel for the given Metal function, or `nil` if the library cannot be loaded.
+    /// The compiled library, or `nil` when it is missing from the package resources.
     ///
     /// Loading is resolved against `Bundle.module` so it follows the package resource bundle,
     /// whatever the consumer's product or bundle identifier happens to be.
-    static func loadFunction(named functionName: String) -> CIColorKernel? {
+    private static func libraryData() -> Data? {
         guard let url = Bundle.module.url(forResource: resourceName, withExtension: resourceExtension),
-              let data = try? Data(contentsOf: url),
+              let data = try? Data(contentsOf: url) else {
+            return nil
+        }
+        return data
+    }
+
+    /// Returns the color kernel for the given Metal function, or `nil` if the library cannot be loaded.
+    static func loadFunction(named functionName: String) -> CIColorKernel? {
+        guard let data = libraryData(),
               let kernel = try? CIColorKernel(functionName: functionName, fromMetalLibraryData: data)
+        else {
+            print("\(errorMessage) (function: \"\(functionName)\")")
+            return nil
+        }
+        return kernel
+    }
+
+    /// Returns the general kernel for the given Metal function, or `nil` if the library cannot be loaded.
+    ///
+    /// A `CIColorKernel` may only read the pixel it is producing, so a function that samples its neighbours — the
+    /// expansion does, all around a circle — has to be loaded as a plain `CIKernel` instead.
+    static func loadGeneralFunction(named functionName: String) -> CIKernel? {
+        guard let data = libraryData(),
+              let kernel = try? CIKernel(functionName: functionName, fromMetalLibraryData: data)
         else {
             print("\(errorMessage) (function: \"\(functionName)\")")
             return nil
