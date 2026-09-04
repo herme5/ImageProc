@@ -51,7 +51,20 @@ git checkout - >/dev/null 2>&1
 echo "\n* Tagging"
 git checkout master >/dev/null 2>&1
 git tag "$version"
-git push origin master --follow-tags
+
+# `--follow-tags` only pushes *annotated* tags, and the tag created just above is a lightweight one, so it
+# used to go nowhere: the push reported "Everything up-to-date", the release looked done, and the tag only
+# existed locally. 2.0.0 and 2.1.0 both had to be pushed by hand afterwards. Pushing the ref by name works
+# whichever kind of tag it is.
+git push origin master
+git push origin "$version"
+
+# The tag is the release, so make sure it actually landed rather than trusting the push.
+if [ -z "$(git ls-remote --tags origin "refs/tags/$version")" ]; then
+  echo "error: $version is not on the remote after pushing it." >&2
+  exit 1
+fi
+
 git checkout - >/dev/null 2>&1
 
 cd - >/dev/null || exit 1
