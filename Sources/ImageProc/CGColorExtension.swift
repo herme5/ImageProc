@@ -10,20 +10,23 @@ import CoreGraphics
 
 internal extension CGColor {
 
-    /// The default RGB colorspace
-    static let defaultRGBColorSpace = CGColorSpaceCreateDeviceRGB()
+    /// The default RGB colorspace.
+    ///
+    /// Named rather than device-dependent: `CGColorSpaceCreateDeviceRGB()` is the sRGB alias on iOS, but not on the
+    /// Mac runtime an iPad app runs under, where Core Image refuses a color living in it.
+    static let defaultRGBColorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
     
     /// Initializes a color object using the specified opacity and hexadecimal RGB value.
     ///
     /// - parameters:
     ///   - hex: The hexadecimal value of the RGB components specified between `0` (0x000000) and `UInt.max` (0xFFFFFF).
     ///   - alpha: The value of the alpha component specified between `0.0` and `1.0`.
-    private static func from(value hex: UInt, alpha: CGFloat = 1.0) -> CGColor {
+    private static func from(value hex: UInt, alpha: CGFloat = 1.0) -> CGColor? {
         let rgbaComponents = [CGFloat((hex >> 16) & 0xFF) / 255.0,
                               CGFloat((hex >> 8) & 0xFF) / 255.0,
                               CGFloat(hex & 0xFF) / 255.0,
                               alpha]
-        return CGColor(colorSpace: CGColor.defaultRGBColorSpace, components: rgbaComponents)!
+        return CGColor(colorSpace: CGColor.defaultRGBColorSpace, components: rgbaComponents)
     }
 
     /// Initializes a color object represented by the specified hexadecimal color code in string. If the string is not

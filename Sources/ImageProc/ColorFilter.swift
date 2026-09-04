@@ -11,7 +11,7 @@ import CoreImage
 /// An image processor that produces a monochromatic image.
 ///
 /// The ColorFilter class produces a CIImage object as output. The filter takes an image and a color as input.
-/// When using this Filter, make sure the input color is RGBA compliant, otherwise it will crash.
+/// The input color has to be RGBA compliant; `UIImage._colorizedFilter(color:cgImage:)` sees to that.
 ///
 /// Note that the input color alpha component is taken into account to produce a more transparent (and always more
 /// transparent) image.
@@ -33,10 +33,10 @@ internal class ColorFilter: CIFilter {
 
     /// The resulting image, or `nil` when the kernel is unavailable.
     override var outputImage: CIImage? {
-        guard let kernel = ColorFilter.kernel else {
+        guard let kernel = ColorFilter.kernel, let inputImage, let inputColor else {
             return nil
         }
-        let inputs = [inputImage!, inputColor!] as [Any]
-        return kernel.apply(extent: inputImage!.extent, arguments: inputs)
+        let inputs = [inputImage, inputColor] as [Any]
+        return kernel.apply(extent: inputImage.extent, arguments: inputs)
     }
 }

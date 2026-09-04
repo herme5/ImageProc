@@ -30,17 +30,17 @@ internal class ExcludeFilter: CIFilter {
 
     /// The resulting image, or `nil` when the kernel is unavailable.
     override var outputImage: CIImage? {
-        guard let kernel = ExcludeFilter.kernel else {
+        guard let kernel = ExcludeFilter.kernel, let inputFirstImage, let inputSecondImage else {
             return nil
         }
-        let inputs = [inputFirstImage!, inputSecondImage!] as [Any]
+        let inputs = [inputFirstImage, inputSecondImage] as [Any]
 
         // Check is done at a higher level.
         // As long as this class stays internal the guard statement is superfluous.
-        // guard inputFirstImage!.extent.size == inputSecondImage!.extent.size else {
+        // guard inputFirstImage.extent.size == inputSecondImage.extent.size else {
         //     return nil
         // }
 
-        return kernel.apply(extent: inputFirstImage!.extent, arguments: inputs)
+        return kernel.apply(extent: inputFirstImage.extent, arguments: inputs)
     }
 }

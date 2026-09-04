@@ -231,6 +231,30 @@ final class ImageTests: XCTestCase {
         XCTAssertNotNil(KernelLoader.loadFunction(named: "exclude"))
     }
 
+    func testFiltersDegradeRatherThanTrap() throws {
+        // The filters used to force unwrap their inputs, so an input Core Image would not take reached the caller
+        // as a trap rather than as the source image unchanged. `ColorFilter` got there for real: `CIColor(color:)`
+        // is annotated non-optional on iOS, yet returns nil for a color in a device-dependent color space under the
+        // Mac runtime, and the nil landed silently in `inputColor`.
+        XCTAssertNil(ColorFilter().outputImage)
+        XCTAssertNil(ExcludeFilter().outputImage)
+        XCTAssertNil(ExpandFilter().outputImage)
+
+        let colorFilter = ColorFilter()
+        colorFilter.inputImage = CIImage(cgImage: shape0.cgImage!)
+        XCTAssertNil(colorFilter.outputImage, "an unset color must not be forced")
+
+        let excludeFilter = ExcludeFilter()
+        excludeFilter.inputFirstImage = CIImage(cgImage: shape0.cgImage!)
+        XCTAssertNil(excludeFilter.outputImage, "an unset second image must not be forced")
+
+        // A monochrome color still has to produce a color the kernel can take, which is what `_rgbCompliant(_:)`
+        // and the component-wise `CIColor` are for.
+        let monochrome = UIImage._colorizedFilter(color: .black, cgImage: shape0.cgImage!)
+        XCTAssertNotNil((monochrome as? ColorFilter)?.inputColor)
+        XCTAssertNotNil(monochrome.outputImage)
+    }
+
     func testColorized() throws {
         measure { _ = shape0.colorized(with: color0) }
     }
