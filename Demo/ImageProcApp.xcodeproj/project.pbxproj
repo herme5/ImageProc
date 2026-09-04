@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -67,7 +67,6 @@
 				EA0DC53615AE75A7EC83AC91 /* ImageProcApp.xcdatamodeld */,
 				121AA9A34B326D0E4C928A5D /* Info.plist */,
 			);
-			name = ImageProcApp;
 			path = ImageProcApp;
 			sourceTree = "<group>";
 		};
@@ -137,11 +136,9 @@
 				Base,
 			);
 			mainGroup = F8135C13BD17355F869C3DA5;
-			minimizedProjectReferenceProxies = 0;
 			packageReferences = (
 				BA0961A93B5373545EAA0475 /* XCLocalSwiftPackageReference ".." */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = D75B2A3DA9EF0F5F7499BCC5 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -242,10 +239,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = P2U56PQ98R;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ImageProcApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcApp;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -261,10 +262,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = P2U56PQ98R;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ImageProcApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.andrearuffino.ImageProcApp;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
