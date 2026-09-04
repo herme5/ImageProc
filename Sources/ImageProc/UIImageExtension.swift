@@ -58,14 +58,13 @@ public extension UIImage {
             return self
         }
 
-        let color = Self._rgbCompliant(color)
         let filter = Self._colorizedFilter(color: color, cgImage: cgImage!)
 
-        let context = CIContext(options: [.workingColorSpace: color.cgColor.colorSpace!])
-        guard let ciOutput = filter.outputImage else {
+        let context = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
+        guard let ciOutput = filter.outputImage,
+              let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
         }
-        let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
@@ -104,7 +103,11 @@ public extension UIImage {
 
         // Create the final output context (only one will be used if basic optimisation)
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
+
         context.interpolationQuality = interpQuality
         context.concatenate(verticalFlip)
 
@@ -119,9 +122,10 @@ public extension UIImage {
                 degreeStep: degree),
             cgImage: cgImage!)
 
-        let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
-        UIGraphicsEndImageContext()
-        return newImage.withOptions(from: self)
+        guard let expandedImage = context.makeImage() else {
+            return self
+        }
+        return UIImage(cgImage: expandedImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
     /// Renders a copy of this image with a border along the opaque region of this image.
@@ -143,12 +147,12 @@ public extension UIImage {
         }
 
         // Colorize
-        let colorFilter = Self._colorizedFilter(color: Self._rgbCompliant(color), cgImage: cgImage!)
+        let colorFilter = Self._colorizedFilter(color: color, cgImage: cgImage!)
         let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
-        guard let ciOutput = colorFilter.outputImage else {
+        guard let ciOutput = colorFilter.outputImage,
+              var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
         }
-        var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
 
         // Expand, in the coordinate space of the `cgImage` buffer the context is filled with.
         let sourceSize = _bufferSize
@@ -160,7 +164,10 @@ public extension UIImage {
         let angles = Self._expansionAngles(each: degree)
 
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        let cgContext = UIGraphicsGetCurrentContext()!
+        guard let cgContext = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
 
         cgContext.interpolationQuality = interpQuality
         cgContext.concatenate(verticalFlip)
@@ -178,7 +185,10 @@ public extension UIImage {
 
         // Draw expanded under colorized
         let newRect = CGRect(origin: .zero, size: newSize)
-        cgOutput = cgContext.makeImage()!
+        guard let expandedImage = cgContext.makeImage() else {
+            return self
+        }
+        cgOutput = expandedImage
         cgContext.clear(newRect)
 
         let otherImageRect = CGRect(center: newRect.center, size: CGSize(width: cgOutput.width, height: cgOutput.height) / scale)
@@ -191,10 +201,12 @@ public extension UIImage {
         let thisImageRect = CGRect(center: newRect.center, size: sourceSize)
         cgContext.draw(self.cgImage!, in: thisImageRect)
 
-        let newImage = UIImage(cgImage: cgContext.makeImage()!,
+        guard let strokedImage = cgContext.makeImage() else {
+            return self
+        }
+        let newImage = UIImage(cgImage: strokedImage,
                                scale: self.scale,
                                orientation: self.imageOrientation)
-        UIGraphicsEndImageContext()
 
         return newImage.withOptions(from: self)
     }
@@ -226,9 +238,13 @@ public extension UIImage {
         // `sizeInPixel`: the two differ under a quarter-turn orientation.
         let bufferExtent = CGSize(width: cgImage!.width, height: cgImage!.height)
         let context = CIContext()
-        let ciOutput = gaussianFilter.outputImage!
+        guard let ciOutput = gaussianFilter.outputImage else {
+            return self
+        }
         let rect = sizeKept ? CGRect(origin: .zero, size: bufferExtent) : ciOutput.extent
-        let cgOutput = context.createCGImage(ciOutput, from: rect)!
+        guard let cgOutput = context.createCGImage(ciOutput, from: rect) else {
+            return self
+        }
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
@@ -273,17 +289,20 @@ public extension UIImage {
             : newSize
         let newRect = CGRect(origin: .zero, size: contextSize).integral
         UIGraphicsBeginImageContextWithOptions(contextSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
 
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: contextSize.height)
         context.interpolationQuality = interpolationQuality
         context.concatenate(verticalFlip)
         context.draw(cgImage!, in: newRect)
 
-        let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
-        UIGraphicsEndImageContext()
-
-        return newImage.withOptions(from: self)
+        guard let scaledImage = context.makeImage() else {
+            return self
+        }
+        return UIImage(cgImage: scaledImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
     /// Renders a scaled copy of this image given a scale factor. The scale value must not be negative. A 1.0 scale value preserves the size and 2.0 doubles it.
@@ -372,7 +391,10 @@ public extension UIImage {
 
         // Create the bitmap context
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
 
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
         context.concatenate(verticalFlip)
@@ -386,9 +408,10 @@ public extension UIImage {
         context.translateBy(x: -sourceSize.width / 2, y: -sourceSize.height / 2)
         context.draw(cgImage!, in: CGRect(origin: .zero, size: sourceSize))
 
-        let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
-        UIGraphicsEndImageContext()
-        return newImage.withOptions(from: self)
+        guard let rotatedImage = context.makeImage() else {
+            return self
+        }
+        return UIImage(cgImage: rotatedImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
     /// Renders a copy of this image which is flipped along the X-axis.
@@ -426,7 +449,10 @@ public extension UIImage {
         }
         let sourceSize = _bufferSize
         UIGraphicsBeginImageContextWithOptions(sourceSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
 
         // Nothing to concatenate to flip along y, because CGContexts are y inverted by default. Flipping along x
         // means flipping both, so that the default inversion is compensated.
@@ -437,9 +463,10 @@ public extension UIImage {
         }
         context.draw(cgImage!, in: CGRect(origin: .zero, size: sourceSize))
 
-        let newImage = UIImage(cgImage: context.makeImage()!, scale: scale, orientation: imageOrientation)
-        UIGraphicsEndImageContext()
-        return newImage.withOptions(from: self)
+        guard let flippedImage = context.makeImage() else {
+            return self
+        }
+        return UIImage(cgImage: flippedImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
     /// Renders all opaque pixels under an other image.
@@ -492,7 +519,10 @@ public extension UIImage {
         let maxSize = CGRect(origin: .zero, size: CGSize(width: maxWidth, height: maxHeight))
 
         UIGraphicsBeginImageContextWithOptions(maxSize.size, false, receiver.scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return receiver
+        }
+        defer { UIGraphicsEndImageContext() }
 
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
         context.concatenate(verticalFlip)
@@ -503,10 +533,12 @@ public extension UIImage {
         let upperImageRect = CGRect(center: maxSize.center, size: upperSize)
         context.draw(upper.cgImage!, in: upperImageRect)
 
-        let newImage = UIImage(cgImage: context.makeImage()!,
+        guard let compositedImage = context.makeImage() else {
+            return receiver
+        }
+        let newImage = UIImage(cgImage: compositedImage,
                                scale: receiver.scale,
                                orientation: receiver.imageOrientation)
-        UIGraphicsEndImageContext()
 
         return newImage.withOptions(from: receiver)
     }
@@ -528,8 +560,10 @@ public extension UIImage {
         filter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
 
         let context = CIContext(options: nil)
-        let ciOutput = filter.outputImage!
-        let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent)!
+        guard let ciOutput = filter.outputImage,
+              let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
+            return self
+        }
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
@@ -570,7 +604,10 @@ public extension UIImage {
             y: maxSize.height/2)
 
         UIGraphicsBeginImageContextWithOptions(maxSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return self
+        }
+        defer { UIGraphicsEndImageContext() }
 
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: maxSize.height)
         let inputFirstImageRect = CGRect(center: maxCenter, size: thisSize)
@@ -578,23 +615,25 @@ public extension UIImage {
 
         context.concatenate(verticalFlip)
         context.draw(self.cgImage!, in: inputFirstImageRect)
-        let inputFirstImage = context.makeImage()!
+        guard let inputFirstImage = context.makeImage() else {
+            return self
+        }
 
         context.clear(CGRect(origin: .zero, size: maxSize))
         context.draw(other.cgImage!, in: inputSecondImageRect)
-        let inputSecondImage = context.makeImage()!
-
-        UIGraphicsEndImageContext()
+        guard let inputSecondImage = context.makeImage() else {
+            return self
+        }
 
         let colorSpace = CGColor.defaultRGBColorSpace
         filter.inputFirstImage = CIImage(cgImage: inputFirstImage)
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
         let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
 
-        guard let ciOutput = filter.outputImage else {
+        guard let ciOutput = filter.outputImage,
+              let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
         }
-        let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent)!
         return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 

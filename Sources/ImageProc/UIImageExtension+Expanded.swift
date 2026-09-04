@@ -50,7 +50,10 @@ internal extension UIImage {
 
             // Create new context just for the layer.
             UIGraphicsBeginImageContextWithOptions(args.size, false, args.scale)
-            let layerContext = UIGraphicsGetCurrentContext()!
+            guard let layerContext = UIGraphicsGetCurrentContext() else {
+                return
+            }
+            defer { UIGraphicsEndImageContext() }
 
             // Apply the same property as output context
             layerContext.interpolationQuality = args.context.interpolationQuality
@@ -61,10 +64,12 @@ internal extension UIImage {
             // context.
             layerContext.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
             layerContext.draw(cgImage, in: args.translatedRect)
-            UIImage._concurrentExpandMethodQueue.sync(flags: .barrier) {
-                args.context.draw(layerContext.makeImage()!, in: CGRect(origin: .zero, size: args.size))
+            guard let layerImage = layerContext.makeImage() else {
+                return
             }
-            UIGraphicsEndImageContext()
+            UIImage._concurrentExpandMethodQueue.sync(flags: .barrier) {
+                args.context.draw(layerImage, in: CGRect(origin: .zero, size: args.size))
+            }
         }
     }
 
