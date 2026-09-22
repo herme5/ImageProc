@@ -15,10 +15,6 @@ internal extension UIImage {
         label: "fr.andrearuffino.ImageProc.expandMethodQueue",
         attributes: .concurrent)
 
-    /// Shared across expansions on purpose: building a `CIContext` costs tens of milliseconds, which dwarfed the
-    /// render itself when it was done per call. `CIContext` is documented as safe to use from several threads.
-    private static let _expandContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
-
     /// Returns the directions, in degrees, to which the shape has to be replicated. The iteration goes from 0 to 360
     /// (excluded) by the given step.
     ///
@@ -91,7 +87,7 @@ internal extension UIImage {
         filter.inputDegreeStep = args.degreeStep
 
         guard let ciOutput = filter.outputImage,
-              let cgOutput = _expandContext.createCGImage(ciOutput, from: ciOutput.extent) else {
+              let cgOutput = CIContext.rgbWorkingSpace.createCGImage(ciOutput, from: ciOutput.extent) else {
             return false
         }
 

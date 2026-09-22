@@ -60,7 +60,7 @@ public extension UIImage {
 
         let filter = Self._colorizedFilter(color: color, cgImage: cgImage!)
 
-        let context = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
+        let context = CIContext.rgbWorkingSpace
         guard let ciOutput = filter.outputImage,
               let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
@@ -148,7 +148,7 @@ public extension UIImage {
 
         // Colorize
         let colorFilter = Self._colorizedFilter(color: color, cgImage: cgImage!)
-        let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
+        let ciContext = CIContext.rgbWorkingSpace
         guard let ciOutput = colorFilter.outputImage,
               var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
@@ -237,7 +237,7 @@ public extension UIImage {
         // Keeping the size means cropping back to the input extent, which is the `cgImage` buffer rather than
         // `sizeInPixel`: the two differ under a quarter-turn orientation.
         let bufferExtent = CGSize(width: cgImage!.width, height: cgImage!.height)
-        let context = CIContext()
+        let context = CIContext.defaultWorkingSpace
         guard let ciOutput = gaussianFilter.outputImage else {
             return self
         }
@@ -559,7 +559,7 @@ public extension UIImage {
         filter.setDefaults()
         filter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
 
-        let context = CIContext(options: nil)
+        let context = CIContext.defaultWorkingSpace
         guard let ciOutput = filter.outputImage,
               let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
@@ -625,10 +625,9 @@ public extension UIImage {
             return self
         }
 
-        let colorSpace = CGColor.defaultRGBColorSpace
         filter.inputFirstImage = CIImage(cgImage: inputFirstImage)
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
-        let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
+        let ciContext = CIContext.rgbWorkingSpace
 
         guard let ciOutput = filter.outputImage,
               let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
