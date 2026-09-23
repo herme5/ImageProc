@@ -1,4 +1,4 @@
-![build_status](https://gitlab.com/herme5/ImageProc/badges/master/pipeline.svg)
+[![tests](https://github.com/herme5/ImageProc/actions/workflows/tests.yml/badge.svg)](https://github.com/herme5/ImageProc/actions/workflows/tests.yml)
 
 ## Introduction
 
@@ -76,7 +76,30 @@ been merged into `master`. Two things worth knowing before running it:
   afterwards with `git stash pop`.
 
 Pushing the tag triggers the `Release` stage in `.gitlab-ci.yml`, which creates the GitLab release
-entry. There is nothing to publish beyond that.
+entry. There is nothing to publish beyond that — and nothing depends on it either: Swift Package
+Manager resolves the tag, so a release with no entry still installs. That is why 2.0.0 through 2.3.0
+went unnoticed without one (see below).
+
+## Continuous integration
+
+**The tests run on GitHub Actions**, in `.github/workflows/tests.yml`: SwiftLint, the test suite on a
+simulator, a device build of the package — the kernel is compiled per-SDK, so a simulator build says
+nothing about a device one — and a build of the demo app. The simulator is chosen at run time from
+whatever the runner image has, rather than named, since that list changes with every image.
+
+They run there because they need macOS and Xcode, and GitHub hosts those runners for public
+repositories. The GitLab pipeline used a self-hosted runner that has been unavailable since August
+2023: every job from 2.0.0 onwards ended as `stuck_pending_no_matching_runners`, so those versions
+were tagged from a commit CI never built, and none of them got a release entry. Nobody noticed,
+because a missing entry breaks nothing for consumers.
+
+The workflows are triggered by the **mirror** carrying a push to GitHub, a minute or two after the
+push to GitLab — nothing is pushed to GitHub by hand. A tag reaches it the same way.
+
+What is left on GitLab is the `Release` job alone, and it **still needs a runner**: `release-cli` is a
+Linux image, so either the shared runners have to be available to the project, or some runner that
+can run a container has to pick it up. Until then the tag pipeline keeps failing and the release entry
+keeps not being created.
 
 ### The GitHub mirror
 
