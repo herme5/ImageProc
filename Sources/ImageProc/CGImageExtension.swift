@@ -129,6 +129,25 @@ extension CGImage {
         return handler(pixels)
     }
 
+    /// Invokes the given closure with the alpha channel of this image, one byte per pixel, or returns `nil` when the
+    /// bitmap could not be rendered.
+    ///
+    /// Reading only the alpha through an 8-bit alpha-only context rather than rendering a whole RGBA copy and
+    /// discarding three quarters of it: a quarter of the memory, and measured at half the time.
+    ///
+    /// The buffer is only valid for the duration of the call, it must not escape the closure.
+    internal func withAlphaBuffer<T>(_ handler: (UnsafeMutableBufferPointer<UInt8>) -> T) -> T? {
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8,
+                                      bytesPerRow: width, space: CGColorSpaceCreateDeviceGray(),
+                                      bitmapInfo: CGImageAlphaInfo.alphaOnly.rawValue),
+              let pointer = context.data?.assumingMemoryBound(to: UInt8.self) else {
+            return nil
+        }
+        context.draw(self, in: CGRect(origin: .zero, size: CGSize(width: width, height: height)))
+
+        return handler(UnsafeMutableBufferPointer<UInt8>(start: pointer, count: width * height))
+    }
+
     /// Converts one packed premultiplied RGBA value into a straight alpha color.
     ///
     /// The bitmap stores color components already multiplied by their alpha, so they have to be divided back by it,

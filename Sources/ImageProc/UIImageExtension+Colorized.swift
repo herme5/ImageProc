@@ -26,18 +26,37 @@ internal extension UIImage {
         // Use a custom CIFilter based on a Metal routine
         let colorFilter = ColorFilter()
         colorFilter.inputImage = CIImage(cgImage: cgImage)
-
-        // Not `CIColor(color:)`: it is annotated non-optional on iOS, but is an Objective-C initializer, and under
-        // "My Mac (Designed for iPad)" it did return nil for `UIColor.black` — the nil landing silently in the
-        // optional property, where the filter used to force unwrap it. Which colors it rejects there was never
-        // pinned down; naming the components and the color space removes the question instead.
-        let rgba = _rgbCompliant(color).rgba
-        colorFilter.inputColor = CIColor(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha,
-                                         colorSpace: CGColor.defaultRGBColorSpace)
+        colorFilter.inputColor = _colorizedInputColor(color)
         if colorFilter.inputColor == nil {
             print(_colorConversionErrorMessage)
         }
         return colorFilter
+    }
+
+    /// Colorizes a recipe rather than a buffer, for the chain, which has no `CGImage` to hand over between steps.
+    ///
+    /// - returns: The colorized recipe, or `nil` when the kernel or the color is unusable, which leaves the chain
+    ///            with the image it already had.
+    static func _colorized(_ input: CIImage, with color: UIColor) -> CIImage? {
+        let colorFilter = ColorFilter()
+        colorFilter.inputImage = input
+        colorFilter.inputColor = _colorizedInputColor(color)
+        if colorFilter.inputColor == nil {
+            print(_colorConversionErrorMessage)
+        }
+        return colorFilter.outputImage
+    }
+
+    /// The input color the kernel takes, in the working color space.
+    ///
+    /// Not `CIColor(color:)`: it is annotated non-optional on iOS, but is an Objective-C initializer, and under
+    /// "My Mac (Designed for iPad)" it did return nil for `UIColor.black` — the nil landing silently in the
+    /// optional property, where the filter used to force unwrap it. Which colors it rejects there was never
+    /// pinned down; naming the components and the color space removes the question instead.
+    private static func _colorizedInputColor(_ color: UIColor) -> CIColor? {
+        let rgba = _rgbCompliant(color).rgba
+        return CIColor(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha,
+                       colorSpace: CGColor.defaultRGBColorSpace)
     }
 
     /// Returns a color that is guaranteed to belong to an RGB color space, converting it when needed.

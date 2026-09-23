@@ -35,12 +35,9 @@ internal class ExcludeFilter: CIFilter {
         }
         let inputs = [inputFirstImage, inputSecondImage] as [Any]
 
-        // Check is done at a higher level.
-        // As long as this class stays internal the guard statement is superfluous.
-        // guard inputFirstImage.extent.size == inputSecondImage.extent.size else {
-        //     return nil
-        // }
-
-        return kernel.apply(extent: inputFirstImage.extent, arguments: inputs)
+        // The union rather than the first extent, so that two inputs of different sizes both fit in the result. A
+        // color kernel reads transparent black outside an input's extent, which is what the smaller one contributes
+        // there anyway. The two are the same rect when the caller has already aligned the inputs.
+        return kernel.apply(extent: inputFirstImage.extent.union(inputSecondImage.extent), arguments: inputs)
     }
 }

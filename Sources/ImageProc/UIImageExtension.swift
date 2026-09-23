@@ -33,11 +33,14 @@ public extension UIImage {
             return nil
         }
 
-        // Only the alpha channel is needed, so the bitmap is summed in place rather than turned into color objects.
-        let sum = cgImage.withBitmapBuffer { pixels in
-            pixels.reduce(into: Double(0)) { partial, pixel in partial += Double(pixel & 255) }
+        // Only the alpha channel is needed, so it is the only one rendered, and it is summed in place rather than
+        // turned into color objects.
+        guard let sum = cgImage.withAlphaBuffer({ alphas in
+            alphas.reduce(into: 0) { partial, alpha in partial += Int(alpha) }
+        }) else {
+            return nil
         }
-        return sum / 255 / Double(total)
+        return Double(sum) / 255 / Double(total)
     }
 
     // MARK: - Processing methods
@@ -60,7 +63,7 @@ public extension UIImage {
 
         let filter = Self._colorizedFilter(color: color, cgImage: cgImage!)
 
-        let context = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
+        let context = CIContext.rgbWorkingSpace
         guard let ciOutput = filter.outputImage,
               let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
@@ -91,38 +94,21 @@ public extension UIImage {
             return self
         }
 
-        // The context is filled with the raw `cgImage` buffer, so the geometry is expressed in that buffer's space.
-        // Expanding is isotropic, so growing it by the same delta on both axes holds whatever the orientation is.
+        // The expansion is rendered from the raw `cgImage` buffer, so the geometry is expressed in that buffer's
+        // space. Expanding is isotropic, so growing it by the same delta on both axes holds whatever the orientation
+        // is.
         let sourceSize = _bufferSize
         let newSize = CGSize(width: sourceSize.width + (2 * delta), height: sourceSize.height + (2 * delta))
-        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-        let translatedRect = CGRect(origin: CGPoint(x: delta, y: delta), size: sourceSize).integral
-        let translationVector = CGVector(dx: delta, dy: 0)
-        let interpQuality = CGInterpolationQuality.default
-        let angles = Self._expansionAngles(each: degree)
 
-        // Create the final output context (only one will be used if basic optimisation)
-        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        guard let context = UIGraphicsGetCurrentContext() else {
-            return self
-        }
-        defer { UIGraphicsEndImageContext() }
-
-        context.interpolationQuality = interpQuality
-        context.concatenate(verticalFlip)
-
-        Self._expandedImpl(
+        guard let expandedImage = Self._expandedImpl(
             args: ExpandedArguments(
-                context: context,
-                translatedRect: translatedRect,
-                translationVector: translationVector,
+                translatedRect: CGRect(origin: CGPoint(x: delta, y: delta), size: sourceSize).integral,
+                translationVector: CGVector(dx: delta, dy: 0),
                 size: newSize,
                 scale: scale,
-                angles: angles,
+                angles: Self._expansionAngles(each: degree),
                 degreeStep: degree),
-            cgImage: cgImage!)
-
-        guard let expandedImage = context.makeImage() else {
+            cgImage: cgImage!) else {
             return self
         }
         return UIImage(cgImage: expandedImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
@@ -146,69 +132,18 @@ public extension UIImage {
             return self
         }
 
-        // Colorize
-        let colorFilter = Self._colorizedFilter(color: color, cgImage: cgImage!)
-        let ciContext = CIContext(options: [.workingColorSpace: CGColor.defaultRGBColorSpace])
-        guard let ciOutput = colorFilter.outputImage,
-              var cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
+        // The stroke is rendered from the raw `cgImage` buffer, so the geometry is expressed in that buffer's space.
+        guard let strokedImage = Self._strokedImpl(
+            args: StrokedArguments(color: color,
+                                   sourceSize: _bufferSize,
+                                   delta: delta,
+                                   degree: degree,
+                                   alpha: alpha,
+                                   scale: scale),
+            source: cgImage!) else {
             return self
         }
-
-        // Expand, in the coordinate space of the `cgImage` buffer the context is filled with.
-        let sourceSize = _bufferSize
-        let newSize = CGSize(width: sourceSize.width + (2 * delta), height: sourceSize.height + (2 * delta))
-        let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: newSize.height)
-        let translatedRect = CGRect(origin: CGPoint(x: delta, y: delta), size: sourceSize).integral
-        let translationVector = CGVector(dx: delta, dy: 0)
-        let interpQuality = CGInterpolationQuality.default
-        let angles = Self._expansionAngles(each: degree)
-
-        UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        guard let cgContext = UIGraphicsGetCurrentContext() else {
-            return self
-        }
-        defer { UIGraphicsEndImageContext() }
-
-        cgContext.interpolationQuality = interpQuality
-        cgContext.concatenate(verticalFlip)
-
-        UIImage._expandedImpl(
-            args: ExpandedArguments(
-                context: cgContext,
-                translatedRect: translatedRect,
-                translationVector: translationVector,
-                size: newSize,
-                scale: scale,
-                angles: angles,
-                degreeStep: degree),
-            cgImage: cgOutput)
-
-        // Draw expanded under colorized
-        let newRect = CGRect(origin: .zero, size: newSize)
-        guard let expandedImage = cgContext.makeImage() else {
-            return self
-        }
-        cgOutput = expandedImage
-        cgContext.clear(newRect)
-
-        let otherImageRect = CGRect(center: newRect.center, size: CGSize(width: cgOutput.width, height: cgOutput.height) / scale)
-        cgContext.saveGState()
-        cgContext.setBlendMode(.normal)
-        cgContext.setAlpha(alpha)
-        cgContext.draw(cgOutput, in: otherImageRect)
-        cgContext.restoreGState()
-
-        let thisImageRect = CGRect(center: newRect.center, size: sourceSize)
-        cgContext.draw(self.cgImage!, in: thisImageRect)
-
-        guard let strokedImage = cgContext.makeImage() else {
-            return self
-        }
-        let newImage = UIImage(cgImage: strokedImage,
-                               scale: self.scale,
-                               orientation: self.imageOrientation)
-
-        return newImage.withOptions(from: self)
+        return UIImage(cgImage: strokedImage, scale: scale, orientation: imageOrientation).withOptions(from: self)
     }
 
     /// Renders a smoothened copy of this image with a gaussian blur given a radius measured in point. Most the of the
@@ -237,7 +172,7 @@ public extension UIImage {
         // Keeping the size means cropping back to the input extent, which is the `cgImage` buffer rather than
         // `sizeInPixel`: the two differ under a quarter-turn orientation.
         let bufferExtent = CGSize(width: cgImage!.width, height: cgImage!.height)
-        let context = CIContext()
+        let context = CIContext.defaultWorkingSpace
         guard let ciOutput = gaussianFilter.outputImage else {
             return self
         }
@@ -559,7 +494,7 @@ public extension UIImage {
         filter.setDefaults()
         filter.setValue(CIImage(cgImage: cgImage!), forKey: kCIInputImageKey)
 
-        let context = CIContext(options: nil)
+        let context = CIContext.defaultWorkingSpace
         guard let ciOutput = filter.outputImage,
               let cgOutput = context.createCGImage(ciOutput, from: ciOutput.extent) else {
             return self
@@ -603,6 +538,10 @@ public extension UIImage {
             x: maxSize.width/2,
             y: maxSize.height/2)
 
+        if let cgOutput = Self._alphaExcluded(first: self, second: other, filter: filter) {
+            return UIImage(cgImage: cgOutput, scale: scale, orientation: imageOrientation).withOptions(from: self)
+        }
+
         UIGraphicsBeginImageContextWithOptions(maxSize, false, scale)
         guard let context = UIGraphicsGetCurrentContext() else {
             return self
@@ -625,10 +564,9 @@ public extension UIImage {
             return self
         }
 
-        let colorSpace = CGColor.defaultRGBColorSpace
         filter.inputFirstImage = CIImage(cgImage: inputFirstImage)
         filter.inputSecondImage = CIImage(cgImage: inputSecondImage)
-        let ciContext = CIContext(options: [.workingColorSpace: colorSpace])
+        let ciContext = CIContext.rgbWorkingSpace
 
         guard let ciOutput = filter.outputImage,
               let cgOutput = ciContext.createCGImage(ciOutput, from: ciOutput.extent) else {
@@ -664,19 +602,35 @@ public extension UIImage {
         return result
     }
 
-    internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) {
-        switch _expandImplementation {
-        case .metal:
-            guard _expanded_metal(args: args, cgImage: cgImage) else {
-                // The compiled kernel is missing, so fall back rather than produce nothing.
-                _expanded_concurrent(args: args, cgImage: cgImage)
-                return
-            }
-        case .concurrent:
-            _expanded_concurrent(args: args, cgImage: cgImage)
-        case .basic:
-            _expanded_basic(args: args, cgImage: cgImage)
+    /// Renders one expansion, whichever implementation is selected.
+    ///
+    /// The Metal kernel produces a buffer of exactly the requested size on its own, so it is handed back as it
+    /// comes; only the two CPU implementations need a context to scatter their copies into, and it is created here
+    /// rather than by the callers so that the GPU path does not pay for one it never draws into.
+    ///
+    /// - returns: The expanded buffer, or `nil` when no implementation could produce one.
+    internal static func _expandedImpl(args: ExpandedArguments, cgImage: CGImage) -> CGImage? {
+        if case .metal = _expandImplementation, let output = _expanded_metal(args: args, cgImage: cgImage) {
+            return output
         }
+
+        // Either a CPU implementation was asked for, or the compiled kernel is missing and falling back is better
+        // than producing nothing.
+        UIGraphicsBeginImageContextWithOptions(args.size, false, args.scale)
+        guard let context = UIGraphicsGetCurrentContext() else {
+            return nil
+        }
+        defer { UIGraphicsEndImageContext() }
+
+        context.interpolationQuality = .default
+        context.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: args.size.height))
+
+        if case .basic = _expandImplementation {
+            _expanded_basic(args: args, context: context, cgImage: cgImage)
+        } else {
+            _expanded_concurrent(args: args, context: context, cgImage: cgImage)
+        }
+        return context.makeImage()
     }
 
 }

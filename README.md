@@ -43,3 +43,59 @@ let coloredImage = someImage.colorized(with: someColor)
 let aBitDarkerImage = someImage.colorized(with: aBitDarkerColor) 
 
 ```
+
+## Releasing
+
+A git tag *is* the release. The version is not recorded anywhere in the tree — there is no manifest
+field to bump — because Swift Package Manager consumers resolve tags straight from the remote. Tags
+are bare `X.Y.Z`, with no `v` prefix.
+
+Work happens on `develop` and reaches `master` through a **merge commit**, never a fast-forward, so
+that the branch point stays visible in the history:
+
+```sh
+git checkout master
+git merge --no-ff develop
+git push origin master
+```
+
+When merging through GitLab instead, the project's merge method must be set to *Merge commit*.
+
+Then create the release:
+
+```sh
+./Scripts/bump.sh 2.2.0
+```
+
+The script refuses a version that is already tagged, and refuses to run at all until `develop` has
+been merged into `master`. Two things worth knowing before running it:
+
+- **It is destructive to `develop`.** It hard-resets `develop` onto `origin/master` and force-pushes
+  it, discarding anything that exists only there.
+- **It stashes uncommitted changes and never pops them.** Commit your own work first, or recover it
+  afterwards with `git stash pop`.
+
+Pushing the tag triggers the `Release` stage in `.gitlab-ci.yml`, which creates the GitLab release
+entry. There is nothing to publish beyond that.
+
+### The GitHub mirror
+
+`github.com/herme5/ImageProc` is a **push mirror of GitLab**, configured in GitLab under *Settings ▸
+Repository ▸ Mirroring repositories*. It is not part of this repository, and `bump.sh` does not push
+to it: releases reach GitHub because the mirror carries them after the push to GitLab.
+
+It authenticates with an SSH deploy key — GitLab holds the private half, and the public half sits on
+GitHub under the repository's *Settings ▸ Deploy keys* with *Allow write access* enabled. A deploy
+key does not expire, unlike the access token this used before, which stopped mirroring the moment it
+lapsed and did so silently: the release looked complete on GitLab while GitHub stayed several
+versions behind. If GitHub falls behind again, that same settings page shows the last attempt and
+the error, and a release is only really out once the tag is on both remotes:
+
+```sh
+git ls-remote --tags origin "refs/tags/$version"
+git ls-remote --tags https://github.com/herme5/ImageProc.git "refs/tags/$version"
+```
+
+Push mirrors add and update refs but never delete them, so GitHub carries a few refs GitLab does
+not. The tags `1.1.0` and `1.1.1`, and the branch `devops/ssh-test`, predate the move to GitLab and
+are **not releases**.
