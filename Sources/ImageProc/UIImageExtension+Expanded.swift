@@ -24,18 +24,18 @@ internal extension UIImage {
         return stride(from: CGFloat(0.0), to: CGFloat(360), by: degree).map { $0 }
     }
 
-    static func _expanded_basic(args: ExpandedArguments, cgImage: CGImage) {
+    static func _expanded_basic(args: ExpandedArguments, context: CGContext, cgImage: CGImage) {
         // Perform a translatation transform in each direction so that the context draw the shape shifted all
         // around the original position. Remember to perform the inverse translation for next iteration.
         for angle in args.angles {
             let vector = args.translationVector.rotated(around: .zero, byDegrees: angle)
-            args.context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
-            args.context.draw(cgImage, in: args.translatedRect)
-            args.context.concatenate(CGAffineTransform(translationX: -vector.dx, y: -vector.dy))
+            context.concatenate(CGAffineTransform(translationX: vector.dx, y: vector.dy))
+            context.draw(cgImage, in: args.translatedRect)
+            context.concatenate(CGAffineTransform(translationX: -vector.dx, y: -vector.dy))
         }
     }
 
-    static func _expanded_concurrent(args: ExpandedArguments, cgImage: CGImage) {
+    static func _expanded_concurrent(args: ExpandedArguments, context: CGContext, cgImage: CGImage) {
         let verticalFlip = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: args.size.height)
         let angles = args.angles
 
@@ -52,7 +52,7 @@ internal extension UIImage {
             defer { UIGraphicsEndImageContext() }
 
             // Apply the same property as output context
-            layerContext.interpolationQuality = args.context.interpolationQuality
+            layerContext.interpolationQuality = context.interpolationQuality
             layerContext.concatenate(verticalFlip)
 
             // Perform a translatation transform in the right direction and save it for drawing later.
@@ -64,7 +64,7 @@ internal extension UIImage {
                 return
             }
             UIImage._concurrentExpandMethodQueue.sync(flags: .barrier) {
-                args.context.draw(layerImage, in: CGRect(origin: .zero, size: args.size))
+                context.draw(layerImage, in: CGRect(origin: .zero, size: args.size))
             }
         }
     }
@@ -72,12 +72,12 @@ internal extension UIImage {
     /// Replicates the source on the GPU, gathering instead of scattering: each output pixel reads the ring of source
     /// samples around itself, so there is no layer per direction and nothing to composite afterwards.
     ///
-    /// - returns: Whether the kernel was available and the render succeeded. The caller falls back to a CPU
-    ///            implementation when it was not, which is better than the source-unchanged degradation the other
-    ///            kernel-backed operations settle for, since here a working implementation exists.
-    static func _expanded_metal(args: ExpandedArguments, cgImage: CGImage) -> Bool {
+    /// - returns: The expanded buffer, or `nil` when the kernel was unavailable or the render failed. The caller
+    ///            falls back to a CPU implementation then, which is better than the source-unchanged degradation the
+    ///            other kernel-backed operations settle for, since here a working implementation exists.
+    static func _expanded_metal(args: ExpandedArguments, cgImage: CGImage) -> CGImage? {
         guard ExpandFilter.isAvailable else {
-            return false
+            return nil
         }
 
         let filter = ExpandFilter()
@@ -86,19 +86,16 @@ internal extension UIImage {
         filter.inputRadius = args.translationVector.dx * args.scale
         filter.inputDegreeStep = args.degreeStep
 
-        guard let ciOutput = filter.outputImage,
-              let cgOutput = CIContext.rgbWorkingSpace.createCGImage(ciOutput, from: ciOutput.extent) else {
-            return false
+        // The output extent is the source grown by the radius on every side, which is exactly the buffer the caller
+        // wants, so it is returned as it comes rather than blitted through a `CGContext`.
+        guard let ciOutput = filter.outputImage else {
+            return nil
         }
-
-        // The output extent is the source grown by the radius on every side, which is exactly the context the caller
-        // prepared, so it lands with a single draw.
-        args.context.draw(cgOutput, in: CGRect(origin: .zero, size: args.size))
-        return true
+        return CIContext.rgbWorkingSpace.createCGImage(ciOutput, from: ciOutput.extent)
     }
 
+    /// The geometry of one expansion, in the coordinate space of the `cgImage` buffer.
     struct ExpandedArguments {
-        var context: CGContext
         var translatedRect: CGRect
         var translationVector: CGVector
         var size: CGSize
