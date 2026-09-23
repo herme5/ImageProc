@@ -14,13 +14,17 @@ Sometimes icons have to be dynamically transformed, adding to the burden of the 
 
 ImageProc is a Swift package and requires iOS 15 or later.
 
-In Xcode, use *File ▸ Add Package Dependencies…* and enter `https://gitlab.com/herme5/ImageProc.git`.
+In Xcode, use *File ▸ Add Package Dependencies…* and enter `https://github.com/herme5/ImageProc.git`.
 
 Or add it to the dependencies of your own `Package.swift`:
 
 ```swift
-.package(url: "https://gitlab.com/herme5/ImageProc.git", from: "2.0.0")
+.package(url: "https://github.com/herme5/ImageProc.git", from: "2.3.0")
 ```
+
+> The package used to be hosted on GitLab, and `gitlab.com/herme5/ImageProc.git` still resolves from
+> the archived repository. It is frozen at 2.3.0 and will not receive anything further — point your
+> dependency at the GitHub URL above.
 
 Then `import ImageProc` where you need it.
 
@@ -50,6 +54,8 @@ A git tag *is* the release. The version is not recorded anywhere in the tree —
 field to bump — because Swift Package Manager consumers resolve tags straight from the remote. Tags
 are bare `X.Y.Z`, with no `v` prefix.
 
+### 1. Merge `develop` into `master`
+
 Work happens on `develop` and reaches `master` through a **merge commit**, never a fast-forward, so
 that the branch point stays visible in the history:
 
@@ -59,66 +65,59 @@ git merge --no-ff develop
 git push origin master
 ```
 
-When merging through GitLab instead, the project's merge method must be set to *Merge commit*.
+Through a pull request instead, the merge method must be *Create a merge commit*, not squash or
+rebase.
 
-Then create the release:
+### 2. Tag it
 
 ```sh
-./Scripts/bump.sh 2.2.0
+./Scripts/bump.sh 2.4.0
 ```
 
-The script refuses a version that is already tagged, and refuses to run at all until `develop` has
-been merged into `master`. Two things worth knowing before running it:
+The script fetches, refuses a version that is already tagged, and refuses to run at all until
+`develop` has been merged into `master` — that last guard matters, because the step after it
+hard-resets `develop`. It then tags `master`, pushes the branch and the tag by name, and verifies the
+tag actually landed on the remote. Two things worth knowing before running it:
 
 - **It is destructive to `develop`.** It hard-resets `develop` onto `origin/master` and force-pushes
   it, discarding anything that exists only there.
 - **It stashes uncommitted changes and never pops them.** Commit your own work first, or recover it
   afterwards with `git stash pop`.
 
-Pushing the tag triggers the `Release` stage in `.gitlab-ci.yml`, which creates the GitLab release
-entry. There is nothing to publish beyond that — and nothing depends on it either: Swift Package
-Manager resolves the tag, so a release with no entry still installs. That is why 2.0.0 through 2.3.0
-went unnoticed without one (see below).
+### 3. What the tag triggers
+
+Pushing the tag starts `.github/workflows/release.yml`, which runs the full suite against the tagged
+commit and, **only if it passes**, creates the GitHub release entry with notes generated from the log
+since the previous tag. A release therefore cannot be published from a commit that does not build.
+
+Nothing else is published: there is no package registry to push to, and consumers resolve the tag.
+The entry is a record, which is why the releases tagged while CI had no runner installed perfectly
+well without one.
+
+### 4. Verify
+
+```sh
+gh run list --workflow=release.yml --limit 1     # the run that published it
+gh release view 2.4.0                            # the entry and its notes
+git ls-remote --tags origin refs/tags/2.4.0      # the tag consumers resolve
+```
 
 ## Continuous integration
 
-**The tests run on GitHub Actions**, in `.github/workflows/tests.yml`: SwiftLint, the test suite on a
-simulator, a device build of the package — the kernel is compiled per-SDK, so a simulator build says
-nothing about a device one — and a build of the demo app. The simulator is chosen at run time from
-whatever the runner image has, rather than named, since that list changes with every image.
+**Everything runs on GitHub Actions.** `.github/workflows/tests.yml` holds the suite: SwiftLint, the
+tests on a simulator, a device build of the package — the kernel is compiled per-SDK, so a simulator
+build says nothing about a device one — and a build of the demo app. It runs on pushes to `master` and
+`develop`, on pull requests, and on demand.
 
-They run there because they need macOS and Xcode, and GitHub hosts those runners for public
-repositories. The GitLab pipeline used a self-hosted runner that has been unavailable since August
-2023: every job from 2.0.0 onwards ended as `stuck_pending_no_matching_runners`, so those versions
-were tagged from a commit CI never built, and none of them got a release entry. Nobody noticed,
-because a missing entry breaks nothing for consumers.
+The simulator is chosen at run time from whatever the runner image provides rather than named, because
+that list changes with every image. Demo app signing is disabled rather than configured: the app
+carries a development team so it can run on a device, and CI has no certificate for it.
 
-The workflows are triggered by the **mirror** carrying a push to GitHub, a minute or two after the
-push to GitLab — nothing is pushed to GitHub by hand. A tag reaches it the same way.
+`.github/workflows/release.yml` calls that same workflow for a tag instead of copying it, so the two
+cannot drift, and publishes the release entry afterwards.
 
-What is left on GitLab is the `Release` job alone, and it **still needs a runner**: `release-cli` is a
-Linux image, so either the shared runners have to be available to the project, or some runner that
-can run a container has to pick it up. Until then the tag pipeline keeps failing and the release entry
-keeps not being created.
-
-### The GitHub mirror
-
-`github.com/herme5/ImageProc` is a **push mirror of GitLab**, configured in GitLab under *Settings ▸
-Repository ▸ Mirroring repositories*. It is not part of this repository, and `bump.sh` does not push
-to it: releases reach GitHub because the mirror carries them after the push to GitLab.
-
-It authenticates with an SSH deploy key — GitLab holds the private half, and the public half sits on
-GitHub under the repository's *Settings ▸ Deploy keys* with *Allow write access* enabled. A deploy
-key does not expire, unlike the access token this used before, which stopped mirroring the moment it
-lapsed and did so silently: the release looked complete on GitLab while GitHub stayed several
-versions behind. If GitHub falls behind again, that same settings page shows the last attempt and
-the error, and a release is only really out once the tag is on both remotes:
-
-```sh
-git ls-remote --tags origin "refs/tags/$version"
-git ls-remote --tags https://github.com/herme5/ImageProc.git "refs/tags/$version"
-```
-
-Push mirrors add and update refs but never delete them, so GitHub carries a few refs GitLab does
-not. The tags `1.1.0` and `1.1.1`, and the branch `devops/ssh-test`, predate the move to GitLab and
-are **not releases**.
+The project was hosted on GitLab until 2.3.0, with GitHub as a push mirror, and CI ran on a
+self-hosted macOS runner. That runner stopped being available in August 2023 and every job since
+ended as `stuck_pending_no_matching_runners`, which is how 2.0.0 through 2.3.0 came to be tagged from
+commits nothing had built. Hosted macOS runners, free for public repositories, are what replaced it.
+The GitLab repository is archived and read-only.

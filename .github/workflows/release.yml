@@ -1,0 +1,38 @@
+# A git tag is the release: Swift Package Manager consumers resolve it straight from the remote, and
+# nothing here publishes a package anywhere. What this workflow adds is the release entry, and the
+# guarantee that it only appears once the suite has passed on the tagged commit.
+#
+# That guarantee is the point. The previous arrangement created the entry from a CI job that had no
+# runner, so 2.0.0 through 2.3.0 were each tagged from a commit nothing had built, and none of them
+# got an entry at all.
+name: Release
+
+on:
+  push:
+    tags: ["*"]
+
+permissions:
+  contents: write
+
+jobs:
+  # The same suite, called rather than copied, so the two can never drift apart.
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  release:
+    name: Create the release entry
+    needs: tests
+    # No Xcode needed to publish, and a Linux runner is an order of magnitude cheaper in minutes.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # `--generate-notes` writes the log since the previous tag, so it needs the history.
+          fetch-depth: 0
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # `--verify-tag` refuses to invent a tag that does not exist, which would otherwise be possible
+        # if this ever ran on something that is not a tag push.
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag

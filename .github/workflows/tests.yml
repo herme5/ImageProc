@@ -1,18 +1,16 @@
-# The tests run here rather than on GitLab. The GitLab pipeline needs a macOS runner with Xcode, and the
-# self-hosted one it used to have has been unavailable since August 2023: every job since has ended as
-# `stuck_pending_no_matching_runners`, so 2.0.0 through 2.3.0 were all tagged from an untested commit.
-# GitHub gives public repositories macOS runners with Xcode, which is the one place this suite can run
-# without hosting a machine.
+# The suite needs macOS and Xcode, and GitHub hosts those runners for public repositories. Everything
+# the project used to run on a self-hosted GitLab runner happens here instead.
 #
-# This repository is a push mirror of GitLab, so these workflows are triggered by the mirror carrying a
-# push over, a minute or two after the push to GitLab. Nothing is pushed to GitHub by hand.
+# `release.yml` calls this workflow for a tag rather than duplicating it, which is why there is no tag
+# trigger below: the suite has to pass before a release entry is created, and running it twice per
+# release would only cost minutes.
 name: Tests
 
 on:
   push:
     branches: [master, develop]
-    tags: ["*"]
   pull_request:
+  workflow_call:
   workflow_dispatch:
 
 concurrency:
