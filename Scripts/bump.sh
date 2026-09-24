@@ -50,7 +50,9 @@ git checkout - >/dev/null 2>&1
 
 echo "\n* Tagging"
 git checkout main >/dev/null 2>&1
-git tag "$version"
+# Annotated, with the version as its message, like every earlier release tag. It is signed too when
+# `tag.gpgsign` is set, which a lightweight tag cannot be: that setting would open an editor instead.
+git tag -m "$version" "$version"
 
 # `--follow-tags` only pushes *annotated* tags, and the tag created just above is a lightweight one, so it
 # used to go nowhere: the push reported "Everything up-to-date", the release looked done, and the tag only
