@@ -18,9 +18,15 @@ on the host. Build with Xcode or `xcodebuild`.
 # Any available simulator works; see `xcrun simctl list devices available`
 xcodebuild -scheme ImageProc -destination 'platform=iOS Simulator,name=iPad (A16)' test
 
-# A single test
+# A single suite, or a single test: the identifiers are Swift Testing's type and function names
 xcodebuild -scheme ImageProc -destination 'platform=iOS Simulator,name=iPad (A16)' \
-  -only-testing:ImageProcTests/ImageTests/testExpand test
+  -only-testing:ImageProcTests/GeometryTests test
+xcodebuild -scheme ImageProc -destination 'platform=iOS Simulator,name=iPad (A16)' \
+  -only-testing:'ImageProcTests/GeometryTests/flippingHorizontallyMirrorsLeftAndRight()' test
+
+# Without the benchmarks, as CI runs it
+TEST_RUNNER_SKIP_BENCHMARKS=1 xcodebuild -scheme ImageProc \
+  -destination 'platform=iOS Simulator,name=iPad (A16)' test
 
 # A device build. The kernels are compiled per SDK, so a simulator build says nothing about a device one
 xcodebuild -scheme ImageProc -destination 'generic/platform=iOS' build
@@ -48,6 +54,35 @@ offers no way to add the flag. The plugin compiles them by hand instead.
 
 The test fixtures and the demo app's assets are **two separate catalogs**, because SwiftPM cannot
 share one file between targets. Keep them in sync by hand.
+
+## Tests
+
+The suite uses Swift Testing and is organized by topic:
+
+| Directory | What it holds |
+| --- | --- |
+| `Support/` | Fixtures drawn in code, a pixel reader, tolerances, tags, and the shared operation catalog. |
+| `Color/` | `UIColor`: hexadecimal codes, components, adjustments. |
+| `Operations/` | What each operation does, one file per README section, asserted on real pixels and sizes. |
+| `Behavior/` | The guarantees every operation owes: robustness, options, orientation, dynamic colors, chaining. |
+| `Implementations/` | The internal expansion variants against each other. Package users only get Metal. |
+| `Benchmarks/` | Timings, printed and never asserted. Skipped when `SKIP_BENCHMARKS` is set. Run them alone (`-only-testing:ImageProcTests/BenchmarkTests`) for numbers worth comparing, since the other suites run in parallel. |
+
+- **`Support/Operations.swift` lists every public operation once.** The `Behavior/` suites run over
+  that list, so a new operation is added there and is immediately held to every guarantee.
+- **One behavior per test**, named by a sentence: `@Test("flipping horizontally mirrors left and
+  right") func flippingHorizontallyMirrorsLeftAndRight()`. Cases go in `arguments:`, not loops, so a
+  failure names its case.
+- **Assert what the operation does, not that it returned.** Every operation returns a non-optional
+  image, so a non-nil check proves nothing. Read pixels with `Bitmap` and compare them with the named
+  `Tolerance`s.
+- **Draw fixtures in code** where the test can be read off the drawing. The asset catalog is for tests
+  about real bundled assets.
+- **Tests run in parallel.** Pick an expansion variant with
+  `UIImage.$_expandImplementation.withValue(…) { … }`, which is scoped to the closure. Never assign a
+  global.
+- A known library bug is recorded with `withKnownIssue`, which keeps the suite green and fails once the
+  bug is fixed, as a reminder to remove it.
 
 ## Code conventions
 
@@ -139,10 +174,15 @@ git ls-remote --tags origin refs/tags/2.4.0      # the tag consumers resolve
 
 ## Continuous integration
 
-Everything runs on GitHub Actions. `.github/workflows/tests.yml` runs SwiftLint, the tests on a
-simulator, a device build of the package and a build of the demo app. It runs on pushes to `main` and
-`develop`, on pull requests, and on demand. `release.yml` calls the same workflow for a tag rather
-than copying it, so the two cannot drift apart.
+Everything runs on GitHub Actions. `.github/workflows/tests.yml` runs four jobs side by side:
+SwiftLint, the tests on a simulator, a device build of the package and a build of the demo app. It
+runs on pushes to `develop` that touch more than documentation, on pull requests, and on demand.
+`main` is not tested on push, because it only receives merges of a `develop` tip that already passed.
+`release.yml` calls the same workflow for a tag rather than copying it, so the two cannot drift apart.
+
+CI skips the `Benchmarks` suite, which only prints timings and takes over a minute on the runner.
+Locally it runs as part of the suite; set `TEST_RUNNER_SKIP_BENCHMARKS=1` in front of
+`xcodebuild test` to skip it there too.
 
 The simulator is picked at run time from whatever the runner image provides, since that list changes
 with every image. The demo app is built with signing disabled, because CI has no certificate for its
