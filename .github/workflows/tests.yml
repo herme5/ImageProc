@@ -4,11 +4,17 @@
 # `release.yml` calls this workflow for a tag rather than duplicating it, which is why there is no tag
 # trigger below: the suite has to pass before a release entry is created, and running it twice per
 # release would only cost minutes.
+#
+# `main` has no push trigger either. It only ever receives `--no-ff` merges of a `develop` tip that
+# already passed here, with an identical tree, and the tag run covers the release itself.
 name: Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
+    # A documentation-only commit has nothing for a five-minute macOS run to check. Pull requests are
+    # deliberately not filtered: `main` requires these checks, and a skipped run would never report.
+    paths-ignore: ["**.md", "LICENSE"]
   pull_request:
   workflow_call:
   workflow_dispatch:
@@ -80,16 +86,52 @@ jobs:
           print(f"name={device['name']}")
           PYTHON
 
-      - name: Run the tests
+      # Booting takes about as long as building, so the boot runs in the background while the build does.
+      # The test step then waits for whatever is left of it.
+      - name: Build for testing while the simulator boots
         run: |
-          xcodebuild test \
+          xcrun simctl boot "${{ steps.simulator.outputs.udid }}" &
+          xcodebuild build-for-testing \
             -scheme ImageProc \
             -destination "id=${{ steps.simulator.outputs.udid }}"
+          wait
+
+      # The benchmark times three implementations against each other and asserts nothing about them, and it
+      # is a third of the suite on this runner. `xcodebuild` passes the variable on with the prefix stripped.
+      - name: Run the tests
+        env:
+          TEST_RUNNER_SKIP_BENCHMARKS: "1"
+        run: |
+          xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}"
+          xcodebuild test-without-building \
+            -scheme ImageProc \
+            -destination "id=${{ steps.simulator.outputs.udid }}"
+
+  # The two builds below are independent of the suite, so they run beside it rather than after it.
+
+  device:
+    name: Device build
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Metal toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
 
       # The kernel is compiled per-SDK, so a simulator build passing says nothing about a device one.
       - name: Build for a device
         run: xcodebuild build -scheme ImageProc -destination 'generic/platform=iOS'
 
+  demo:
+    name: Demo app
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Metal toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
+
+      # A generic simulator destination needs no installed device, so this job skips choosing one.
       # Signing is disabled rather than configured: the demo app carries a development team so that it can
       # run on a device, and CI has no certificate for it. A simulator build needs none.
       - name: Build the demo app
@@ -97,7 +139,7 @@ jobs:
           xcodebuild build \
             -project Demo/ImageProcApp.xcodeproj \
             -scheme ImageProcApp \
-            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY= \

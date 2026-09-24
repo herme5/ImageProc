@@ -139,10 +139,15 @@ git ls-remote --tags origin refs/tags/2.4.0      # the tag consumers resolve
 
 ## Continuous integration
 
-Everything runs on GitHub Actions. `.github/workflows/tests.yml` runs SwiftLint, the tests on a
-simulator, a device build of the package and a build of the demo app. It runs on pushes to `main` and
-`develop`, on pull requests, and on demand. `release.yml` calls the same workflow for a tag rather
-than copying it, so the two cannot drift apart.
+Everything runs on GitHub Actions. `.github/workflows/tests.yml` runs four jobs side by side:
+SwiftLint, the tests on a simulator, a device build of the package and a build of the demo app. It
+runs on pushes to `develop` that touch more than documentation, on pull requests, and on demand.
+`main` is not tested on push, because it only receives merges of a `develop` tip that already passed.
+`release.yml` calls the same workflow for a tag rather than copying it, so the two cannot drift apart.
+
+CI skips `ExpandTests.testBenchmarkImplementations`, which only prints timings and takes over a
+minute on the runner. Locally it runs as part of the suite; set `TEST_RUNNER_SKIP_BENCHMARKS=1` in
+front of `xcodebuild test` to skip it there too.
 
 The simulator is picked at run time from whatever the runner image provides, since that list changes
 with every image. The demo app is built with signing disabled, because CI has no certificate for its
