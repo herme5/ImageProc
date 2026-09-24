@@ -13,11 +13,6 @@ import XCTest
 /// agree on the shape they produce, whatever they disagree on internally.
 final class ExpandTests: XCTestCase {
 
-    override func tearDown() {
-        UIImage._expandImplementation = .metal
-        super.tearDown()
-    }
-
     func render(size: CGSize, scale: CGFloat = 2, _ body: (CGContext) -> Void) -> UIImage {
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = scale
@@ -57,9 +52,9 @@ final class ExpandTests: XCTestCase {
 
     func expanded(_ image: UIImage, using implementation: UIImage.ExpandImplementation,
                   by delta: CGFloat, each degree: CGFloat) -> UIImage {
-        UIImage._expandImplementation = implementation
-        defer { UIImage._expandImplementation = .metal }
-        return image.expanded(bySize: delta, each: degree)
+        return UIImage.$_expandImplementation.withValue(implementation) {
+            image.expanded(bySize: delta, each: degree)
+        }
     }
 
     /// The kernel has to load as a general `CIKernel`: a `CIColorKernel` may not sample its neighbours.
@@ -139,14 +134,12 @@ final class ExpandTests: XCTestCase {
             for degree in degrees {
                 var timings: [UIImage.ExpandImplementation: Double] = [:]
                 for implementation in [UIImage.ExpandImplementation.basic, .concurrent, .metal] {
-                    UIImage._expandImplementation = implementation
-                    _ = source.expanded(bySize: 20, each: degree)  // warm up, the kernel compiles on first use
+                    _ = expanded(source, using: implementation, by: 20, each: degree)  // warm up, the kernel compiles on first use
                     let start = CFAbsoluteTimeGetCurrent()
-                    let output = source.expanded(bySize: 20, each: degree)
+                    let output = expanded(source, using: implementation, by: 20, each: degree)
                     timings[implementation] = (CFAbsoluteTimeGetCurrent() - start) * 1000
                     XCTAssertNotNil(output.cgImage, "\(implementation) at \(side) each \(degree)")
                 }
-                UIImage._expandImplementation = .metal
                 let formatted = [UIImage.ExpandImplementation.basic, .concurrent, .metal]
                     .map { String(format: "%9.2f", timings[$0]!) }
                     .joined(separator: "  ")
@@ -159,8 +152,9 @@ final class ExpandTests: XCTestCase {
     func testStrokedUsesTheSamePath() throws {
         let fixture = solidFixture()
         for implementation in [UIImage.ExpandImplementation.metal, .concurrent, .basic] {
-            UIImage._expandImplementation = implementation
-            let stroked = fixture.stroked(with: .systemPink.resolvedColor(with: .current), size: 3, each: 90)
+            let stroked = UIImage.$_expandImplementation.withValue(implementation) {
+                fixture.stroked(with: .systemPink.resolvedColor(with: .current), size: 3, each: 90)
+            }
             XCTAssertEqual(stroked.size, CGSize(width: fixture.size.width + 6, height: fixture.size.height + 6),
                            "\(implementation)")
         }

@@ -108,7 +108,7 @@ internal extension UIImage {
     ///
     /// This is not the return of the removed swizzling experiment: it is an internal property, the public surface is
     /// unchanged, and its reason is that the three implementations have to be timed against each other.
-    enum ExpandImplementation {
+    enum ExpandImplementation: Sendable {
         /// The Metal kernel, falling back to `concurrent` when the compiled library is missing.
         case metal
         /// One `CGContext` layer per direction, composited under a barrier. Order-dependent, so its result is not
@@ -118,6 +118,11 @@ internal extension UIImage {
         case basic
     }
 
-    /// Which implementation `_expandedImpl` runs. Not thread-safe to change while an expansion is in flight.
-    static var _expandImplementation = ExpandImplementation.metal
+    /// Which implementation `_expandedImpl` runs.
+    ///
+    /// Task-local rather than a plain static, so that choosing one is scoped instead of global:
+    /// `UIImage.$_expandImplementation.withValue(.basic) { … }` affects the expansions made inside the closure and
+    /// nothing running concurrently elsewhere, which is what lets the tests that compare implementations run in
+    /// parallel with the rest. It is read once, on the calling thread, at each choke point.
+    @TaskLocal static var _expandImplementation = ExpandImplementation.metal
 }

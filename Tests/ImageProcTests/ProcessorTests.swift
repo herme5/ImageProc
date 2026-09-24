@@ -33,11 +33,6 @@ final class ProcessorTests: XCTestCase {
         color = UIColor(red: 0.2, green: 0.4, blue: 0.9, alpha: 1)
     }
 
-    override func tearDown() {
-        UIImage._expandImplementation = .metal
-        super.tearDown()
-    }
-
     /// The premultiplied RGBA bytes of an image, row major.
     func rgba(_ image: UIImage) -> [UInt8] {
         guard let cgImage = image.cgImage else {
@@ -149,25 +144,26 @@ final class ProcessorTests: XCTestCase {
     /// The expansion has no recipe form when a CPU implementation is selected, so the chain has to fall back to it.
     func testChainHonorsTheExpandImplementation() throws {
         let source = shape!
+        let color = color!
         for implementation in [UIImage.ExpandImplementation.basic, .concurrent] {
-            UIImage._expandImplementation = implementation
+            UIImage.$_expandImplementation.withValue(implementation) {
+                // `.concurrent` composites its layers in whatever order they finish, so it does not reproduce itself
+                // either: two direct calls measured 3 units apart. Holding the chain to the strict tolerance would be
+                // measuring that, so it gets the loose one, and the noise floor is asserted right below.
+                let tolerance = implementation == .concurrent ? Self.looseTolerance : Self.tolerance
 
-            // `.concurrent` composites its layers in whatever order they finish, so it does not reproduce itself
-            // either: two direct calls measured 3 units apart. Holding the chain to the strict tolerance would be
-            // measuring that, so it gets the loose one, and the noise floor is asserted right below.
-            let tolerance = implementation == .concurrent ? Self.looseTolerance : Self.tolerance
-
-            assertSame(source.processed { $0.expanded(bySize: 3, each: 45) },
-                       source.expanded(bySize: 3, each: 45),
-                       "expanded \(implementation)", tolerance: tolerance)
-            assertSame(source.processed { $0.stroked(with: self.color, size: 3, each: 45) },
-                       source.stroked(with: self.color, size: 3, each: 45),
-                       "stroked \(implementation)", tolerance: tolerance)
-
-            if implementation == .concurrent {
-                assertSame(source.stroked(with: color, size: 3, each: 45),
+                assertSame(source.processed { $0.expanded(bySize: 3, each: 45) },
+                           source.expanded(bySize: 3, each: 45),
+                           "expanded \(implementation)", tolerance: tolerance)
+                assertSame(source.processed { $0.stroked(with: color, size: 3, each: 45) },
                            source.stroked(with: color, size: 3, each: 45),
-                           "stroked concurrent against itself", tolerance: Self.looseTolerance)
+                           "stroked \(implementation)", tolerance: tolerance)
+
+                if implementation == .concurrent {
+                    assertSame(source.stroked(with: color, size: 3, each: 45),
+                               source.stroked(with: color, size: 3, each: 45),
+                               "stroked concurrent against itself", tolerance: Self.looseTolerance)
+                }
             }
         }
     }
