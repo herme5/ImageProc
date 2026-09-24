@@ -54,15 +54,15 @@ A git tag *is* the release. The version is not recorded anywhere in the tree —
 field to bump — because Swift Package Manager consumers resolve tags straight from the remote. Tags
 are bare `X.Y.Z`, with no `v` prefix.
 
-### 1. Merge `develop` into `master`
+### 1. Merge `develop` into `main`
 
-Work happens on `develop` and reaches `master` through a **merge commit**, never a fast-forward, so
+Work happens on `develop` and reaches `main` through a **merge commit**, never a fast-forward, so
 that the branch point stays visible in the history:
 
 ```sh
-git checkout master
+git checkout main
 git merge --no-ff develop
-git push origin master
+git push origin main
 ```
 
 Through a pull request instead, the merge method must be *Create a merge commit*, not squash or
@@ -75,11 +75,11 @@ rebase.
 ```
 
 The script fetches, refuses a version that is already tagged, and refuses to run at all until
-`develop` has been merged into `master` — that last guard matters, because the step after it
-hard-resets `develop`. It then tags `master`, pushes the branch and the tag by name, and verifies the
+`develop` has been merged into `main` — that last guard matters, because the step after it
+hard-resets `develop`. It then tags `main`, pushes the branch and the tag by name, and verifies the
 tag actually landed on the remote. Two things worth knowing before running it:
 
-- **It is destructive to `develop`.** It hard-resets `develop` onto `origin/master` and force-pushes
+- **It is destructive to `develop`.** It hard-resets `develop` onto `origin/main` and force-pushes
   it, discarding anything that exists only there.
 - **It stashes uncommitted changes and never pops them.** Commit your own work first, or recover it
   afterwards with `git stash pop`.
@@ -106,7 +106,7 @@ git ls-remote --tags origin refs/tags/2.4.0      # the tag consumers resolve
 
 **Everything runs on GitHub Actions.** `.github/workflows/tests.yml` holds the suite: SwiftLint, the
 tests on a simulator, a device build of the package — the kernel is compiled per-SDK, so a simulator
-build says nothing about a device one — and a build of the demo app. It runs on pushes to `master` and
+build says nothing about a device one — and a build of the demo app. It runs on pushes to `main` and
 `develop`, on pull requests, and on demand.
 
 The simulator is chosen at run time from whatever the runner image provides rather than named, because
