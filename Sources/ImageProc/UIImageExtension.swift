@@ -319,10 +319,14 @@ public extension UIImage {
         let radians = (_orientationIsMirrored ? 1 : -1) * degreesToRadians(degrees)
         let sourceSize = _bufferSize
 
-        // Calculate the size of the rotated view's containing box for our drawing space
-        let rotatedViewBox = UIView(frame: CGRect(origin: .zero, size: sourceSize))
-        rotatedViewBox.transform = rotatedViewBox.transform.rotated(by: radians)
-        let newSize = rotatedViewBox.frame.integral.size
+        // The box containing the rotated image, rounded up to whole points. It used to be the `integral` frame of a
+        // rotated `UIView`, which was not safe off the main thread, and which gave a right angle an extra transparent
+        // point per rotated side: `cos(90°)` is not exactly zero, so the side comes out a hair over a whole number.
+        // That noise is dropped before rounding up.
+        let rotatedBox = CGRect(origin: .zero, size: sourceSize).applying(CGAffineTransform(rotationAngle: radians))
+        let noise = CGFloat(1e-6)
+        let newSize = CGSize(width: (rotatedBox.width - noise).rounded(.up),
+                             height: (rotatedBox.height - noise).rounded(.up))
 
         // Create the bitmap context
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)

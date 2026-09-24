@@ -85,19 +85,21 @@ struct GeometryTests {
 
     // MARK: Rotating and flipping
 
-    /// `rotated` measures its canvas as the `integral` frame of a rotated `UIView`. `cos(90°)` is not exactly zero in
-    /// floating point, so a right angle yields a side a hair over a whole point, which `integral` rounds up to one more.
-    static let rightAngleCanvasIssue: Comment = "a right-angle rotation gains a transparent point on each rotated side"
-
     @Test("rotating a quarter turn swaps the size and turns clockwise")
     func rotatingAQuarterTurnSwapsTheSizeAndTurnsClockwise() throws {
         let output = Fixture.blocks().rotated(by: 90)
-        withKnownIssue(Self.rightAngleCanvasIssue) {
-            #expect(output.size == CGSize(width: 16, height: 32))
-        }
+        // `cos(90°)` is not exactly zero, which used to give a right angle an extra transparent point per side.
+        #expect(output.size == CGSize(width: 16, height: 32))
         // The left column, read from the bottom up, becomes the top row.
         try expectColor(output, at: Self.topLeft, .magenta)
         try expectColor(output, at: Self.topRight, .red)
+    }
+
+    @Test("a right angle adds no margin", arguments: [CGFloat(90), 180, 270, 360, -90, 450])
+    func aRightAngleAddsNoMargin(_ degrees: CGFloat) {
+        let quarterTurns = Int((degrees / 90).rounded())
+        let expected = quarterTurns.isMultiple(of: 2) ? CGSize(width: 32, height: 16) : CGSize(width: 16, height: 32)
+        #expect(Fixture.blocks().rotated(by: degrees).size == expected)
     }
 
     @Test("rotating by any angle grows the canvas to the rotated bounds")
@@ -113,9 +115,7 @@ struct GeometryTests {
     @Test("a full turn gives the image back")
     func aFullTurnGivesTheImageBack() {
         let source = Fixture.blocks()
-        withKnownIssue(Self.rightAngleCanvasIssue) {
-            #expect(mismatch(source.rotated(by: 360), source) == nil)
-        }
+        #expect(mismatch(source.rotated(by: 360), source) == nil)
     }
 
     @Test("flipping horizontally mirrors left and right")
