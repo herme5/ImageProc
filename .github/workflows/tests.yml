@@ -90,8 +90,8 @@ jobs:
       # build, was tried and made the job two to three times slower: the fresh simulator's first-boot work
       # competed with the compile and with the CPU-bound expand tests on a three-core runner.
       #
-      # The benchmark times three implementations against each other and asserts nothing about them, and it
-      # is a third of the suite on this runner. `xcodebuild` passes the variable on with the prefix stripped.
+      # The benchmarks print timings and assert nothing, and they would be a third of the suite on this
+      # runner. `xcodebuild` passes the variable on with the prefix stripped; see `Support/Tags.swift`.
       - name: Run the tests
         env:
           TEST_RUNNER_SKIP_BENCHMARKS: "1"
