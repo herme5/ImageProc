@@ -1,101 +1,163 @@
-![build_status](https://gitlab.com/herme5/ImageProc/badges/master/pipeline.svg)
+# ImageProc
 
-## Introduction
+[![tests](https://github.com/herme5/ImageProc/actions/workflows/tests.yml/badge.svg)](https://github.com/herme5/ImageProc/actions/workflows/tests.yml)
+![platform](https://img.shields.io/badge/platform-iOS%2015%2B-lightgrey)
+![swift package manager](https://img.shields.io/badge/SPM-compatible-orange)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-ImageProc is a collection of Swift utility methods for PNG image processing through the `UIImage` native API.
+Image processing for icons and other transparent PNGs, written as extensions on `UIImage` and `UIColor`.
 
-Sometimes icons have to be dynamically transformed, adding to the burden of the designer that needs to duplicate its rendered assets (e.g. same icons that have different colors, diferrent sizes...). Nevertheless, remember that static processing and pre-rendering is always better for the energy footprint of your apps.
+Recolor an icon, give it an outline, blur it, rotate it or stack it on another image without asking a
+designer for one more exported variant:
 
-## Demo
+```swift
+import ImageProc
 
-![](Demo/ImageProcApp/benchmark.png)
+let badge = UIImage(named: "star")!
+    .colorized(with: .systemPink)
+    .stroked(with: .white, size: 2)
+```
+
+Pre-rendered assets are still the better choice when the variants are known in advance. They cost
+nothing at run time.
+
+![The demo app, rendering every operation with its timing](Demo/ImageProcApp/benchmark.png)
 
 ## Installation
 
-ImageProc is a Swift package and requires iOS 15 or later.
+ImageProc is a Swift package for **iOS 15 and later**.
 
-In Xcode, use *File ▸ Add Package Dependencies…* and enter `https://gitlab.com/herme5/ImageProc.git`.
-
-Or add it to the dependencies of your own `Package.swift`:
+In Xcode, choose *File ▸ Add Package Dependencies…* and enter `https://github.com/herme5/ImageProc.git`.
+In a `Package.swift`:
 
 ```swift
-.package(url: "https://gitlab.com/herme5/ImageProc.git", from: "2.0.0")
+.package(url: "https://github.com/herme5/ImageProc.git", from: "2.3.0")
 ```
 
-Then `import ImageProc` where you need it.
+Some operations run as Core Image kernels written in Metal, and the package compiles them with a build
+tool plugin. **The first time you build, Xcode asks you to trust and enable that plugin.**
 
-Some operations are implemented as Core Image kernels written in Metal, which the package compiles
-for you through a build tool plugin. Xcode may ask you to trust and enable that plugin the first
-time you build.
+> Earlier versions were hosted on GitLab. `gitlab.com/herme5/ImageProc.git` is archived and frozen at
+> 2.3.0, so point your dependency at GitHub.
 
 ## Usage
 
-All methods extend `UIImage` and `UIColor` classes.
+Every operation is a method on `UIImage` or `UIColor`. It returns a new value and leaves the receiver
+unchanged.
+
+### Color
 
 ```swift
-let someImage = UIImage(named: "someImageWithTransparency")!
-
-let someColor = UIColor(value: 0x08af76) // Color can be initialized with its hexadecimal value.
-let aBitDarkerColor = someColor.darker(by: 0.1) // RGB component will be decreased by 0.1 to give a darker color.
-
-// Fill the opaque pixels with the given color.
-let coloredImage = someImage.colorized(with: someColor) 
-let aBitDarkerImage = someImage.colorized(with: aBitDarkerColor) 
-
+icon.colorized(with: .systemBlue)             // fill every opaque pixel with a color
+icon.colorInverted()                          // invert the colors, keep the alpha
+icon.withAlphaComponent(0.5)                  // cap the opacity
 ```
 
-## Releasing
+### Outline and blur
 
-A git tag *is* the release. The version is not recorded anywhere in the tree — there is no manifest
-field to bump — because Swift Package Manager consumers resolve tags straight from the remote. Tags
-are bare `X.Y.Z`, with no `v` prefix.
-
-Work happens on `develop` and reaches `master` through a **merge commit**, never a fast-forward, so
-that the branch point stays visible in the history:
-
-```sh
-git checkout master
-git merge --no-ff develop
-git push origin master
+```swift
+icon.expanded(bySize: 4)                      // grow the opaque silhouette by 4 points
+icon.stroked(with: .white, size: 2)           // draw a border around it
+icon.stroked(with: .black, size: 3, alpha: 0.4)
+icon.smoothened(by: 2)                        // Gaussian blur, grown so the blur is not clipped
+icon.smoothened(by: 2, sizeKept: true)        // …or cropped back to the original size
 ```
 
-When merging through GitLab instead, the project's merge method must be set to *Merge commit*.
+`expanded` and `stroked` take an optional `each:` step in degrees (default `3`), the angle between
+the directions sampled around each pixel. A larger step is faster but gives a rougher outline on
+curved shapes.
 
-Then create the release:
+### Geometry
 
-```sh
-./Scripts/bump.sh 2.2.0
+```swift
+icon.scaled(to: CGSize(width: 64, height: 64))
+icon.scaled(uniform: 2)
+icon.scaledWidth(to: 120)                     // height follows the aspect ratio
+icon.scaledHeight(to: 40, keepAspectRatio: false)
+icon.cropped(to: CGRect(x: 0, y: 0, width: 32, height: 32))
+icon.rotated(by: 45)                          // clockwise, in degrees
+icon.flippedHorizontally()
+icon.flippedVertically()
 ```
 
-The script refuses a version that is already tagged, and refuses to run at all until `develop` has
-been merged into `master`. Two things worth knowing before running it:
+### Combining images
 
-- **It is destructive to `develop`.** It hard-resets `develop` onto `origin/master` and force-pushes
-  it, discarding anything that exists only there.
-- **It stashes uncommitted changes and never pops them.** Commit your own work first, or recover it
-  afterwards with `git stash pop`.
-
-Pushing the tag triggers the `Release` stage in `.gitlab-ci.yml`, which creates the GitLab release
-entry. There is nothing to publish beyond that.
-
-### The GitHub mirror
-
-`github.com/herme5/ImageProc` is a **push mirror of GitLab**, configured in GitLab under *Settings ▸
-Repository ▸ Mirroring repositories*. It is not part of this repository, and `bump.sh` does not push
-to it: releases reach GitHub because the mirror carries them after the push to GitLab.
-
-It authenticates with an SSH deploy key — GitLab holds the private half, and the public half sits on
-GitHub under the repository's *Settings ▸ Deploy keys* with *Allow write access* enabled. A deploy
-key does not expire, unlike the access token this used before, which stopped mirroring the moment it
-lapsed and did so silently: the release looked complete on GitLab while GitHub stayed several
-versions behind. If GitHub falls behind again, that same settings page shows the last attempt and
-the error, and a release is only really out once the tag is on both remotes:
-
-```sh
-git ls-remote --tags origin "refs/tags/$version"
-git ls-remote --tags https://github.com/herme5/ImageProc.git "refs/tags/$version"
+```swift
+glyph.drawnAbove(image: background)           // glyph on top
+glyph.drawnUnder(image: overlay)              // glyph beneath
+shape.alphaExclusion(with: otherShape)        // opaque where exactly one of the two is
 ```
 
-Push mirrors add and update refs but never delete them, so GitHub carries a few refs GitLab does
-not. The tags `1.1.0` and `1.1.1`, and the branch `devops/ssh-test`, predate the move to GitLab and
-are **not releases**.
+Images of different sizes are centered on each other.
+
+### Text
+
+```swift
+let label = UIImage(text: "NEW", attributes: [.font: UIFont.boldSystemFont(ofSize: 12)])
+```
+
+### Inspecting an image
+
+```swift
+icon.sizeInPixel                              // size × scale
+icon.opaquePixelDensity                       // mean opacity, from 0 (empty) to 1 (fully opaque)
+icon.withBitmapAsUIColorArray { colors in colors.first }
+```
+
+### Colors
+
+```swift
+let green = UIColor(value: 0x08AF76)
+let parsed = UIColor(hexCode: "#08AF76")      // optional
+green.hexCode                                 // "#08AF76"
+green.rgba.red; green.hsla.hue
+
+green.lighter(by: 0.1); green.darker()
+green.saturated(); green.brightened(by: -0.2)
+green.hueOffset(by: 0.5)                      // complementary color
+green.moreOpaque(); green.lessOpaque(by: 0.5)
+UIColor.random()
+```
+
+## Chaining operations
+
+Every `UIImage` method has to return a finished image, which means a round trip to the GPU. Chaining
+four calls pays for four round trips. `processed` builds the chain as a single Core Image graph and
+reads the result back once:
+
+```swift
+let badge = icon.processed {
+    $0.colorized(with: .systemPink)
+      .expanded(bySize: 4)
+      .smoothened(by: 1)
+}
+```
+
+The processor offers every operation above. `colorized`, `expanded`, `stroked`, `smoothened` and
+`colorInverted` are fused into the graph. The others render what has accumulated so far and then
+continue, so any chain works and the fused steps are where the savings come from. The result matches
+the equivalent sequence of calls to within a unit or two out of 255, because the chain does not round
+to 8 bits between steps.
+
+## Behavior worth knowing
+
+- **Operations never crash.** An image without bitmap data, such as one backed only by a `CIImage`,
+  comes back unchanged and a message is logged. The same happens if the Metal kernels could not be
+  loaded.
+- **Dark mode and contrast are followed.** When the image, the color or the second image changes with
+  the interface style or with increased contrast, the output is computed for each variant and keeps
+  switching with the environment. Colorizing with `.systemPink` gives an image that adapts, just as
+  the color does. One exception: a baseline offset cannot be kept on such an image, so it is dropped.
+- **Image properties are kept.** Rendering mode, alignment insets, symbol configuration and baseline
+  offset are copied from the receiver, and so is the image orientation. A rotated photo stays
+  rotated.
+- **Scale is preserved.** Sizes and distances are given in points, as UIKit uses them.
+
+## Contributing
+
+Build instructions, the commit convention and the release process are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+ImageProc is available under the MIT license. See [LICENSE](LICENSE).

@@ -1,0 +1,104 @@
+# The suite needs macOS and Xcode, and GitHub hosts those runners for public repositories. Everything
+# the project used to run on a self-hosted GitLab runner happens here instead.
+#
+# `release.yml` calls this workflow for a tag rather than duplicating it, which is why there is no tag
+# trigger below: the suite has to pass before a release entry is created, and running it twice per
+# release would only cost minutes.
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      # Not part of the runner image, unlike Xcode.
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint
+        run: swiftlint --strict
+
+  test:
+    name: Test
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Report the toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # Since Xcode 26 the Metal compiler is a separately downloadable component rather than part of
+      # Xcode itself, and the CIKernelCompiler plugin cannot compile the Core Image kernels without it.
+      # This is a no-op once the runner has it.
+      - name: Install the Metal toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
+
+      # Which simulators exist changes with every runner image, so the destination is resolved at run time
+      # rather than named. Any installed simulator works; an iPad is preferred only to match what the
+      # fixtures were recorded on.
+      - name: Choose a simulator
+        id: simulator
+        run: |
+          python3 - <<'PYTHON' >> "$GITHUB_OUTPUT"
+          import json, os, subprocess, sys
+
+          listed = subprocess.run(["xcrun", "simctl", "list", "devices", "available", "--json"],
+                                  capture_output=True, text=True, check=True).stdout
+          best = None
+          for runtime, devices in json.loads(listed)["devices"].items():
+              if "iOS" not in runtime:
+                  continue
+              for device in devices:
+                  if not device.get("isAvailable", False):
+                      continue
+                  rank = (0 if "iPad" in device["name"] else 1, runtime, device["name"])
+                  if best is None or rank < best[0]:
+                      best = (rank, device)
+
+          if best is None:
+              print("no available iOS simulator on this runner", file=sys.stderr)
+              raise SystemExit(1)
+
+          device = best[1]
+          print(f"Using {device['name']} ({device['udid']})", file=sys.stderr)
+          print(f"udid={device['udid']}")
+          print(f"name={device['name']}")
+          PYTHON
+
+      - name: Run the tests
+        run: |
+          xcodebuild test \
+            -scheme ImageProc \
+            -destination "id=${{ steps.simulator.outputs.udid }}"
+
+      # The kernel is compiled per-SDK, so a simulator build passing says nothing about a device one.
+      - name: Build for a device
+        run: xcodebuild build -scheme ImageProc -destination 'generic/platform=iOS'
+
+      # Signing is disabled rather than configured: the demo app carries a development team so that it can
+      # run on a device, and CI has no certificate for it. A simulator build needs none.
+      - name: Build the demo app
+        run: |
+          xcodebuild build \
+            -project Demo/ImageProcApp.xcodeproj \
+            -scheme ImageProcApp \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            DEVELOPMENT_TEAM=
