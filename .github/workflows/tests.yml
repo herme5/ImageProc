@@ -86,24 +86,17 @@ jobs:
           print(f"name={device['name']}")
           PYTHON
 
-      # Booting takes about as long as building, so the boot runs in the background while the build does.
-      # The test step then waits for whatever is left of it.
-      - name: Build for testing while the simulator boots
-        run: |
-          xcrun simctl boot "${{ steps.simulator.outputs.udid }}" &
-          xcodebuild build-for-testing \
-            -scheme ImageProc \
-            -destination "id=${{ steps.simulator.outputs.udid }}"
-          wait
-
+      # `xcodebuild test` boots the simulator itself. Booting it separately, in the background during the
+      # build, was tried and made the job two to three times slower: the fresh simulator's first-boot work
+      # competed with the compile and with the CPU-bound expand tests on a three-core runner.
+      #
       # The benchmark times three implementations against each other and asserts nothing about them, and it
       # is a third of the suite on this runner. `xcodebuild` passes the variable on with the prefix stripped.
       - name: Run the tests
         env:
           TEST_RUNNER_SKIP_BENCHMARKS: "1"
         run: |
-          xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}"
-          xcodebuild test-without-building \
+          xcodebuild test \
             -scheme ImageProc \
             -destination "id=${{ steps.simulator.outputs.udid }}"
 
