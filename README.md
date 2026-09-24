@@ -1,123 +1,163 @@
+# ImageProc
+
 [![tests](https://github.com/herme5/ImageProc/actions/workflows/tests.yml/badge.svg)](https://github.com/herme5/ImageProc/actions/workflows/tests.yml)
+![platform](https://img.shields.io/badge/platform-iOS%2015%2B-lightgrey)
+![swift package manager](https://img.shields.io/badge/SPM-compatible-orange)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-## Introduction
+Image processing for icons and other transparent PNGs, written as extensions on `UIImage` and `UIColor`.
 
-ImageProc is a collection of Swift utility methods for PNG image processing through the `UIImage` native API.
+Recolor an icon, give it an outline, blur it, rotate it or stack it on another image without asking a
+designer for one more exported variant:
 
-Sometimes icons have to be dynamically transformed, adding to the burden of the designer that needs to duplicate its rendered assets (e.g. same icons that have different colors, diferrent sizes...). Nevertheless, remember that static processing and pre-rendering is always better for the energy footprint of your apps.
+```swift
+import ImageProc
 
-## Demo
+let badge = UIImage(named: "star")!
+    .colorized(with: .systemPink)
+    .stroked(with: .white, size: 2)
+```
 
-![](Demo/ImageProcApp/benchmark.png)
+Pre-rendered assets are still the better choice when the variants are known in advance. They cost
+nothing at run time.
+
+![The demo app, rendering every operation with its timing](Demo/ImageProcApp/benchmark.png)
 
 ## Installation
 
-ImageProc is a Swift package and requires iOS 15 or later.
+ImageProc is a Swift package for **iOS 15 and later**.
 
-In Xcode, use *File ▸ Add Package Dependencies…* and enter `https://github.com/herme5/ImageProc.git`.
-
-Or add it to the dependencies of your own `Package.swift`:
+In Xcode, choose *File ▸ Add Package Dependencies…* and enter `https://github.com/herme5/ImageProc.git`.
+In a `Package.swift`:
 
 ```swift
 .package(url: "https://github.com/herme5/ImageProc.git", from: "2.3.0")
 ```
 
-> The package used to be hosted on GitLab, and `gitlab.com/herme5/ImageProc.git` still resolves from
-> the archived repository. It is frozen at 2.3.0 and will not receive anything further — point your
-> dependency at the GitHub URL above.
+Some operations run as Core Image kernels written in Metal, and the package compiles them with a build
+tool plugin. **The first time you build, Xcode asks you to trust and enable that plugin.**
 
-Then `import ImageProc` where you need it.
-
-Some operations are implemented as Core Image kernels written in Metal, which the package compiles
-for you through a build tool plugin. Xcode may ask you to trust and enable that plugin the first
-time you build.
+> Earlier versions were hosted on GitLab. `gitlab.com/herme5/ImageProc.git` is archived and frozen at
+> 2.3.0, so point your dependency at GitHub.
 
 ## Usage
 
-All methods extend `UIImage` and `UIColor` classes.
+Every operation is a method on `UIImage` or `UIColor`. It returns a new value and leaves the receiver
+unchanged.
+
+### Color
 
 ```swift
-let someImage = UIImage(named: "someImageWithTransparency")!
-
-let someColor = UIColor(value: 0x08af76) // Color can be initialized with its hexadecimal value.
-let aBitDarkerColor = someColor.darker(by: 0.1) // RGB component will be decreased by 0.1 to give a darker color.
-
-// Fill the opaque pixels with the given color.
-let coloredImage = someImage.colorized(with: someColor) 
-let aBitDarkerImage = someImage.colorized(with: aBitDarkerColor) 
-
+icon.colorized(with: .systemBlue)             // fill every opaque pixel with a color
+icon.colorInverted()                          // invert the colors, keep the alpha
+icon.withAlphaComponent(0.5)                  // cap the opacity
 ```
 
-## Releasing
+### Outline and blur
 
-A git tag *is* the release. The version is not recorded anywhere in the tree — there is no manifest
-field to bump — because Swift Package Manager consumers resolve tags straight from the remote. Tags
-are bare `X.Y.Z`, with no `v` prefix.
-
-### 1. Merge `develop` into `main`
-
-Work happens on `develop` and reaches `main` through a **merge commit**, never a fast-forward, so
-that the branch point stays visible in the history:
-
-```sh
-git checkout main
-git merge --no-ff develop
-git push origin main
+```swift
+icon.expanded(bySize: 4)                      // grow the opaque silhouette by 4 points
+icon.stroked(with: .white, size: 2)           // draw a border around it
+icon.stroked(with: .black, size: 3, alpha: 0.4)
+icon.smoothened(by: 2)                        // Gaussian blur, grown so the blur is not clipped
+icon.smoothened(by: 2, sizeKept: true)        // …or cropped back to the original size
 ```
 
-Through a pull request instead, the merge method must be *Create a merge commit*, not squash or
-rebase.
+`expanded` and `stroked` take an optional `each:` step in degrees (default `3`), the angle between
+the directions sampled around each pixel. A larger step is faster but gives a rougher outline on
+curved shapes.
 
-### 2. Tag it
+### Geometry
 
-```sh
-./Scripts/bump.sh 2.4.0
+```swift
+icon.scaled(to: CGSize(width: 64, height: 64))
+icon.scaled(uniform: 2)
+icon.scaledWidth(to: 120)                     // height follows the aspect ratio
+icon.scaledHeight(to: 40, keepAspectRatio: false)
+icon.cropped(to: CGRect(x: 0, y: 0, width: 32, height: 32))
+icon.rotated(by: 45)                          // clockwise, in degrees
+icon.flippedHorizontally()
+icon.flippedVertically()
 ```
 
-The script fetches, refuses a version that is already tagged, and refuses to run at all until
-`develop` has been merged into `main` — that last guard matters, because the step after it
-hard-resets `develop`. It then tags `main`, pushes the branch and the tag by name, and verifies the
-tag actually landed on the remote. Two things worth knowing before running it:
+### Combining images
 
-- **It is destructive to `develop`.** It hard-resets `develop` onto `origin/main` and force-pushes
-  it, discarding anything that exists only there.
-- **It stashes uncommitted changes and never pops them.** Commit your own work first, or recover it
-  afterwards with `git stash pop`.
-
-### 3. What the tag triggers
-
-Pushing the tag starts `.github/workflows/release.yml`, which runs the full suite against the tagged
-commit and, **only if it passes**, creates the GitHub release entry with notes generated from the log
-since the previous tag. A release therefore cannot be published from a commit that does not build.
-
-Nothing else is published: there is no package registry to push to, and consumers resolve the tag.
-The entry is a record, which is why the releases tagged while CI had no runner installed perfectly
-well without one.
-
-### 4. Verify
-
-```sh
-gh run list --workflow=release.yml --limit 1     # the run that published it
-gh release view 2.4.0                            # the entry and its notes
-git ls-remote --tags origin refs/tags/2.4.0      # the tag consumers resolve
+```swift
+glyph.drawnAbove(image: background)           // glyph on top
+glyph.drawnUnder(image: overlay)              // glyph beneath
+shape.alphaExclusion(with: otherShape)        // opaque where exactly one of the two is
 ```
 
-## Continuous integration
+Images of different sizes are centered on each other.
 
-**Everything runs on GitHub Actions.** `.github/workflows/tests.yml` holds the suite: SwiftLint, the
-tests on a simulator, a device build of the package — the kernel is compiled per-SDK, so a simulator
-build says nothing about a device one — and a build of the demo app. It runs on pushes to `main` and
-`develop`, on pull requests, and on demand.
+### Text
 
-The simulator is chosen at run time from whatever the runner image provides rather than named, because
-that list changes with every image. Demo app signing is disabled rather than configured: the app
-carries a development team so it can run on a device, and CI has no certificate for it.
+```swift
+let label = UIImage(text: "NEW", attributes: [.font: UIFont.boldSystemFont(ofSize: 12)])
+```
 
-`.github/workflows/release.yml` calls that same workflow for a tag instead of copying it, so the two
-cannot drift, and publishes the release entry afterwards.
+### Inspecting an image
 
-The project was hosted on GitLab until 2.3.0, with GitHub as a push mirror, and CI ran on a
-self-hosted macOS runner. That runner stopped being available in August 2023 and every job since
-ended as `stuck_pending_no_matching_runners`, which is how 2.0.0 through 2.3.0 came to be tagged from
-commits nothing had built. Hosted macOS runners, free for public repositories, are what replaced it.
-The GitLab repository is archived and read-only.
+```swift
+icon.sizeInPixel                              // size × scale
+icon.opaquePixelDensity                       // mean opacity, from 0 (empty) to 1 (fully opaque)
+icon.withBitmapAsUIColorArray { colors in colors.first }
+```
+
+### Colors
+
+```swift
+let green = UIColor(value: 0x08AF76)
+let parsed = UIColor(hexCode: "#08AF76")      // optional
+green.hexCode                                 // "#08AF76"
+green.rgba.red; green.hsla.hue
+
+green.lighter(by: 0.1); green.darker()
+green.saturated(); green.brightened(by: -0.2)
+green.hueOffset(by: 0.5)                      // complementary color
+green.moreOpaque(); green.lessOpaque(by: 0.5)
+UIColor.random()
+```
+
+## Chaining operations
+
+Every `UIImage` method has to return a finished image, which means a round trip to the GPU. Chaining
+four calls pays for four round trips. `processed` builds the chain as a single Core Image graph and
+reads the result back once:
+
+```swift
+let badge = icon.processed {
+    $0.colorized(with: .systemPink)
+      .expanded(bySize: 4)
+      .smoothened(by: 1)
+}
+```
+
+The processor offers every operation above. `colorized`, `expanded`, `stroked`, `smoothened` and
+`colorInverted` are fused into the graph. The others render what has accumulated so far and then
+continue, so any chain works and the fused steps are where the savings come from. The result matches
+the equivalent sequence of calls to within a unit or two out of 255, because the chain does not round
+to 8 bits between steps.
+
+## Behavior worth knowing
+
+- **Operations never crash.** An image without bitmap data, such as one backed only by a `CIImage`,
+  comes back unchanged and a message is logged. The same happens if the Metal kernels could not be
+  loaded.
+- **Dark mode and contrast are followed.** When the image, the color or the second image changes with
+  the interface style or with increased contrast, the output is computed for each variant and keeps
+  switching with the environment. Colorizing with `.systemPink` gives an image that adapts, just as
+  the color does. One exception: a baseline offset cannot be kept on such an image, so it is dropped.
+- **Image properties are kept.** Rendering mode, alignment insets, symbol configuration and baseline
+  offset are copied from the receiver, and so is the image orientation. A rotated photo stays
+  rotated.
+- **Scale is preserved.** Sizes and distances are given in points, as UIKit uses them.
+
+## Contributing
+
+Build instructions, the commit convention and the release process are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+ImageProc is available under the MIT license. See [LICENSE](LICENSE).
