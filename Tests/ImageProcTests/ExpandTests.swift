@@ -120,7 +120,13 @@ final class ExpandTests: XCTestCase {
 
     /// Times the three implementations against each other. Asserts only that each produces something, the point
     /// being the numbers it prints.
+    ///
+    /// CI skips it: it takes over a minute there, a third of the suite, and nobody reads the numbers from a log. CI sets
+    /// `TEST_RUNNER_SKIP_BENCHMARKS`; `xcodebuild` forwards it to the test process with the prefix stripped.
     func testBenchmarkImplementations() throws {
+        try XCTSkipIf(ProcessInfo.processInfo.environment["SKIP_BENCHMARKS"] != nil,
+                      "benchmarks are skipped when SKIP_BENCHMARKS is set")
+
         let sizes = [CGFloat(100), 500, 1000]
         let degrees = [CGFloat(90), 10, 3]
         print("BENCH  size  degree  basic      concurrent  metal")
